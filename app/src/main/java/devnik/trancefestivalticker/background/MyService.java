@@ -5,11 +5,16 @@ package devnik.trancefestivalticker.background;
  */
 
 import android.app.NotificationChannel;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.app.job.JobWorkItem;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import android.app.Notification;
@@ -19,11 +24,18 @@ import android.app.Service;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.MainActivity;
 import devnik.trancefestivalticker.api.FestivalApi;
+import devnik.trancefestivalticker.api.IAsyncResponse;
+import devnik.trancefestivalticker.model.Festival;
 
-public class MyService extends Service {
+public class MyService extends Service{
+    private ArrayList<String> whatsNewList;
     public MyService() {
     }
 
@@ -36,7 +48,6 @@ public class MyService extends Service {
     public void onCreate() {
 
     }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Trigger new update pipeline, if there is an Update on Remote
@@ -76,7 +87,7 @@ public class MyService extends Service {
                 .setContentText(intent.getStringExtra("intntdata"))
                 .setContentInfo("Info")
                 .setContentIntent(resultPendingIntent);
-        mNotificationManager.notify(notifyID, notificationBuilder.build());
+        startForeground(notifyID, notificationBuilder.build());
         // Sets an ID for the notification, so it can be updated
         /*int notifyID = 9001;
 

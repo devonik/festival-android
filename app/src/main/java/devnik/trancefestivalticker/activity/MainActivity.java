@@ -37,13 +37,17 @@ import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
 import devnik.trancefestivalticker.model.Image;
 import devnik.trancefestivalticker.background.SampleBC;
+import devnik.trancefestivalticker.model.WhatsNew;
+import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<Image> images;
     private List<Festival> festivals;
+    private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
     private Query<Festival> festivalQuery;
+    private WhatsNewDao whatsNewDao;
     private SectionedRecyclerViewAdapter sectionAdapter;
     private RecyclerView recyclerView;
     // Progress Dialog Object
@@ -59,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
         //get the festival DAO
         DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
         festivalDao = daoSession.getFestivalDao();
-
+        //whatsNewDao = daoSession.getWhatsNewDao();
+        //whatsNewDao.insert(null);
         // query all festivals, sorted a-z by their text
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
 
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void updateFestivalThumbnailView(){
+        //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
@@ -229,5 +235,9 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
+    // Reload MainActivity
+    public void reloadActivity() {
+        Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(objIntent);
+    }
 }

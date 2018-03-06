@@ -10,16 +10,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 
+import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.model.Festival;
 
 public class SampleBC extends BroadcastReceiver {
     static int noOfTimes = 0;
     private Context context;
+    private FestivalApi festivalApi;
     // Method gets called when Broad Case is issued from MainActivity for every 10 seconds
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -55,8 +58,13 @@ public class SampleBC extends BroadcastReceiver {
                 final Intent intnt = new Intent(context, MyService.class);
                 // Set unsynced count in intent data
                 intnt.putExtra("intntdata", "Anzahl der Änderungen: " + result.length);
+                //intnt.putExtra("updatedFestivals",festivalApi.updatedFestivals);
                 // Call MyService
-                context.startService(intnt);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                    context.startForegroundService(intnt);
+                } else {
+                    context.startService(intnt);
+                }
 
             }else{
                 //Toast.makeText(context, "Sync not needed", Toast.LENGTH_SHORT).show();

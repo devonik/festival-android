@@ -20,14 +20,19 @@ import devnik.trancefestivalticker.activity.MainActivity;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
+import devnik.trancefestivalticker.model.WhatsNew;
+import devnik.trancefestivalticker.model.WhatsNewDao;
 
 /**
  * Created by nik on 05.03.2018.
  */
 
 public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
+
         private FestivalDao festivalDao;
         private Query<Festival> festivalQuery;
+        private WhatsNewDao whatsNewDao;
+        private Query<WhatsNew> whatsNewQuery;
         private List<Festival> localFestivals;
         private ProgressDialog progressDialog;
         private Context context;
@@ -39,6 +44,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             //get the festival DAO
             DaoSession daoSession = ((App)this.context).getDaoSession();
             festivalDao = daoSession.getFestivalDao();
+            //whatsNewDao = daoSession.getWhatsNewDao();
             // query all festivals, sorted a-z by their text
             festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
             localFestivals = festivalQuery.list();
@@ -50,6 +56,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             //get the festival DAO
             DaoSession daoSession = ((App)this.context).getDaoSession();
             festivalDao = daoSession.getFestivalDao();
+            //whatsNewDao = daoSession.getWhatsNewDao();
             this.localFestivals = localFestivals;
         }
         @Override
@@ -73,23 +80,20 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 festival.setSyncStatus("yes");
-                Map<String, String> param = new HashMap<String, String>();
-                param.put("id","1");
-                restTemplate.put(url,festival,param);
+                restTemplate.put(url,festival,festival.getFestival_id());
             }catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
         }
         //Completion Handler
         @Override
-        protected void onPostExecute(Festival[] festival) {
+        protected void onPostExecute(Festival[] festivals) {
             //If the call comes from automatic Broadcast, there is no ProgressDialog
             if(progressDialog != null) {
                 progressDialog.hide();
             }
         }
         public void updateSQLite(Festival[] festivals){
-            ArrayList<HashMap<String,String>> festivalSyncList = new ArrayList<HashMap<String, String>>();
 
             try{
                 System.out.println(festivals.length);
@@ -101,7 +105,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
                         updateFestival(festival);
                         updateMySQLSyncSts(festival);
                     }
-                    reloadActivity();
+                    //reloadActivity();
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -109,24 +113,30 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
 
         }
     private void updateFestival(Festival unsyncfestival){
+        Integer updatedCount = 0;
+        Integer insertedCount = 0;
         for (Festival item: localFestivals) {
             //Festival already exist in local sqlite, so it should be updated
             if(item.getFestival_id() == unsyncfestival.getFestival_id()){
+                updatedCount++;
                 this.festivalDao.update(unsyncfestival);
+
                 Log.d("DaoFestival", "Update festival with ID: " + unsyncfestival.getFestival_id());
                 return;
+            }else{
+                insertedCount++;
+                this.festivalDao.insert(unsyncfestival);
             }
         }
-        this.festivalDao.insert(unsyncfestival);
+        WhatsNew whatsNew = new WhatsNew();
+        //whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
+        //whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
+
         Log.d("DaoFestival", "Inserted new festival, ID: " + unsyncfestival.getFestival_id());
     }
 
 
 
-    // Reload MainActivity
-    public void reloadActivity() {
-        Intent objIntent = new Intent(context, MainActivity.class);
-        mainActivity.startActivity(objIntent);
-    }
+
 
 }
