@@ -4,13 +4,14 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by nik on 02.03.2018.
  */
 @Entity
-public class Festival {
+public class Festival implements Serializable {
     @Id
     Long festival_id;
     Long festival_detail_id;
@@ -20,12 +21,14 @@ public class Festival {
     Date datum_end;
     String homepage_url;
     String ticket_url;
-    String sync_status;
+    String syncStatus;
 
-    @Generated(hash = 718686304)
+    static final long serialVersionUID = 42L;
+
+    @Generated(hash = 1632792361)
     public Festival(Long festival_id, Long festival_detail_id, String name,
             String thumbnail_image_url, Date datum_start, Date datum_end,
-            String homepage_url, String ticket_url, String sync_status) {
+            String homepage_url, String ticket_url, String syncStatus) {
         this.festival_id = festival_id;
         this.festival_detail_id = festival_detail_id;
         this.name = name;
@@ -34,14 +37,13 @@ public class Festival {
         this.datum_end = datum_end;
         this.homepage_url = homepage_url;
         this.ticket_url = ticket_url;
-        this.sync_status = sync_status;
+        this.syncStatus = syncStatus;
     }
 
     @Generated(hash = 863498718)
     public Festival() {
     }
 
-    
     public Long getFestival_id() {
         return festival_id;
     }
@@ -103,22 +105,14 @@ public class Festival {
     }
 
     public String getSyncStatus() {
-        return sync_status;
+        return syncStatus;
     }
 
     public void setSyncStatus(String sync_status) {
-        this.sync_status = sync_status;
+        this.syncStatus = sync_status;
     }
 
     public void setFestival_id(Long festival_id) {
         this.festival_id = festival_id;
-    }
-
-    public String getSync_status() {
-        return this.sync_status;
-    }
-
-    public void setSync_status(String sync_status) {
-        this.sync_status = sync_status;
     }
 }

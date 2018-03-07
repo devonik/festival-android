@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.MainActivity;
 import devnik.trancefestivalticker.api.FestivalApi;
+import devnik.trancefestivalticker.api.FestivalDetailApi;
+import devnik.trancefestivalticker.api.FestivalDetailImagesApi;
 import devnik.trancefestivalticker.api.IAsyncResponse;
 import devnik.trancefestivalticker.model.Festival;
 
@@ -52,7 +54,8 @@ public class MyService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Trigger new update pipeline, if there is an Update on Remote
         new FestivalApi(getApplicationContext()).execute();
-
+        new FestivalDetailApi(getApplicationContext()).execute();
+        new FestivalDetailImagesApi(getApplicationContext()).execute();
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,

@@ -123,14 +123,13 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
 
                 Log.d("DaoFestival", "Update festival with ID: " + unsyncfestival.getFestival_id());
                 return;
-            }else{
-                insertedCount++;
-                this.festivalDao.insert(unsyncfestival);
             }
         }
+            insertedCount++;
+            this.festivalDao.insert(unsyncfestival);
         WhatsNew whatsNew = new WhatsNew();
-        //whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
-        //whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
+        whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
+        whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
 
         Log.d("DaoFestival", "Inserted new festival, ID: " + unsyncfestival.getFestival_id());
     }

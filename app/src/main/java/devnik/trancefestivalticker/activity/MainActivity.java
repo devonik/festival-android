@@ -13,7 +13,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,18 +22,22 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.adapter.GalleryAdapter;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.api.FestivalApi;
+import devnik.trancefestivalticker.api.FestivalDetailApi;
+import devnik.trancefestivalticker.api.FestivalDetailImagesApi;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
+import devnik.trancefestivalticker.model.FestivalDetail;
+import devnik.trancefestivalticker.model.FestivalDetailDao;
+import devnik.trancefestivalticker.model.FestivalDetailImages;
+import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 import devnik.trancefestivalticker.model.Image;
 import devnik.trancefestivalticker.background.SampleBC;
 import devnik.trancefestivalticker.model.WhatsNew;
@@ -46,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private List<Festival> festivals;
     private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
+    private FestivalDetailDao festivalDetailDao;
+    private FestivalDetailImagesDao festivalDetailImagesDao;
     private Query<Festival> festivalQuery;
+    private List<FestivalDetail> festivalDetails;
+    private List<FestivalDetailImages> festivalDetailImages;
     private WhatsNewDao whatsNewDao;
     private SectionedRecyclerViewAdapter sectionAdapter;
     private RecyclerView recyclerView;
@@ -57,17 +64,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         setUpView();
 
         //get the festival DAO
         DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
         festivalDao = daoSession.getFestivalDao();
+        festivalDetailDao = daoSession.getFestivalDetailDao();
+        festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
         //whatsNewDao = daoSession.getWhatsNewDao();
         //whatsNewDao.insert(null);
         // query all festivals, sorted a-z by their text
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
-
+        festivalDetails = festivalDetailDao.queryBuilder().build().list();
+        festivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
         updateFestivalThumbnailView();
 
     }
@@ -175,17 +184,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(sectionAdapter);
-        recyclerView.addOnItemTouchListener(new GalleryAdapter.RecyclerTouchListener(getApplicationContext(), recyclerView, new GalleryAdapter.ClickListener() {
+        //Click Listener interface aus dem gallery adapter raus ??
+        recyclerView.addOnItemTouchListener(new SectionAdapter.RecyclerTouchListener(getApplicationContext(), recyclerView, new SectionAdapter.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("images", images);
-                bundle.putInt("position", position);
+                bundle.putSerializable("festival", festivals.get(position-1));
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                SlideshowDialogFragment newFragment = SlideshowDialogFragment.newInstance();
+                FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
                 newFragment.setArguments(bundle);
-                newFragment.show(ft, "slideshow");
+                newFragment.show(ft, "festival");
             }
 
             @Override
@@ -226,10 +235,10 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         //When Sync action button is clicked
         if(id == R.id.refresh){
-            //Transfer data from remote MySQL DB to SQLite on Android and perform Sync
-            //syncSQLiteMySQLDB();
             pDialog.show();
             new FestivalApi(getApplicationContext(),pDialog,festivals).execute();
+            new FestivalDetailApi(getApplicationContext(),festivalDetails).execute();
+            new FestivalDetailImagesApi(getApplicationContext(), festivalDetailImages).execute();
             return true;
 
         }
