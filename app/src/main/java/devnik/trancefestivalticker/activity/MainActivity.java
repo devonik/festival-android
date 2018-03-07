@@ -1,6 +1,7 @@
 package devnik.trancefestivalticker.activity;
 
 import android.app.AlarmManager;
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -189,12 +190,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view, int position) {
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("festival", festivals.get(position-1));
 
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
-                newFragment.setArguments(bundle);
-                newFragment.show(ft, "festival");
+                bundle.putSerializable("festival", festivals.get(position-1));
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
+                    newFragment.setArguments(bundle);
+                    newFragment.show(ft, "festival");
             }
 
             @Override

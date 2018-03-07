@@ -75,19 +75,16 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
         festivalDetail = festivalDetailQuery.unique();
 
-        festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
-        festivalDetailImagesQuery = festivalDetailImagesDao.queryBuilder().where(FestivalDetailImagesDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id())).build();
-        festivalDetailImages = festivalDetailImagesQuery.list();
-        //Log.e(TAG, "position: " + selectedPosition);
-        //Log.e(TAG, "FestivalDetail: " + images.size());
+        //Nur wenn das Festival eingetragende Details hat
+        if(festivalDetail!=null) {
+            festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
+            festivalDetailImagesQuery = festivalDetailImagesDao.queryBuilder().where(FestivalDetailImagesDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id())).build();
+            festivalDetailImages = festivalDetailImagesQuery.list();
 
-        //myViewPagerAdapter = new SlideshowDialogFragment.MyViewPagerAdapter();
-        //viewPager.setAdapter(myViewPagerAdapter);
-        //viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-        //initImageSwitcher();
-        initImageSlider();
+            initImageSlider();
 
-        loadData();
+            loadData();
+        }
         return v;
     }
     public void loadData(){

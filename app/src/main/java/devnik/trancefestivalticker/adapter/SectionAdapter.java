@@ -1,8 +1,12 @@
 package devnik.trancefestivalticker.adapter;
 
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -14,11 +18,15 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.model.CustomDate;
+import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.Image;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
+import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 /**
@@ -66,14 +74,22 @@ public class SectionAdapter extends StatelessSection {
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(itemHolder.thumbnail);
-        /*itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SlideshowDialogFragment fragment = SlideshowDialogFragment.newInstance();
-                FragmentTransaction transaction = ((FragmentActivity)mContext).getSupportFragmentManager().beginTransaction();
-                fragment.show(transaction,"slideshow");
-            }
-        });*/
+
+       /* itemHolder.itemView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    // get position
+                    Bundle bundle = new Bundle();
+
+                    //bundle.putSerializable("festival", festivals.get(position));
+
+                    FragmentTransaction ft = fragmentManager.beginTransaction();
+                    FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
+                    newFragment.setArguments(bundle);
+                    newFragment.show(ft, "festival");
+                }
+            });*/
+
     }
     @Override
     public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
@@ -87,19 +103,18 @@ public class SectionAdapter extends StatelessSection {
 
     }
 
-    class MyItemViewHolder extends RecyclerView.ViewHolder {
+    class MyItemViewHolder extends RecyclerView.ViewHolder{
         public ImageView thumbnail;
         public TextView title, subtitle;
 
         public MyItemViewHolder(View itemView) {
             super(itemView);
-
             thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             title = (TextView) itemView.findViewById(R.id.title);
             subtitle = (TextView) itemView.findViewById(R.id.customDate);
 
-
         }
+
     }
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
 
@@ -118,7 +133,6 @@ public class SectionAdapter extends StatelessSection {
 
         void onLongClick(View view, int position);
     }
-
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
@@ -146,7 +160,7 @@ public class SectionAdapter extends StatelessSection {
 
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildPosition(child));
+                clickListener.onClick(child, rv.getChildAdapterPosition(child));
             }
             return false;
         }

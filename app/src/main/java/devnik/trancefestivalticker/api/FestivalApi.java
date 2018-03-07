@@ -92,6 +92,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             if(progressDialog != null) {
                 progressDialog.hide();
             }
+            reloadActivity();
         }
         public void updateSQLite(Festival[] festivals){
 
@@ -132,6 +133,11 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
 
         Log.d("DaoFestival", "Inserted new festival, ID: " + unsyncfestival.getFestival_id());
+    }
+    // Reload MainActivity
+    public void reloadActivity() {
+        Intent objIntent = new Intent(context, MainActivity.class);
+        context.startActivity(objIntent);
     }
 
 
