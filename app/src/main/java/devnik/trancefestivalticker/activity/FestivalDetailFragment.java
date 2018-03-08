@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
+import com.daimajia.slider.library.Indicators.PagerIndicator;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
@@ -52,8 +53,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private List<FestivalDetailImages> festivalDetailImages;
 
     private TextView lblCount, lblTitle, lblDate;
-    private ImageSwitcher imageSwitcher;
-
+    private View view;
     private SliderLayout imageSlider;
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
@@ -62,12 +62,11 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_festival_detail, container, false);
-        lblCount = (TextView) v.findViewById(R.id.lbl_header);
-        lblTitle = (TextView) v.findViewById(R.id.title);
-        lblDate = (TextView) v.findViewById(R.id.dateString);
-        //imageSwitcher = (ImageSwitcher) v.findViewById(R.id.imgSwitch);
-        imageSlider = (SliderLayout) v.findViewById(R.id.slider);
+        view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
+        lblCount = (TextView) view.findViewById(R.id.lbl_header);
+        lblTitle = (TextView) view.findViewById(R.id.title);
+        lblDate = (TextView) view.findViewById(R.id.dateString);
+        imageSlider = (SliderLayout) view.findViewById(R.id.slider);
 
         festival = (Festival) getArguments().getSerializable("festival");
         DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
@@ -85,7 +84,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             loadData();
         }
-        return v;
+        return view;
     }
     public void loadData(){
         lblTitle.setText(festival.getName());
@@ -108,47 +107,13 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             imageSlider.addSlider(textSliderView);
         }
-        imageSlider.setPresetTransformer(SliderLayout.Transformer.Accordion);
+        imageSlider.setPresetTransformer(SliderLayout.Transformer.CubeIn);
         imageSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
         imageSlider.setCustomAnimation(new DescriptionAnimation());
         imageSlider.setDuration(4000);
         imageSlider.addOnPageChangeListener(this);
 
 
-    }
-    public void initImageSwitcher(){
-        imageSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                return new ImageView(getActivity());
-            }
-
-        });
-        // Set animations
-        // https://danielme.com/2013/08/18/diseno-android-transiciones-entre-activities/
-        //Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim);
-        //Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-        //imageSwitcher.setInAnimation(fadeIn);
-        //imageSwitcher.setOutAnimation(fadeOut);
-        Glide.with(getActivity())
-                .load(festivalDetailImages.get(1).getUrl())
-                .asBitmap()
-                .listener(new RequestListener<String, Bitmap>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        //position++;
-                        //if (position == gallery.length) {
-                        //    position = 0;
-                        //}
-                        imageSwitcher.setImageDrawable(new BitmapDrawable(getResources(), resource));
-                        return true;
-                    }
-                }).into((ImageView) imageSwitcher.getCurrentView());
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
