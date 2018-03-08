@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -35,22 +36,24 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 public class SectionAdapter extends StatelessSection {
     private Context mContext;
-    private ArrayList<Image> images;
+    private ArrayList<Festival> festivals;
     private CustomDate customDate;
+    public FragmentManager fragmentManager;
 
-    public SectionAdapter(Context context, CustomDate customDate, ArrayList<Image> images) {
+    public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals, FragmentManager fragmentManager) {
         // call constructor with layout resources for this Section header and items
         super(new SectionParameters.Builder(R.layout.gallery_thumbnail)
                 .headerResourceId(R.layout.gallery_section)
                 .build());
         mContext = context;
-        this.images = images;
         this.customDate = customDate;
+        this.festivals = festivals;
+        this.fragmentManager = fragmentManager;
     }
 
     @Override
     public int getContentItemsTotal() {
-        return images.size(); // number of items of this section
+        return festivals.size(); // number of items of this section
     }
 
     @Override
@@ -58,16 +61,14 @@ public class SectionAdapter extends StatelessSection {
         // return a custom instance of ViewHolder for the items of this section
         return new MyItemViewHolder(view);
     }
-
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
-        MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
-        Image image = images.get(position);
+        final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
+        final Festival festival = festivals.get(position);
         // bind your view here
-        itemHolder.title.setText(image.getName());
-        itemHolder.subtitle.setText(image.getTimestamp());
-
-        Glide.with(mContext).load(image.getSmall())
+        itemHolder.title.setText(festival.getName());
+        itemHolder.subtitle.setText(festival.getDatum_start().toString());
+                Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
                 .placeholder(R.mipmap.ic_action_refresh)
                 .error(R.drawable.warning_error_icon)
@@ -75,20 +76,21 @@ public class SectionAdapter extends StatelessSection {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(itemHolder.thumbnail);
 
-       /* itemHolder.itemView.setOnClickListener(new View.OnClickListener(){
+        itemHolder.itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     // get position
+                    //Toast.makeText(mContext, String.format("Clicked on position #%s of Section %s",  sectionAdapter.getPositionInSection(itemHolder.getAdapterPosition()), title), Toast.LENGTH_SHORT).show();
                     Bundle bundle = new Bundle();
 
-                    //bundle.putSerializable("festival", festivals.get(position));
+                    bundle.putSerializable("festival", festival);
 
                     FragmentTransaction ft = fragmentManager.beginTransaction();
                     FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
                     newFragment.setArguments(bundle);
                     newFragment.show(ft, "festival");
                 }
-            });*/
+            });
 
     }
     @Override
@@ -106,7 +108,7 @@ public class SectionAdapter extends StatelessSection {
     class MyItemViewHolder extends RecyclerView.ViewHolder{
         public ImageView thumbnail;
         public TextView title, subtitle;
-
+        public Festival festival;
         public MyItemViewHolder(View itemView) {
             super(itemView);
             thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

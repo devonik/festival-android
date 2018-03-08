@@ -1,13 +1,11 @@
 package devnik.trancefestivalticker.activity;
 
 import android.app.AlarmManager;
-import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -39,14 +36,12 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
-import devnik.trancefestivalticker.model.Image;
 import devnik.trancefestivalticker.background.SampleBC;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<Image> images;
     private List<Festival> festivals;
     private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
@@ -87,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 
-            images = new ArrayList<>();
+            ArrayList<Festival> festivalsInSection = new ArrayList<>();
+
             ArrayList<CustomDate> customDateHeader = new ArrayList<>();
             CustomDate customDate = new CustomDate();
             for(int i = 0; i<festivals.size();){
@@ -103,18 +99,15 @@ public class MainActivity extends AppCompatActivity {
                     customDateHeader.add(customDate);
                     //Holet alle Items aus dem aktuellen Monat aus der SQLite Database
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
-                    images = new ArrayList<>();
+                    festivalsInSection = new ArrayList<>();
+
                     //Holt alle Items in dem Monat
                     for(Festival item : festivalsByMonth){
-                        Image image = new Image();
-
-                        image.setSmall(item.getThumbnail_image_url());
-
-                        images.add(image);
+                        festivalsInSection.add(item);
 
                     }
                     i = festivalsByMonth.size();
-                    sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,images));
+                    sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
                 //Neue Section, wenn neuer Monat
                 else if(!customDate.getMonth().equalsIgnoreCase(festivalMonth)){
@@ -124,17 +117,13 @@ public class MainActivity extends AppCompatActivity {
                     customDateHeader.add(customDate);
 
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
-                    images = new ArrayList<>();
+                    festivalsInSection = new ArrayList<>();
                     for(Festival item : festivalsByMonth){
-                        Image image = new Image();
-
-                        image.setSmall(item.getThumbnail_image_url());
-
-                        images.add(image);
+                        festivalsInSection.add(item);
 
                     }
                     i+=festivalsByMonth.size();
-                    sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,images));
+                    sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
             }
         }
@@ -185,24 +174,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(sectionAdapter);
-        //Click Listener interface aus dem gallery adapter raus ??
-        recyclerView.addOnItemTouchListener(new SectionAdapter.RecyclerTouchListener(getApplicationContext(), recyclerView, new SectionAdapter.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                Bundle bundle = new Bundle();
-
-                bundle.putSerializable("festival", festivals.get(position-1));
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
-                    newFragment.setArguments(bundle);
-                    newFragment.show(ft, "festival");
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));
 
         //Initialize Progress Dialog properties
         pDialog = new ProgressDialog(this);
