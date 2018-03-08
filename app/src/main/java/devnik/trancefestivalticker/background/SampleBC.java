@@ -18,6 +18,8 @@ import com.loopj.android.http.RequestParams;
 
 import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDetail;
+import devnik.trancefestivalticker.model.FestivalDetailImages;
 
 public class SampleBC extends BroadcastReceiver {
     static int noOfTimes = 0;
@@ -35,8 +37,11 @@ public class SampleBC extends BroadcastReceiver {
 
         new HttpRequestTask().execute();
 
+
     }
     private class HttpRequestTask extends AsyncTask<Void, Void, Festival[]> {
+        private FestivalDetail[] festivalDetails;
+        private FestivalDetailImages[] festivalDetailImages;
         @Override
         protected Festival[] doInBackground(Void... params) {
             try {
@@ -44,6 +49,8 @@ public class SampleBC extends BroadcastReceiver {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Festival[] festivals = restTemplate.getForObject(url, Festival[].class);
+                checkFestivalDetails();
+                checkFestivalDetailImages();
                 return festivals;
             } catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
@@ -51,20 +58,40 @@ public class SampleBC extends BroadcastReceiver {
 
             return null;
         }
+        protected void checkFestivalDetails(){
+            try {
+                final String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailsByUnSync";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                festivalDetails = restTemplate.getForObject(url, FestivalDetail[].class);
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
+            }
+        }
+        protected void checkFestivalDetailImages(){
+            try {
+                final String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailImagesByUnSync";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                festivalDetailImages = restTemplate.getForObject(url, FestivalDetailImages[].class);
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
+            }
+        }
         @Override
         protected void onPostExecute(Festival[] result) {
             super.onPostExecute(result);
-            if(result.length>0) {
+            if(result.length>0 || festivalDetails.length>0||festivalDetailImages.length>0) {
                 final Intent intnt = new Intent(context, MyService.class);
                 // Set unsynced count in intent data
-                intnt.putExtra("intntdata", "Anzahl der Änderungen: " + result.length);
+                intnt.putExtra("intntdata", "Anzahl der Änderungen: " + (result.length+festivalDetails.length+festivalDetailImages.length));
                 //intnt.putExtra("updatedFestivals",festivalApi.updatedFestivals);
                 // Call MyService
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-                    context.startForegroundService(intnt);
-                } else {
+                //if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                 //   context.startForegroundService(intnt);
+                //} else {
                     context.startService(intnt);
-                }
+                //}
 
             }else{
                 //Toast.makeText(context, "Sync not needed", Toast.LENGTH_SHORT).show();

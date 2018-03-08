@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         festivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
         updateFestivalThumbnailView();
 
+        triggerRemoteSync();
     }
     private void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
@@ -208,13 +211,31 @@ public class MainActivity extends AppCompatActivity {
         //When Sync action button is clicked
         if(id == R.id.refresh){
             pDialog.show();
-            new FestivalApi(getApplicationContext(),pDialog,festivals).execute();
-            new FestivalDetailApi(getApplicationContext(),festivalDetails).execute();
-            new FestivalDetailImagesApi(getApplicationContext(), festivalDetailImages).execute();
+            triggerRemoteSync();
+            reloadActivity();
             return true;
-
+        }
+        if(id == R.id.resetDb){
+            festivalDao.deleteAll();
+            festivalDetailDao.deleteAll();
+            festivalDetailImagesDao.deleteAll();
+            reloadActivity();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    public void triggerRemoteSync(){
+        if(isNetworkAvailable()) {
+            new FestivalApi(getApplicationContext(), pDialog, festivals).execute();
+            new FestivalDetailApi(getApplicationContext(), festivalDetails).execute();
+            new FestivalDetailImagesApi(getApplicationContext(), festivalDetailImages).execute();
+        }
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
     // Reload MainActivity
     public void reloadActivity() {

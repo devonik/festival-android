@@ -9,5 +9,10 @@
     android:icon="@mipmap/ic_action_refresh"
     android:orderInCategory="100"
     app:showAsAction="always"/>
+    <item android:title="resetDb"
+        android:id="@+id/resetDb"
+        android:icon="@mipmap/ic_launcher"
+        android:orderInCategory="100"
+        app:showAsAction="always"/>
 
 </menu>

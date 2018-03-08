@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import android.app.Notification;
@@ -52,45 +53,46 @@ public class MyService extends Service{
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Trigger new update pipeline, if there is an Update on Remote
-        new FestivalApi(getApplicationContext()).execute();
-        new FestivalDetailApi(getApplicationContext()).execute();
-        new FestivalDetailImagesApi(getApplicationContext()).execute();
+        try {
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
+                    resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
-                resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder mNotifyBuilder;
-        NotificationManager mNotificationManager;
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
-        //UPDATE for API 26 to set Max priority
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "My Notifications", NotificationManager.IMPORTANCE_HIGH);
+            NotificationManager mNotificationManager;
+            mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
+            //UPDATE for API 26 to set Max priority
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "My Notifications", NotificationManager.IMPORTANCE_HIGH);
 
-            // Configure the notification channel.
-            notificationChannel.setDescription("Channel description");
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-            notificationChannel.enableVibration(true);
-            mNotificationManager.createNotificationChannel(notificationChannel);
+                // Configure the notification channel.
+                notificationChannel.setDescription("Channel description");
+                notificationChannel.enableLights(true);
+                notificationChannel.setLightColor(Color.RED);
+                notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+                notificationChannel.enableVibration(true);
+                mNotificationManager.createNotificationChannel(notificationChannel);
+            }
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+            // Sets an ID for the notification, so it can be updated
+            int notifyID = 9001;
+            notificationBuilder
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.ic_stat_notify_msg)
+                    .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_stat_notify_msg))
+                    .setTicker("Hearty365")
+                    //.setPriority(Notification.PRIORITY_MAX)
+                    .setContentTitle("Hey du ✌. Es gibt was neues im TFT.")
+                    .setContentText(intent.getStringExtra("intntdata"))
+                    .setContentInfo("Info")
+                    .setContentIntent(resultPendingIntent)
+                    .setAutoCancel(true);
+            mNotificationManager.notify(notifyID, notificationBuilder.build());
+        }catch (Exception e){
+            Log.println(Log.ERROR,"Noti Error","Error bei der Notification: "+e);
         }
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-        // Sets an ID for the notification, so it can be updated
-        int notifyID = 9001;
-        notificationBuilder.setAutoCancel(true)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.ic_stat_notify_msg)
-                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.ic_stat_notify_msg))
-                .setTicker("Hearty365")
-                //     .setPriority(Notification.PRIORITY_MAX)
-                .setContentTitle("Hey du ✌. Es gibt was neues im TFT.")
-                .setContentText(intent.getStringExtra("intntdata"))
-                .setContentInfo("Info")
-                .setContentIntent(resultPendingIntent);
-        startForeground(notifyID, notificationBuilder.build());
+        //startForeground(notifyID, notificationBuilder.build());
         // Sets an ID for the notification, so it can be updated
         /*int notifyID = 9001;
 
@@ -113,16 +115,14 @@ public class MyService extends Service{
         NotifyBuilder.setAutoCancel(true);
         // Post a notification
         mNotificationManager.notify(notifyID, NotifyBuilder.build());*/
+        //stopForeground(true);
         return startId;
-    }
-    public NotificationCompat.Builder initNotiBuilder(String title, String text, Intent intent){
-
-        return null;
     }
     @Override
     public void onDestroy() {
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
 
     }
+
 
 }

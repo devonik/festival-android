@@ -42,17 +42,7 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
 
         return null;
     }
-    //Comes from background broadcast
-    public FestivalDetailImagesApi(Context context){
-        this.context = context;
-        //get the festival DAO
-        DaoSession daoSession = ((App)this.context).getDaoSession();
-        festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
-        //whatsNewDao = daoSession.getWhatsNewDao();
-        // query all festivals, sorted a-z by their text
-        festivalDetailImagesQuery = festivalDetailImagesDao.queryBuilder().build();
-        localFestivalDetailImages = festivalDetailImagesQuery.list();
-    }
+    //Comes from MainActivity
     public FestivalDetailImagesApi(Context context, List<FestivalDetailImages> localFestivalDetailImagesList){
         this.localFestivalDetailImages = localFestivalDetailImagesList;
         DaoSession daoSession = ((App)context).getDaoSession();
@@ -89,7 +79,6 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
                     updateFestival(festivalDetailImage);
                     updateMySQLSyncSts(festivalDetailImage);
                 }
-                //reloadActivity();
             }
         }catch (Exception e){
             e.printStackTrace();

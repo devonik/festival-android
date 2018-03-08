@@ -38,18 +38,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private Context context;
         private MainActivity mainActivity = new MainActivity();
 
-        //Comes from background broadcast
-        public FestivalApi(Context context){
-            this.context = context;
-            //get the festival DAO
-            DaoSession daoSession = ((App)this.context).getDaoSession();
-            festivalDao = daoSession.getFestivalDao();
-            //whatsNewDao = daoSession.getWhatsNewDao();
-            // query all festivals, sorted a-z by their text
-            festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
-            localFestivals = festivalQuery.list();
-        }
-        //Comes from Menu Click
+        //Comes from MainActivity
         public FestivalApi(Context context, ProgressDialog progressDialog, List<Festival> localFestivals){
             this.context = context;
             this.progressDialog = progressDialog;
@@ -68,7 +57,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
                 Festival[] festivals = restTemplate.getForObject(url, Festival[].class);
                 updateSQLite(festivals);
                 return festivals;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
 
@@ -92,7 +82,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             if(progressDialog != null) {
                 progressDialog.hide();
             }
-            reloadActivity();
+            //reloadActivity();
         }
         public void updateSQLite(Festival[] festivals){
 
@@ -134,11 +124,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
 
         Log.d("DaoFestival", "Inserted new festival, ID: " + unsyncfestival.getFestival_id());
     }
-    // Reload MainActivity
-    public void reloadActivity() {
-        Intent objIntent = new Intent(context, MainActivity.class);
-        context.startActivity(objIntent);
-    }
+
 
 
 

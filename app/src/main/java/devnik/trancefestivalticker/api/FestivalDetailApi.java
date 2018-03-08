@@ -43,17 +43,7 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
 
         return null;
     }
-    //Comes from background broadcast
-    public FestivalDetailApi(Context context){
-        this.context = context;
-        //get the festival DAO
-        DaoSession daoSession = ((App)this.context).getDaoSession();
-        festivalDetailDao = daoSession.getFestivalDetailDao();
-        //whatsNewDao = daoSession.getWhatsNewDao();
-        // query all festivals, sorted a-z by their text
-        festivalDetailQuery = festivalDetailDao.queryBuilder().build();
-        localFestivalDetails = festivalDetailQuery.list();
-    }
+    //Comes from MainActivity
     public FestivalDetailApi(Context context, List<FestivalDetail> localFestivalDetailList){
         this.localFestivalDetails = localFestivalDetailList;
         DaoSession daoSession = ((App)context).getDaoSession();
@@ -90,7 +80,6 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
                     updateFestival(festivalDetail);
                     updateMySQLSyncSts(festivalDetail);
                 }
-                //reloadActivity();
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -102,7 +91,7 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
         Integer insertedCount = 0;
         for (FestivalDetail item: localFestivalDetails) {
             //Festival already exist in local sqlite, so it should be updated
-            if(item.getFestival_id() == unSyncFestivalDetail.getFestival_detail_id()){
+            if(item.getFestival_detail_id() == unSyncFestivalDetail.getFestival_detail_id()){
                 updatedCount++;
                 this.festivalDetailDao.update(unSyncFestivalDetail);
 
