@@ -2,8 +2,10 @@ package devnik.trancefestivalticker.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -31,6 +34,7 @@ import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.adapter.PagerAdapter;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -55,6 +59,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private TextView lblCount, lblTitle, lblDate;
     private View view;
     private SliderLayout imageSlider;
+    private TabHost tabs;
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
         return f;
@@ -63,10 +68,23 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
-        lblCount = (TextView) view.findViewById(R.id.lbl_header);
         lblTitle = (TextView) view.findViewById(R.id.title);
         lblDate = (TextView) view.findViewById(R.id.dateString);
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
+
+        // Add tabs
+        /*tabs=(TabHost)view.findViewById(R.id.tabHost);
+        tabs.setup();
+        TabHost.TabSpec tabpage1 = tabs.newTabSpec("one");
+        tabpage1.setContent(R.layout.fragment_festival_map);
+        tabpage1.setIndicator("Tab 1");
+
+        /*TabHost.TabSpec tabpage2 = tabs.newTabSpec("two");
+        tabpage2.setContent(R.id.shareGroup);
+        tabpage2.setIndicator("Tab 2", getResources().getDrawable(R.drawable.abc_ab_bottom_transparent_light_holo));
+
+        tabs.addTab(tabpage1,"Tab 1", FestivalDetailFragment.class, null);
+        tabs.addTab(tabpage1);*/
 
         festival = (Festival) getArguments().getSerializable("festival");
         DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
@@ -137,4 +155,5 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
     @Override
     public void onPageScrollStateChanged(int state) {}
+
 }

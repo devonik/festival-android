@@ -76,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         festivalDetails = festivalDetailDao.queryBuilder().build().list();
         festivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
         updateFestivalThumbnailView();
-
         triggerRemoteSync();
     }
+
     private void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         //When Sync action button is clicked
         if(id == R.id.refresh){
             pDialog.show();
-            triggerRemoteSync();
+            //triggerRemoteSync();
             reloadActivity();
             return true;
         }

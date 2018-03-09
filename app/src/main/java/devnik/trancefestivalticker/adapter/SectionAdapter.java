@@ -1,5 +1,6 @@
 package devnik.trancefestivalticker.adapter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,10 +19,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import android.text.format.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.activity.DetailActivity;
 import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.Festival;
@@ -34,7 +37,7 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
  * Created by nik on 21.02.2018.
  */
 
-public class SectionAdapter extends StatelessSection {
+public class SectionAdapter extends StatelessSection implements View.OnLongClickListener{
     private Context mContext;
     private ArrayList<Festival> festivals;
     private CustomDate customDate;
@@ -66,32 +69,50 @@ public class SectionAdapter extends StatelessSection {
         final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
         final Festival festival = festivals.get(position);
         // bind your view here
-        itemHolder.title.setText(festival.getName());
-        itemHolder.subtitle.setText(festival.getDatum_start().toString());
                 Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
                 .placeholder(R.mipmap.ic_action_refresh)
                 .error(R.drawable.warning_error_icon)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+
                 .into(itemHolder.thumbnail);
+
+        //Api warning
+        //itemHolder.itemView.setTooltipText(festival.getName()+": "+ DateFormat.format("dd.MM",festival.getDatum_start()));
 
         itemHolder.itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     // get position
                     //Toast.makeText(mContext, String.format("Clicked on position #%s of Section %s",  sectionAdapter.getPositionInSection(itemHolder.getAdapterPosition()), title), Toast.LENGTH_SHORT).show();
-                    Bundle bundle = new Bundle();
+                    /*Bundle bundle = new Bundle();
 
                     bundle.putSerializable("festival", festival);
 
                     FragmentTransaction ft = fragmentManager.beginTransaction();
                     FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
                     newFragment.setArguments(bundle);
-                    newFragment.show(ft, "festival");
+                    newFragment.show(ft, "festival");*/
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("festival", festival);
+                    mContext.startActivity(intent);
                 }
             });
 
+        itemHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(mContext, festival.getName()+": "+ DateFormat.format("dd.MM",festival.getDatum_start()), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
+    }
+    @Override
+    public boolean onLongClick(View view) {
+
+        return true;
     }
     @Override
     public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
@@ -112,9 +133,6 @@ public class SectionAdapter extends StatelessSection {
         public MyItemViewHolder(View itemView) {
             super(itemView);
             thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            title = (TextView) itemView.findViewById(R.id.title);
-            subtitle = (TextView) itemView.findViewById(R.id.customDate);
-
         }
 
     }

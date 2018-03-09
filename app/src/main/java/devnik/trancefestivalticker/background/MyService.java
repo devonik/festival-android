@@ -55,6 +55,7 @@ public class MyService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             Intent resultIntent = new Intent(this, MainActivity.class);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
                     resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 

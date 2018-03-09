@@ -30,7 +30,11 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
     @Override
     protected FestivalDetailImages[] doInBackground(Void... params) {
         try {
-            final String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailImagesByUnSync";
+            String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailImagesByUnSync";
+            if(localFestivalDetailImages.size()==0){
+                //Lokale Daten wurden gelöscht oder noch nicht gesynct, bzw. es sind keine Einträge vorhanden.... Hole alle Festival Detail Images von remote
+                url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailImages";
+            }
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             FestivalDetailImages[] festivalDetailImages = restTemplate.getForObject(url, FestivalDetailImages[].class);
