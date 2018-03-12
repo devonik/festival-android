@@ -239,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
     }
     // Reload MainActivity
     public void reloadActivity() {
-        Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(objIntent);
+        //Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
+        finish();
+        startActivity(getIntent());
     }
 }

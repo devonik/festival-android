@@ -56,7 +56,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private Query<FestivalDetailImages> festivalDetailImagesQuery;
     private List<FestivalDetailImages> festivalDetailImages;
 
-    private TextView lblCount, lblTitle, lblDate;
+    private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price;
     private View view;
     private SliderLayout imageSlider;
     private TabHost tabs;
@@ -70,6 +70,10 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
         lblTitle = (TextView) view.findViewById(R.id.title);
         lblDate = (TextView) view.findViewById(R.id.dateString);
+        homepage_url = (TextView) view.findViewById(R.id.homepage_url);
+        ticket_url = (TextView) view.findViewById(R.id.ticket_url);
+        price = (TextView) view.findViewById(R.id.price);
+        description = (TextView) view.findViewById(R.id.description);
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
 
         // Add tabs
@@ -107,6 +111,9 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     public void loadData(){
         lblTitle.setText(festival.getName());
         lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
+        homepage_url.setText(festivalDetail.getHomepage_url());
+        ticket_url.setText(festivalDetail.getTicket_url());
+        description.setText(festivalDetail.getDescription());
     }
     public void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){
