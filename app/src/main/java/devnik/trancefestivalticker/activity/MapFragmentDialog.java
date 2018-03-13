@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -61,15 +62,21 @@ import com.google.maps.model.DistanceMatrix;
 import com.google.maps.model.DistanceMatrixElementStatus;
 import com.google.maps.model.DistanceMatrixRow;
 
+import org.greenrobot.greendao.query.Query;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.PermissionUtils;
+import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDetail;
+import devnik.trancefestivalticker.model.FestivalDetailDao;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 /**
@@ -105,6 +112,14 @@ public class MapFragmentDialog extends DialogFragment  implements
     private Button showRoute;
     private static final int DEFAULT_ZOOM = 15;
     private ProgressDialog progressDialog;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor sharedPrefEditor;
+    private Polyline carPolyline;
+    private Festival festival;
+    private LatLng festivalLocation;
+    private FestivalDetailDao festivalDetailDao;
+    private Query<FestivalDetail> festivalDetailQuery;
+    private FestivalDetail festivalDetail;
     public MapFragmentDialog() {
         // Required empty public constructor
     }
@@ -117,15 +132,24 @@ public class MapFragmentDialog extends DialogFragment  implements
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
         showRoute = rootView.findViewById(R.id.showRoute);
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        sharedPrefEditor = sharedPref.edit();
+
+        festival = (Festival) getArguments().getSerializable("festival");
+        DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
+        festivalDetailDao = daoSession.getFestivalDetailDao();
+        festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
+        festivalDetail = festivalDetailQuery.unique();
 
 
-
+        festivalLocation = new LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
 
 
         MapFragment mapFragment = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
         mapFragment.getMapAsync(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
+    //Register Custom Exception Handler
+        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(getActivity()));
         return rootView;
     }
 
@@ -140,23 +164,42 @@ public class MapFragmentDialog extends DialogFragment  implements
         mMap.setOnMyLocationClickListener(this);
         // Get the current location of the device and set the position of the map.
         enableMyLocation();
-        getDeviceLocation();
 
 
         LatLng circus = new LatLng(53.301641, 11.346728);
 
         //googleMap.setMyLocationEnabled(true);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(circus, 13));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(festivalLocation, 13));
 
         googleMap.addMarker(new MarkerOptions()
-                .title("19288 GÖHLEN")
-                .snippet("Psychedelic Circus 2018")
-                .position(circus));
+                .title(festival.getName())
+                .position(festivalLocation));
 
+        String preferenceEncodedCarPath = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), "");
+
+        if(preferenceEncodedCarPath != ""){
+            List<LatLng> list = PolyUtil.decode(preferenceEncodedCarPath);
+            LatLng latLng = list.get(list.size()-1);
+            carPolyline = mMap.addPolyline(new PolylineOptions()
+                    .addAll(list)
+                    .color(Color.RED)
+                    .geodesic(true)
+            );
+        }
         showRoute.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                getDirections();
+                getDeviceLocation();
+                if(festivalLocation == null){
+                    Toast.makeText(getActivity(),"Die Position des Festivals ist nicht hinterlegt", Toast.LENGTH_SHORT).show();
+                }
+                else if(mLastKnownLocation == null){
+                    Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
+                }else{
+                    carPolyline.remove();
+                    getDirections();
+                }
+
             }
         });
     }
@@ -183,15 +226,12 @@ public class MapFragmentDialog extends DialogFragment  implements
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            if(mLastKnownLocation != null) {
 
-
-                            }
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
                             mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(new LatLng(53.301641, 11.346728), DEFAULT_ZOOM));
+                                    .newLatLngZoom(festivalLocation, DEFAULT_ZOOM));
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         }
 
@@ -266,35 +306,6 @@ public class MapFragmentDialog extends DialogFragment  implements
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getFragmentManager(), "dialog");
     }
-
-    private void getDistance(){
-
-        GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey("AIzaSyAIQW5j7KSy--4ITxKDQTfWMc-pis_iyPs")
-                .build();
-        LatLng origin = new LatLng(53.632255, 10.114652);
-        LatLng destination = new LatLng(53.301641, 11.346728);
-
-
-        DistanceMatrixApiRequest req = DistanceMatrixApi.newRequest(context)
-                .origins(new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()))
-                .destinations(new com.google.maps.model.LatLng(53.307981, 11.374401));
-
-        req.setCallback(new PendingResult.Callback<DistanceMatrix>() {
-            @Override
-            public void onResult(DistanceMatrix result) {
-                // Handle successful request.
-                System.out.print(result);
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                System.out.println(gson.toJson(result));
-            }
-
-            @Override
-            public void onFailure(Throwable e) {
-                // Handle error.
-            }
-        });
-    }
     private void getDirections(){
 
         GeoApiContext context = new GeoApiContext.Builder()
@@ -302,7 +313,7 @@ public class MapFragmentDialog extends DialogFragment  implements
                 .build();
         System.out.print(mLastKnownLocation);
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(53.301641, 11.346728);
+        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
         DirectionsApiRequest req = DirectionsApi.newRequest(context)
                 .origin(origin)
                 .destination(destination);
@@ -319,8 +330,8 @@ public class MapFragmentDialog extends DialogFragment  implements
                 iconFactory.setStyle(IconGenerator.STYLE_BLUE);
                 addIcon(iconFactory, "Das Ziel ist "+distance+" von dir entfernt\n und dauert ca. "+time+" mit dem Auto", new LatLng(result.routes[i].legs[i].startLocation.lat, result.routes[i].legs[i].startLocation.lng));
             }
-            String encodedString = result.routes[0].overviewPolyline.getEncodedPath();
-            List<LatLng> list = PolyUtil.decode(encodedString);
+            String encodedPath = result.routes[0].overviewPolyline.getEncodedPath();
+            List<LatLng> list = PolyUtil.decode(encodedPath);
             mMap.addPolyline(new PolylineOptions()
                     .addAll(list)
                     .color(Color.RED)
@@ -329,6 +340,10 @@ public class MapFragmentDialog extends DialogFragment  implements
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(mLastKnownLocation.getLatitude(),
                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+
+            //Shared Preference
+            sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), encodedPath);
+            sharedPrefEditor.commit();
         } catch (Exception e) {
             // Handle error
         }

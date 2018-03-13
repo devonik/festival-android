@@ -18,24 +18,27 @@ public class FestivalDetail {
     private String description;
     private String homepage_url;
     private String ticket_url;
+    private Double geoLatitude;
+	private Double geoLongitude;
     private String syncStatus;
-
-    @Generated(hash = 665465433)
+    @Generated(hash = 193462068)
     public FestivalDetail(Long festival_detail_id, Long festival_detail_images_id,
             Long festival_id, String description, String homepage_url,
-            String ticket_url, String syncStatus) {
+            String ticket_url, Double geoLatitude, Double geoLongitude,
+            String syncStatus) {
         this.festival_detail_id = festival_detail_id;
         this.festival_detail_images_id = festival_detail_images_id;
         this.festival_id = festival_id;
         this.description = description;
         this.homepage_url = homepage_url;
         this.ticket_url = ticket_url;
+        this.geoLatitude = geoLatitude;
+        this.geoLongitude = geoLongitude;
         this.syncStatus = syncStatus;
     }
     @Generated(hash = 1066729021)
     public FestivalDetail() {
     }
-    
     public Long getFestival_detail_id() {
         return this.festival_detail_id;
     }
@@ -71,6 +74,18 @@ public class FestivalDetail {
     }
     public void setTicket_url(String ticket_url) {
         this.ticket_url = ticket_url;
+    }
+    public Double getGeoLatitude() {
+        return this.geoLatitude;
+    }
+    public void setGeoLatitude(Double geoLatitude) {
+        this.geoLatitude = geoLatitude;
+    }
+    public Double getGeoLongitude() {
+        return this.geoLongitude;
+    }
+    public void setGeoLongitude(Double geoLongitude) {
+        this.geoLongitude = geoLongitude;
     }
     public String getSyncStatus() {
         return this.syncStatus;

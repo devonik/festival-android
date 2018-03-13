@@ -25,15 +25,17 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+
+        Bundle festivalBundle = new Bundle();
+        festivalBundle.putSerializable("festival", festival);
         switch (position) {
             case 0:
                 FestivalDetailFragment tab1 = new FestivalDetailFragment();
-                Bundle args = new Bundle();
-                args.putSerializable("festival", festival);
-                tab1.setArguments(args);
+                tab1.setArguments(festivalBundle);
                 return tab1;
             case 1:
                 MapFragmentDialog tab2 = new MapFragmentDialog();
+                tab2.setArguments(festivalBundle);
                 return tab2;
             default:
                 return null;

@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.PagerAdapter;
+import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.model.Festival;
 
 
@@ -30,8 +31,8 @@ public class DetailActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
+        tabLayout.addTab(tabLayout.newTab().setText("Info"));
+        tabLayout.addTab(tabLayout.newTab().setText("Map"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -55,5 +56,8 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+
+        //Register Custom Exception Handler
+        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
     }
 }
