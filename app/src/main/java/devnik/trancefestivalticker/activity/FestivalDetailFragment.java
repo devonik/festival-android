@@ -61,12 +61,6 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price;
     private View view;
     private SliderLayout imageSlider;
-    private TabHost tabs;
-
-    //test
-    private Button btn_subscribe;
-    private Button btn_unsubscribe;
-    private final String TOPIC = "JavaSampleApproach";
 
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
@@ -83,24 +77,6 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         price = (TextView) view.findViewById(R.id.price);
         description = (TextView) view.findViewById(R.id.description);
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
-
-        // Test
-        btn_subscribe = (Button) view.findViewById(R.id.btn_subscribe);
-        btn_unsubscribe = (Button) view.findViewById(R.id.btn_unsubscribe);
-        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
-        btn_subscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
-            }
-        });
-
-        btn_unsubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
-            }
-        });
 
         festival = (Festival) getArguments().getSerializable("festival");
         DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();

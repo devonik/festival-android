@@ -110,6 +110,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
     private Button showRoute;
+    private Button showFestival;
     private static final int DEFAULT_ZOOM = 15;
     private ProgressDialog progressDialog;
     private SharedPreferences sharedPref;
@@ -132,6 +133,7 @@ public class MapFragmentDialog extends DialogFragment  implements
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
         showRoute = rootView.findViewById(R.id.showRoute);
+        showFestival = rootView.findViewById(R.id.showFestival);
         sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         sharedPrefEditor = sharedPref.edit();
 
@@ -167,13 +169,22 @@ public class MapFragmentDialog extends DialogFragment  implements
 
 
         LatLng circus = new LatLng(53.301641, 11.346728);
+        if(festivalLocation!=null){
+            //Falls eine Location in der DB eingetragen ist
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(festivalLocation, 13));
 
-        //googleMap.setMyLocationEnabled(true);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(festivalLocation, 13));
+            googleMap.addMarker(new MarkerOptions()
+                    .title(festival.getName())
+                    .position(festivalLocation));
 
-        googleMap.addMarker(new MarkerOptions()
-                .title(festival.getName())
-                .position(festivalLocation));
+            showFestival.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(festivalLocation, 13));
+                }
+            });
+        }
+
 
         String preferenceEncodedCarPath = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), "");
 
@@ -189,17 +200,7 @@ public class MapFragmentDialog extends DialogFragment  implements
         showRoute.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                getDeviceLocation();
-                if(festivalLocation == null){
-                    Toast.makeText(getActivity(),"Die Position des Festivals ist nicht hinterlegt", Toast.LENGTH_SHORT).show();
-                }
-                else if(mLastKnownLocation == null){
-                    Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
-                }else{
-                    carPolyline.remove();
-                    getDirections();
-                }
-
+                 getDeviceLocation();
             }
         });
     }
@@ -226,7 +227,18 @@ public class MapFragmentDialog extends DialogFragment  implements
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-
+                            if(festivalLocation == null){
+                                Toast.makeText(getActivity(),"Die Position des Festivals ist nicht hinterlegt", Toast.LENGTH_SHORT).show();
+                            }
+                            else if(mLastKnownLocation == null){
+                                Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
+                            }else{
+                                if(carPolyline!=null){
+                                    //Wenn es eine gecachte Polyline gibt
+                                    carPolyline.remove();
+                                }
+                                getDirections();
+                            }
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
@@ -260,8 +272,9 @@ public class MapFragmentDialog extends DialogFragment  implements
     }
     @Override
     public boolean onMyLocationButtonClick() {
-
-        Toast.makeText(getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        if(mLastKnownLocation==null) {
+            getDeviceLocation();
+        }
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;

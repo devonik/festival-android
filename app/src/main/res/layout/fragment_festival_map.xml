@@ -1,21 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/layout">-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout">
-
     <fragment
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_view_map"
         class="com.google.android.gms.maps.MapFragment"></fragment>
-
-    <Button
-        android:id="@+id/showRoute"
+    <!-- A set of test checkboxes. -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Route"
-        android:drawableLeft="@drawable/ic_directions_car_black_24dp"/>
+        android:layout_alignRight="@id/fragment_view_map"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="75dp"
+        android:background="@color/cardview_light_background"
+        android:orientation="vertical"
+        android:padding="6dp">
+
+        <Button
+            android:id="@+id/showFestival"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:background="@drawable/ic_if_camping_nature" />
+
+        <Button
+            android:id="@+id/showRoute"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:background="@drawable/ic_directions_car_black_24dp" />
+
+    </LinearLayout>
+</RelativeLayout>
 
 
-</FrameLayout>
+
+<!--</FrameLayout>-->
