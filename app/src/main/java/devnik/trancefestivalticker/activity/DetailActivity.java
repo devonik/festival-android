@@ -6,10 +6,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import org.greenrobot.greendao.query.Query;
+
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.PagerAdapter;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
+import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDetail;
+import devnik.trancefestivalticker.model.FestivalDetailDao;
 
 
 /**
@@ -18,12 +24,16 @@ import devnik.trancefestivalticker.model.Festival;
 
 public class DetailActivity extends AppCompatActivity {
     private Festival festival;
+    private FestivalDetail festivalDetail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Bundle extras = getIntent().getExtras();
         if(extras!=null){
             festival = (Festival) extras.get("festival");
+            festivalDetail = (FestivalDetail) extras.get("festivalDetail");
         }
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
@@ -37,7 +47,7 @@ public class DetailActivity extends AppCompatActivity {
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount(), festival);
+                (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 

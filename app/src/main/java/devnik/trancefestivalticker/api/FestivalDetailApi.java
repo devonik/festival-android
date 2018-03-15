@@ -26,8 +26,13 @@ import devnik.trancefestivalticker.model.WhatsNew;
 public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
     private List<FestivalDetail> localFestivalDetails;
     private FestivalDetailDao festivalDetailDao;
-    private Query<FestivalDetail> festivalDetailQuery;
     private Context context;
+
+    //Comes from Application
+    public FestivalDetailApi(DaoSession daoSession){
+        festivalDetailDao = daoSession.getFestivalDetailDao();
+        localFestivalDetails = festivalDetailDao.queryBuilder().build().list();
+    }
     @Override
     protected FestivalDetail[] doInBackground(Void... params) {
         try {
@@ -47,12 +52,7 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
 
         return null;
     }
-    //Comes from MainActivity
-    public FestivalDetailApi(Context context, List<FestivalDetail> localFestivalDetailList){
-        this.localFestivalDetails = localFestivalDetailList;
-        DaoSession daoSession = ((App)context).getDaoSession();
-        festivalDetailDao = daoSession.getFestivalDetailDao();
-    }
+
     public void updateMySQLSyncSts(FestivalDetail festivalDetail){
         try {
             final String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetails/{id}";

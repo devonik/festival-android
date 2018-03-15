@@ -1,5 +1,6 @@
 package devnik.trancefestivalticker.adapter;
 
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -20,14 +21,21 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import android.text.format.DateFormat;
+
+import org.greenrobot.greendao.query.Query;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.DetailActivity;
 import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.model.CustomDate;
+import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDetail;
+import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.Image;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
@@ -40,6 +48,9 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 public class SectionAdapter extends StatelessSection implements View.OnLongClickListener{
     private Context mContext;
     private ArrayList<Festival> festivals;
+    private FestivalDetailDao festivalDetailDao;
+    private Query<FestivalDetail> festivalDetailQuery;
+    private FestivalDetail festivalDetail;
     private CustomDate customDate;
     public FragmentManager fragmentManager;
 
@@ -80,23 +91,21 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         //Api warning
         //itemHolder.itemView.setTooltipText(festival.getName()+": "+ DateFormat.format("dd.MM",festival.getDatum_start()));
-
-        itemHolder.itemView.setOnClickListener(new View.OnClickListener(){
+        DaoSession daoSession = ((App) mContext).getDaoSession();
+        festivalDetailDao = daoSession.getFestivalDetailDao();
+        festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
+        festivalDetail = festivalDetailQuery.unique();
+            itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // get position
-                    //Toast.makeText(mContext, String.format("Clicked on position #%s of Section %s",  sectionAdapter.getPositionInSection(itemHolder.getAdapterPosition()), title), Toast.LENGTH_SHORT).show();
-                    /*Bundle bundle = new Bundle();
-
-                    bundle.putSerializable("festival", festival);
-
-                    FragmentTransaction ft = fragmentManager.beginTransaction();
-                    FestivalDetailFragment newFragment = FestivalDetailFragment.newInstance();
-                    newFragment.setArguments(bundle);
-                    newFragment.show(ft, "festival");*/
-                    Intent intent = new Intent(mContext, DetailActivity.class);
-                    intent.putExtra("festival", festival);
-                    mContext.startActivity(intent);
+                    if(festivalDetail != null) {
+                        Intent intent = new Intent(mContext, DetailActivity.class);
+                        intent.putExtra("festival", festival);
+                        intent.putExtra("festivalDetail", festivalDetail);
+                        mContext.startActivity(intent);
+                    }else{
+                        Toast.makeText(mContext,"Keine Infos vorhanden!",Toast.LENGTH_LONG).show();
+                    }
                 }
             });
 

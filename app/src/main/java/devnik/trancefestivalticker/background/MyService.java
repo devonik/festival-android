@@ -34,7 +34,6 @@ import devnik.trancefestivalticker.activity.MainActivity;
 import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.api.FestivalDetailApi;
 import devnik.trancefestivalticker.api.FestivalDetailImagesApi;
-import devnik.trancefestivalticker.api.IAsyncResponse;
 import devnik.trancefestivalticker.model.Festival;
 
 public class MyService extends Service{

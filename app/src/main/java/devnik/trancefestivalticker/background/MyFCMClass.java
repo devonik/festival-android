@@ -6,6 +6,11 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import devnik.trancefestivalticker.activity.MainActivity;
+import devnik.trancefestivalticker.api.FestivalApi;
+import devnik.trancefestivalticker.api.FestivalDetailApi;
+import devnik.trancefestivalticker.api.FestivalDetailImagesApi;
+
 /**
  * Created by nik on 12.03.2018.
  */
@@ -25,7 +30,7 @@ public class MyFCMClass extends FirebaseMessagingService{
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                //scheduleJob();
+
             } else {
                 // Handle message within 10 seconds
                 //handleNow();

@@ -28,7 +28,7 @@ import devnik.trancefestivalticker.model.WhatsNewDao;
  */
 
 public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
-
+        private OnTaskCompleted onTaskCompleted;
         private FestivalDao festivalDao;
         private Query<Festival> festivalQuery;
         private WhatsNewDao whatsNewDao;
@@ -39,19 +39,23 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private MainActivity mainActivity = new MainActivity();
 
         //Comes from MainActivity
-        public FestivalApi(Context context, ProgressDialog progressDialog, List<Festival> localFestivals){
+        public FestivalApi(OnTaskCompleted onTaskCompleted,Context context, ProgressDialog progressDialog){
             this.context = context;
             this.progressDialog = progressDialog;
+            this.onTaskCompleted = onTaskCompleted;
             //get the festival DAO
             DaoSession daoSession = ((App)this.context).getDaoSession();
             festivalDao = daoSession.getFestivalDao();
             //whatsNewDao = daoSession.getWhatsNewDao();
-            this.localFestivals = localFestivals;
+        }
+        public FestivalApi(DaoSession daoSession){
+            festivalDao = daoSession.getFestivalDao();
+            festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
+            localFestivals = festivalQuery.list();
         }
         @Override
         protected Festival[] doInBackground(Void... params) {
             try {
-
                 String url = "https://festivalticker.herokuapp.com/api/v1/festivalsByUnSync";
                 if(localFestivals.size()==0){
                     ////Lokale Daten wurden gelöscht oder noch nicht gesynct, bzw. es sind keine Einträge vorhanden.... Hole alle Festivals von remote
@@ -66,7 +70,6 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
-
             return null;
         }
         public void updateMySQLSyncSts(Festival festival){
@@ -83,10 +86,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         //Completion Handler
         @Override
         protected void onPostExecute(Festival[] festivals) {
-            //If the call comes from automatic Broadcast, there is no ProgressDialog
-            if(progressDialog != null) {
-                progressDialog.hide();
-            }
+
         }
         public void updateSQLite(Festival[] festivals){
 

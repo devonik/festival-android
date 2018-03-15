@@ -25,8 +25,12 @@ import devnik.trancefestivalticker.model.WhatsNew;
 public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailImages[]> {
     private List<FestivalDetailImages> localFestivalDetailImages;
     private FestivalDetailImagesDao festivalDetailImagesDao;
-    private Query<FestivalDetailImages> festivalDetailImagesQuery;
     private Context context;
+    //Comes from MainActivity
+    public FestivalDetailImagesApi(DaoSession daoSession){
+        festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
+        localFestivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
+    }
     @Override
     protected FestivalDetailImages[] doInBackground(Void... params) {
         try {
@@ -46,12 +50,7 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
 
         return null;
     }
-    //Comes from MainActivity
-    public FestivalDetailImagesApi(Context context, List<FestivalDetailImages> localFestivalDetailImagesList){
-        this.localFestivalDetailImages = localFestivalDetailImagesList;
-        DaoSession daoSession = ((App)context).getDaoSession();
-        festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
-    }
+
     public void updateMySQLSyncSts(FestivalDetailImages festivalDetailImage){
         try {
             final String url = "https://festivalticker.herokuapp.com/api/v1/festivalDetailImages/";

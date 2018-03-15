@@ -117,10 +117,9 @@ public class MapFragmentDialog extends DialogFragment  implements
     private SharedPreferences.Editor sharedPrefEditor;
     private Polyline carPolyline;
     private Festival festival;
-    private LatLng festivalLocation;
-    private FestivalDetailDao festivalDetailDao;
-    private Query<FestivalDetail> festivalDetailQuery;
     private FestivalDetail festivalDetail;
+    private LatLng festivalLocation;
+
     public MapFragmentDialog() {
         // Required empty public constructor
     }
@@ -138,14 +137,15 @@ public class MapFragmentDialog extends DialogFragment  implements
         sharedPrefEditor = sharedPref.edit();
 
         festival = (Festival) getArguments().getSerializable("festival");
-        DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
-        festivalDetailDao = daoSession.getFestivalDetailDao();
-        festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
-        festivalDetail = festivalDetailQuery.unique();
+        festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
 
-
-        festivalLocation = new LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
-
+        if(festivalDetail.getGeoLatitude() != null && festivalDetail.getGeoLongitude() != null) {
+            festivalLocation = new LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
+        }else{
+            LatLng circus = new LatLng(53.301641, 11.346728);
+            festivalLocation = circus;
+            Toast.makeText(getActivity(),"Keine Ortsangabe des Festivals vorhanden!",Toast.LENGTH_LONG).show();
+        }
 
         MapFragment mapFragment = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
         mapFragment.getMapAsync(this);
@@ -168,7 +168,7 @@ public class MapFragmentDialog extends DialogFragment  implements
         enableMyLocation();
 
 
-        LatLng circus = new LatLng(53.301641, 11.346728);
+
         if(festivalLocation!=null){
             //Falls eine Location in der DB eingetragen ist
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(festivalLocation, 13));
