@@ -10,6 +10,7 @@ import java.util.Date;
 /**
  * Created by nik on 02.03.2018.
  */
+
 @Entity
 public class Festival implements Serializable {
     @Id

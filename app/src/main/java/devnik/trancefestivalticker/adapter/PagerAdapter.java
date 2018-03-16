@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.activity.MapFragmentDialog;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDetail;
 
 /**
  * Created by nik on 09.03.2018.
@@ -16,11 +17,13 @@ import devnik.trancefestivalticker.model.Festival;
 public class PagerAdapter extends FragmentStatePagerAdapter {
     int numTabs;
     private Festival festival;
+    private FestivalDetail festivalDetail;
 
-    public PagerAdapter(FragmentManager fm, int numTabs, Festival festival) {
+    public PagerAdapter(FragmentManager fm, int numTabs, Festival festival, FestivalDetail festivalDetail) {
         super(fm);
         this.numTabs = numTabs;
         this.festival = festival;
+        this.festivalDetail = festivalDetail;
     }
 
     @Override
@@ -28,6 +31,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         Bundle festivalBundle = new Bundle();
         festivalBundle.putSerializable("festival", festival);
+        festivalBundle.putSerializable("festivalDetail", festivalDetail);
         switch (position) {
             case 0:
                 FestivalDetailFragment tab1 = new FestivalDetailFragment();
