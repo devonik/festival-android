@@ -1,6 +1,7 @@
 package devnik.trancefestivalticker.adapter;
 
 import android.app.Application;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -77,12 +78,13 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     }
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
+
         final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
         final Festival festival = festivals.get(position);
         // bind your view here
                 Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
-                .placeholder(R.mipmap.ic_action_refresh)
+                .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.warning_error_icon)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
