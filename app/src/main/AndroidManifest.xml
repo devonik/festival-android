@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
-        android:name=".App"
+        android:name="devnik.trancefestivalticker.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,18 +26,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.SplashActivity"
+            android:name="devnik.trancefestivalticker.activity.SplashActivity"
             android:label="@string/app_name"
             android:theme="@style/SplashTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity" />
+        <activity android:name="devnik.trancefestivalticker.activity.MainActivity" />
         <activity
-            android:name=".activity.DetailActivity"
+            android:name="devnik.trancefestivalticker.activity.DetailActivity"
             android:label="@string/app_name" />
         <!-- Firebase Service -->
         <service android:name=".background.MyFCMClass">
@@ -54,7 +55,7 @@
              notification message. See README(https://goo.gl/6BKBk7) for more. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
+            android:resource="@color/colorPrimaryDark" />
         <!-- Register MyService -->
         <!--<service
             android:name=".background.MyService"
