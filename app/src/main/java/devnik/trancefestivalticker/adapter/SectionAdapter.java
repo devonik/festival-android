@@ -85,7 +85,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
                 .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.warning_error_icon)
+                .error(R.drawable.mandala_om_480x480)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
 

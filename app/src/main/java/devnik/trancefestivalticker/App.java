@@ -5,11 +5,6 @@ import android.app.ProgressDialog;
 
 import org.greenrobot.greendao.database.Database;
 
-import devnik.trancefestivalticker.activity.MainActivity;
-import devnik.trancefestivalticker.api.FestivalApi;
-import devnik.trancefestivalticker.api.FestivalDetailApi;
-import devnik.trancefestivalticker.api.FestivalDetailImagesApi;
-import devnik.trancefestivalticker.api.OnTaskCompleted;
 import devnik.trancefestivalticker.model.DaoMaster;
 import devnik.trancefestivalticker.model.DaoMaster.DevOpenHelper;
 import devnik.trancefestivalticker.model.DaoSession;
@@ -33,9 +28,8 @@ public class App extends Application{
         DevOpenHelper helper = new DevOpenHelper(this, "festival-db");
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
-        new FestivalApi(daoSession).execute();
-        new FestivalDetailApi(daoSession).execute();
-        new FestivalDetailImagesApi(daoSession).execute();
+
+
     }
     public DaoSession getDaoSession() {
         return daoSession;

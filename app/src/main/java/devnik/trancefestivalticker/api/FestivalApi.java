@@ -28,7 +28,11 @@ import devnik.trancefestivalticker.model.WhatsNewDao;
  */
 
 public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
-        private OnTaskCompleted onTaskCompleted;
+    public interface FestivalApiCompleted {
+        void onFestivalApiCompleted();
+    }
+
+        private FestivalApiCompleted onTaskCompleted;
         private FestivalDao festivalDao;
         private Query<Festival> festivalQuery;
         private WhatsNewDao whatsNewDao;
@@ -39,7 +43,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private MainActivity mainActivity = new MainActivity();
 
         //Comes from MainActivity
-        public FestivalApi(OnTaskCompleted onTaskCompleted,Context context, ProgressDialog progressDialog){
+    //Alt, kann evtl weg
+        public FestivalApi(FestivalApiCompleted onTaskCompleted,Context context, ProgressDialog progressDialog){
             this.context = context;
             this.progressDialog = progressDialog;
             this.onTaskCompleted = onTaskCompleted;
@@ -48,7 +53,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             festivalDao = daoSession.getFestivalDao();
             //whatsNewDao = daoSession.getWhatsNewDao();
         }
-        public FestivalApi(DaoSession daoSession){
+        public FestivalApi(FestivalApiCompleted onTaskCompleted, DaoSession daoSession){
+            this.onTaskCompleted = onTaskCompleted;
             festivalDao = daoSession.getFestivalDao();
             festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
             localFestivals = festivalQuery.list();
@@ -86,7 +92,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         //Completion Handler
         @Override
         protected void onPostExecute(Festival[] festivals) {
-
+            onTaskCompleted.onFestivalApiCompleted();
         }
         public void updateSQLite(Festival[] festivals){
 

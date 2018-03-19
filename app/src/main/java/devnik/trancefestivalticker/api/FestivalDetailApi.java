@@ -24,12 +24,17 @@ import devnik.trancefestivalticker.model.WhatsNew;
  */
 
 public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
+    public interface FestivalDetailApiCompleted {
+        void onFestivalDetailApiCompleted();
+    }
+    private FestivalDetailApiCompleted onTaskCompleted;
     private List<FestivalDetail> localFestivalDetails;
     private FestivalDetailDao festivalDetailDao;
     private Context context;
 
     //Comes from Application
-    public FestivalDetailApi(DaoSession daoSession){
+    public FestivalDetailApi(FestivalDetailApiCompleted onTaskCompleted, DaoSession daoSession){
+        this.onTaskCompleted = onTaskCompleted;
         festivalDetailDao = daoSession.getFestivalDetailDao();
         localFestivalDetails = festivalDetailDao.queryBuilder().build().list();
     }
@@ -71,6 +76,7 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
         /*if(progressDialog != null) {
             progressDialog.hide();
         }*/
+        onTaskCompleted.onFestivalDetailApiCompleted();
     }
     public void updateSQLite(FestivalDetail[] festivalDetails){
 
