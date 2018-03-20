@@ -67,7 +67,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/slider"
-        android:background="?attr/actionModeSplitBackground">
+        android:background="@drawable/gradient_color">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,9 +80,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
-                android:text="Title"
                 android:drawableLeft="@drawable/ic_stat_notify_msg"
                 android:drawablePadding="2dp"
+                android:text="Title"
                 android:textAlignment="center"
                 android:textColor="@android:color/background_light"
                 android:textStyle="bold" />
@@ -140,8 +140,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:drawableTop="@drawable/ic_description_white_24dp"
                 android:drawablePadding="2dp"
+                android:drawableTop="@drawable/ic_description_white_24dp"
                 android:gravity="top|center"
                 android:text="Description"
                 android:textAllCaps="false"
