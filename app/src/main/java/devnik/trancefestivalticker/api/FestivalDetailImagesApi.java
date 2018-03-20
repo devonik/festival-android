@@ -23,11 +23,15 @@ import devnik.trancefestivalticker.model.WhatsNew;
  */
 
 public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailImages[]> {
+    public interface FestivalDetailImagesApiCompleted {
+        void onFestivalDetailImagesApiCompleted();
+    }
+    private FestivalDetailImagesApi.FestivalDetailImagesApiCompleted onTaskCompleted;
     private List<FestivalDetailImages> localFestivalDetailImages;
     private FestivalDetailImagesDao festivalDetailImagesDao;
-    private Context context;
     //Comes from MainActivity
-    public FestivalDetailImagesApi(DaoSession daoSession){
+    public FestivalDetailImagesApi(FestivalDetailImagesApiCompleted onTaskCompleted, DaoSession daoSession){
+        this.onTaskCompleted = onTaskCompleted;
         festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
         localFestivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
     }
@@ -42,7 +46,10 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             FestivalDetailImages[] festivalDetailImages = restTemplate.getForObject(url, FestivalDetailImages[].class);
-            updateSQLite(festivalDetailImages);
+            if(festivalDetailImages.length>0){
+                updateSQLite(festivalDetailImages);
+            }
+
             return festivalDetailImages;
         } catch (Exception e) {
             Log.e("MainActivity", e.getMessage(), e);
@@ -69,11 +76,11 @@ public class FestivalDetailImagesApi extends AsyncTask<Void,Void,FestivalDetailI
         /*if(progressDialog != null) {
             progressDialog.hide();
         }*/
+        onTaskCompleted.onFestivalDetailImagesApiCompleted();
     }
     public void updateSQLite(FestivalDetailImages[] festivalDetailImages){
 
         try{
-            System.out.println(festivalDetailImages.length);
             //If no of array element is not zero
             if(festivalDetailImages.length != 0){
                 // Loop through each array element, get JSON object which has festival and username

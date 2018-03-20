@@ -15,7 +15,11 @@ import devnik.trancefestivalticker.model.DaoSession;
  * Created by nik on 15.03.2018.
  */
 
-public class SplashActivity extends AppCompatActivity implements FestivalApi.FestivalApiCompleted,FestivalDetailApi.FestivalDetailApiCompleted {
+public class SplashActivity extends AppCompatActivity
+        implements FestivalApi.FestivalApiCompleted,
+                   FestivalDetailApi.FestivalDetailApiCompleted,
+                   FestivalDetailImagesApi.FestivalDetailImagesApiCompleted
+{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,16 +28,18 @@ public class SplashActivity extends AppCompatActivity implements FestivalApi.Fes
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
         new FestivalApi(this,daoSession).execute();
         new FestivalDetailApi(this, daoSession).execute();
-        new FestivalDetailImagesApi(daoSession).execute();
+        new FestivalDetailImagesApi(this, daoSession).execute();
 
     }
     @Override
     public void onFestivalApiCompleted(){
-        Toast.makeText(getApplicationContext(), "Festival Api Completed!", Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onFestivalDetailApiCompleted(){
-        Toast.makeText(getApplicationContext(), "Festival Detail Api Completed!", Toast.LENGTH_SHORT).show();
+
+    }
+    @Override
+    public void onFestivalDetailImagesApiCompleted(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();

@@ -30,7 +30,6 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
     private FestivalDetailApiCompleted onTaskCompleted;
     private List<FestivalDetail> localFestivalDetails;
     private FestivalDetailDao festivalDetailDao;
-    private Context context;
 
     //Comes from Application
     public FestivalDetailApi(FestivalDetailApiCompleted onTaskCompleted, DaoSession daoSession){
@@ -49,7 +48,10 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             FestivalDetail[] festivalDetails = restTemplate.getForObject(url, FestivalDetail[].class);
-            updateSQLite(festivalDetails);
+            if(festivalDetails.length>0){
+                updateSQLite(festivalDetails);
+            }
+
             return festivalDetails;
         } catch (Exception e) {
             Log.e("MainActivity", e.getMessage(), e);
@@ -81,7 +83,6 @@ public class FestivalDetailApi extends AsyncTask<Void, Void, FestivalDetail[]> {
     public void updateSQLite(FestivalDetail[] festivalDetails){
 
         try{
-            System.out.println(festivalDetails.length);
             //If no of array element is not zero
             if(festivalDetails.length != 0){
                 // Loop through each array element, get JSON object which has festival and username

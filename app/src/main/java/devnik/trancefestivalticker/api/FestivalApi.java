@@ -38,21 +38,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private WhatsNewDao whatsNewDao;
         private Query<WhatsNew> whatsNewQuery;
         private List<Festival> localFestivals;
-        private ProgressDialog progressDialog;
-        private Context context;
-        private MainActivity mainActivity = new MainActivity();
 
-        //Comes from MainActivity
-    //Alt, kann evtl weg
-        public FestivalApi(FestivalApiCompleted onTaskCompleted,Context context, ProgressDialog progressDialog){
-            this.context = context;
-            this.progressDialog = progressDialog;
-            this.onTaskCompleted = onTaskCompleted;
-            //get the festival DAO
-            DaoSession daoSession = ((App)this.context).getDaoSession();
-            festivalDao = daoSession.getFestivalDao();
-            //whatsNewDao = daoSession.getWhatsNewDao();
-        }
         public FestivalApi(FestivalApiCompleted onTaskCompleted, DaoSession daoSession){
             this.onTaskCompleted = onTaskCompleted;
             festivalDao = daoSession.getFestivalDao();
@@ -70,7 +56,10 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Festival[] festivals = restTemplate.getForObject(url, Festival[].class);
-                updateSQLite(festivals);
+                if(festivals.length > 0){
+                    updateSQLite(festivals);
+                }
+
                 return festivals;
             }
             catch (Exception e) {
@@ -97,7 +86,6 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         public void updateSQLite(Festival[] festivals){
 
             try{
-                System.out.println(festivals.length);
                 //If no of array element is not zero
                 if(festivals.length != 0){
                     // Loop through each array element, get JSON object which has festival and username

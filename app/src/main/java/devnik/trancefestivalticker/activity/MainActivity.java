@@ -43,7 +43,6 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
-import devnik.trancefestivalticker.background.SampleBC;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
@@ -211,16 +210,6 @@ public class MainActivity extends AppCompatActivity{
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Transfering Data from Remote MySQL DB and Syncing SQLite. Please wait...");
         pDialog.setCancelable(false);
-
-        // BroadCase Receiver Intent Object
-        Intent alarmIntent = new Intent(getApplicationContext(), SampleBC.class);
-        // Pending Intent Object
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        // Alarm Manager Object
-        AlarmManager alarmManager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        // Alarm Manager calls BroadCast for every Ten seconds (10 * 1000), BroadCase further calls service to check if new records are inserted in
-        // Remote MySQL DB
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis() + 5000, 10 * 1000, pendingIntent);
 
         //Brauch ich das noch???
         setSupportActionBar(toolbar);

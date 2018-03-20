@@ -51,7 +51,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     private ArrayList<Festival> festivals;
     private FestivalDetailDao festivalDetailDao;
     private Query<FestivalDetail> festivalDetailQuery;
-    private FestivalDetail festivalDetail;
+
     private CustomDate customDate;
     public FragmentManager fragmentManager;
 
@@ -96,7 +96,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         DaoSession daoSession = ((App) mContext).getDaoSession();
         festivalDetailDao = daoSession.getFestivalDetailDao();
         festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
-        festivalDetail = festivalDetailQuery.unique();
+        final FestivalDetail festivalDetail = festivalDetailQuery.unique();
             itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

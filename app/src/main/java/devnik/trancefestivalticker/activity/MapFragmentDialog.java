@@ -142,8 +142,6 @@ public class MapFragmentDialog extends DialogFragment  implements
         if(festivalDetail.getGeoLatitude() != null && festivalDetail.getGeoLongitude() != null) {
             festivalLocation = new LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
         }else{
-            LatLng circus = new LatLng(53.301641, 11.346728);
-            festivalLocation = circus;
             Toast.makeText(getActivity(),"Keine Ortsangabe des Festivals vorhanden!",Toast.LENGTH_LONG).show();
         }
 
@@ -266,7 +264,6 @@ public class MapFragmentDialog extends DialogFragment  implements
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
-            //getDistance();
 
         }
     }
@@ -302,29 +299,11 @@ public class MapFragmentDialog extends DialogFragment  implements
         }
     }
 
-    /*@Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        if (mPermissionDenied) {
-            // Permission was not granted, display error dialog.
-            showMissingPermissionError();
-            mPermissionDenied = false;
-        }
-    }*(
-
-    /**
-     * Displays a dialog with error message explaining that the location permission is missing.
-     */
-    private void showMissingPermissionError() {
-        PermissionUtils.PermissionDeniedDialog
-                .newInstance(true).show(getFragmentManager(), "dialog");
-    }
     private void getDirections(){
 
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyAIQW5j7KSy--4ITxKDQTfWMc-pis_iyPs")
                 .build();
-        System.out.print(mLastKnownLocation);
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
         DirectionsApiRequest req = DirectionsApi.newRequest(context)
