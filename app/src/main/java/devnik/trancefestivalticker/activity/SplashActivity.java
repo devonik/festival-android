@@ -26,22 +26,25 @@ public class SplashActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
-        new FestivalApi(this,daoSession).execute();
+        new FestivalApi(this, daoSession).execute();
         new FestivalDetailApi(this, daoSession).execute();
         new FestivalDetailImagesApi(this, daoSession).execute();
+
 
     }
     @Override
     public void onFestivalApiCompleted(){
-    }
-    @Override
-    public void onFestivalDetailApiCompleted(){
 
     }
     @Override
-    public void onFestivalDetailImagesApiCompleted(){
+    public void onFestivalDetailApiCompleted(){
+        Toast.makeText(this,"onFestivalDetailApiCompleted",Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+    @Override
+    public void onFestivalDetailImagesApiCompleted(){
+        Toast.makeText(this,"onFestivalDetailImagesApiCompleted",Toast.LENGTH_SHORT).show();
     }
 }

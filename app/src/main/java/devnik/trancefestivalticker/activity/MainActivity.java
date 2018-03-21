@@ -17,6 +17,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +35,7 @@ import java.util.List;
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
+import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
@@ -63,13 +65,15 @@ public class MainActivity extends AppCompatActivity{
     private ProgressDialog pDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //get the festival DAO
+        DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         setUpView();
 
-        //get the festival DAO
-        DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
+
         festivalDao = daoSession.getFestivalDao();
         festivalDetailDao = daoSession.getFestivalDetailDao();
         festivalDetails = festivalDetailDao.queryBuilder().build().list();
@@ -81,35 +85,16 @@ public class MainActivity extends AppCompatActivity{
         // query all festivals, sorted a-z by their text
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
 
-        festivals = festivalQuery.list();
+
         updateFestivalThumbnailView();
         //triggerRemoteSync();
 
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("festival");
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d("test","Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("test", "Failed to read value.", error.toException());
-            }
-        });
     }
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
-
+        festivals = festivalQuery.list();
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 
@@ -260,5 +245,9 @@ public class MainActivity extends AppCompatActivity{
         //Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
         finish();
         startActivity(getIntent());
+    }
+    public void updateUI(){
+        Toast.makeText(this,"Want to update UI",Toast.LENGTH_LONG).show();
+        updateFestivalThumbnailView();
     }
 }

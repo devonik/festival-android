@@ -1,5 +1,6 @@
 package devnik.trancefestivalticker.api;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +39,6 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private WhatsNewDao whatsNewDao;
         private Query<WhatsNew> whatsNewQuery;
         private List<Festival> localFestivals;
-
         public FestivalApi(FestivalApiCompleted onTaskCompleted, DaoSession daoSession){
             this.onTaskCompleted = onTaskCompleted;
             festivalDao = daoSession.getFestivalDao();

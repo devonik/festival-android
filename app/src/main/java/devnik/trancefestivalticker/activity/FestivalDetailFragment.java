@@ -50,8 +50,6 @@ import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 
 public class FestivalDetailFragment extends DialogFragment implements BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener {
     private Festival festival;
-    private FestivalDetailDao festivalDetailDao;
-    private Query<FestivalDetail> festivalDetailQuery;
     private FestivalDetail festivalDetail;
 
     private FestivalDetailImagesDao festivalDetailImagesDao;
@@ -79,11 +77,10 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
 
         festival = (Festival) getArguments().getSerializable("festival");
-        DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
-        festivalDetailDao = daoSession.getFestivalDetailDao();
-        festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
-        festivalDetail = festivalDetailQuery.unique();
 
+        festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
+
+        DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
         //Nur wenn das Festival eingetragende Details hat
         if(festivalDetail!=null) {
             festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
