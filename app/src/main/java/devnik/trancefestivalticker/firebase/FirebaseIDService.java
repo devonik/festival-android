@@ -14,12 +14,16 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh(){
-        String token = FirebaseInstanceId.getInstance().getToken();
-        Log.d(TAG, "Registration Token: = "+token);
+        // Get updated InstanceID token.
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "Refreshed token: " + refreshedToken);
 
-        sendRegistationToServer(token);
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // Instance ID token to your app server.
+        sendRegistrationToServer(refreshedToken);
     }
-    public void sendRegistationToServer(String token){
+    public void sendRegistrationToServer(String token){
 
     }
 }

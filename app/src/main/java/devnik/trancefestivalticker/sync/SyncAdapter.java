@@ -10,8 +10,12 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.api.SyncAllData;
+import devnik.trancefestivalticker.model.DaoSession;
 
 /**
  * Created by niklas on 22.03.18.
@@ -67,9 +71,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
-    /*
-     * Put the data transfer code here.
-     */
+        Log.d("SyncAdapter", "Starting sync");
+        Log.d("SyncAdapter", "onPerformSync for account[" + account.name + "], extras ["+extras+"], "+
+                "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");
+        DaoSession daoSession = ((App) getContext()).getDaoSession();
+        try{
+            new SyncAllData(daoSession);
+        }catch(Exception e){
+            Log.e("SyncAdapter", "Cant get Data: "+e);
+        }
     }
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
         Account account = getSyncAccount(context);
@@ -86,6 +96,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     authority, new Bundle(), syncInterval);
         }
     }
+
     /**
      * Helper method to have the sync adapter sync immediately
      * @param context The context used to access the account service
@@ -97,6 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
     }
+
     /**
      * Helper method to get the fake account to be used with SyncAdapter, or make a new one
      * if the fake account doesn't exist yet.  If we make a new account, we call the
@@ -131,10 +143,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
              * here.
              */
 
-            onAccountCreated(newAccount, context);
+            //onAccountCreated(newAccount, context);
         }
         return newAccount;
     }
+
     private static void onAccountCreated(Account newAccount, Context context) {
         /*
          * Since we've created an account
@@ -150,5 +163,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * Finally, let's do a sync to get things started
          */
         syncImmediately(context);
+    }
+
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 }

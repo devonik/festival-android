@@ -1,8 +1,10 @@
 package devnik.trancefestivalticker.activity;
 
+import android.accounts.Account;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -49,6 +51,8 @@ import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
+import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
+
 public class MainActivity extends AppCompatActivity{
     private List<Festival> festivals;
     private List<WhatsNew> whatsNews;
@@ -63,8 +67,12 @@ public class MainActivity extends AppCompatActivity{
     private RecyclerView recyclerView;
     // Progress Dialog Object
     private ProgressDialog pDialog;
+    private Account mAccount;
+    public static boolean isAppRunning = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        isAppRunning = true;
         //get the festival DAO
         DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
 
@@ -91,7 +99,10 @@ public class MainActivity extends AppCompatActivity{
 
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
+
+        mAccount = getSyncAccount(this);
     }
+    @Override protected void onDestroy() { super.onDestroy(); isAppRunning = false; }
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
@@ -214,8 +225,17 @@ public class MainActivity extends AppCompatActivity{
         //When Sync action button is clicked
         if(id == R.id.refresh){
             pDialog.show();
-            //triggerRemoteSync();
-            reloadActivity();
+            // Pass the settings flags by inserting them in a bundle
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        /*
+         * Request the sync for the default account, authority, and
+         * manual sync settings
+         */
+            ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
             return true;
         }
         if(id == R.id.resetDb){

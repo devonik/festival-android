@@ -39,8 +39,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         private WhatsNewDao whatsNewDao;
         private Query<WhatsNew> whatsNewQuery;
         private List<Festival> localFestivals;
-        public FestivalApi(FestivalApiCompleted onTaskCompleted, DaoSession daoSession){
-            this.onTaskCompleted = onTaskCompleted;
+        public FestivalApi(DaoSession daoSession){
+            //this.onTaskCompleted = onTaskCompleted;
             festivalDao = daoSession.getFestivalDao();
             festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
             localFestivals = festivalQuery.list();
@@ -48,11 +48,11 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         @Override
         protected Festival[] doInBackground(Void... params) {
             try {
-                String url = "https://festivalticker.herokuapp.com/api/v1/festivalsByUnSync";
-                if(localFestivals.size()==0){
+                //String url = "https://festivalticker.herokuapp.com/api/v1/festivalsByUnSync";
+                //if(localFestivals.size()==0){
                     ////Lokale Daten wurden gelöscht oder noch nicht gesynct, bzw. es sind keine Einträge vorhanden.... Hole alle Festivals von remote
-                    url = "https://festivalticker.herokuapp.com/api/v1/festivals";
-                }
+                    String url = "https://festivalticker.herokuapp.com/api/v1/festivals";
+                //}
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Festival[] festivals = restTemplate.getForObject(url, Festival[].class);
@@ -81,7 +81,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
         //Completion Handler
         @Override
         protected void onPostExecute(Festival[] festivals) {
-            onTaskCompleted.onFestivalApiCompleted();
+            //
+            //onTaskCompleted.onFestivalApiCompleted();
         }
         public void updateSQLite(Festival[] festivals){
 
@@ -91,8 +92,8 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
                     // Loop through each array element, get JSON object which has festival and username
                     for (int i = 0; i < festivals.length; i++) {
                         Festival festival = festivals[i];
-                        updateFestival(festival);
-                        updateMySQLSyncSts(festival);
+                        updateLocalFestival(festival);
+                        //updateMySQLSyncSts(festival);
                     }
                     //reloadActivity();
                 }
@@ -101,7 +102,7 @@ public class FestivalApi extends AsyncTask<Void, Void, Festival[]> {
             }
 
         }
-    private void updateFestival(Festival unsyncfestival){
+    private void updateLocalFestival(Festival unsyncfestival){
         Integer updatedCount = 0;
         Integer insertedCount = 0;
         for (Festival item: localFestivals) {

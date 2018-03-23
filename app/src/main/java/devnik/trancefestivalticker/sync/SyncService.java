@@ -3,6 +3,7 @@ package devnik.trancefestivalticker.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 /**
  * Created by niklas on 22.03.18.
@@ -23,6 +24,7 @@ public class SyncService extends Service {
          * Set the sync adapter as syncable
          * Disallow parallel syncs
          */
+        Log.d("MovieSyncService", "onCreate - MovieSyncService");
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new SyncAdapter(getApplicationContext(), true);
