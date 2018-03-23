@@ -1,15 +1,8 @@
 package devnik.trancefestivalticker.adapter;
 
-import android.app.Application;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -26,21 +19,14 @@ import android.text.format.DateFormat;
 import org.greenrobot.greendao.query.Query;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.DetailActivity;
-import devnik.trancefestivalticker.activity.FestivalDetailFragment;
-import devnik.trancefestivalticker.api.FestivalDetailApi;
 import devnik.trancefestivalticker.model.CustomDate;
-import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
-import devnik.trancefestivalticker.model.Image;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
-import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 /**

@@ -24,9 +24,6 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
  */
 
 public class SplashActivity extends AppCompatActivity implements SyncStatusObserver
-        //implements FestivalApi.FestivalApiCompleted,
-                   //FestivalDetailApi.FestivalDetailApiCompleted,
-                   //FestivalDetailImagesApi.FestivalDetailImagesApiCompleted
 {
     // Instance fields
     Account mAccount;
@@ -47,9 +44,6 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         mAccount = getSyncAccount(this);
 
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
-        //new FestivalApi(this, daoSession).execute();
-        //new FestivalDetailApi(this, daoSession).execute();
-        //new FestivalDetailImagesApi(this, daoSession).execute();
         Log.e("SplashActivity","Bundle: "+getIntent().getExtras());
         if(getIntent().getExtras() != null ) {
             if(getIntent().getExtras().get(KEY_SYNC_REQUEST) != null) {

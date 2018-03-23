@@ -1,12 +1,9 @@
 package devnik.trancefestivalticker.activity;
 
 import android.accounts.Account;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -16,16 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -37,7 +27,6 @@ import java.util.List;
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
-import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
@@ -245,13 +234,6 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-    public void triggerRemoteSync(){
-        if(isNetworkAvailable()) {
-            //new FestivalApi(MainActivity.this,getApplicationContext(),pDialog,festivals).execute();
-            //new FestivalDetailApi(getApplicationContext(), festivalDetails).execute();
-            //new FestivalDetailImagesApi(getApplicationContext(), festivalDetailImages).execute();
-        }
     }
 
     private boolean isNetworkAvailable() {

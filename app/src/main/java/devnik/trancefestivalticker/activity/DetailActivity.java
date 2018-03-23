@@ -4,15 +4,12 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.PagerAdapter;
-import devnik.trancefestivalticker.api.FestivalDetailApi;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -24,7 +21,7 @@ import devnik.trancefestivalticker.model.FestivalDetailDao;
  * Created by nik on 09.03.2018.
  */
 
-public class DetailActivity extends AppCompatActivity implements FestivalDetailApi.FestivalDetailApiCompleted {
+public class DetailActivity extends AppCompatActivity{
     private Festival festival;
     private FestivalDetailDao festivalDetailDao;
     private Query<FestivalDetail> festivalDetailQuery;
@@ -69,9 +66,7 @@ public class DetailActivity extends AppCompatActivity implements FestivalDetailA
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-
             }
-
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
             @Override
@@ -80,11 +75,5 @@ public class DetailActivity extends AppCompatActivity implements FestivalDetailA
 
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
-    }
-    @Override
-    public void onFestivalDetailApiCompleted(){
-        Toast.makeText(this,"Task Completed",Toast.LENGTH_SHORT);
-
-
     }
 }
