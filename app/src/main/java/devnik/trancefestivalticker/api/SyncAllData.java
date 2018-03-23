@@ -73,10 +73,12 @@ public class SyncAllData {
         try{
             //If no of array element is not zero
             if(festivals.length != 0){
+                festivalDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivals.length; i++) {
-                    Festival festival = festivals[i];
-                    updateLocalFestival(festival);
+                    Festival remoteFestival = festivals[i];
+                    this.festivalDao.insert(remoteFestival);
+                    //updateLocalFestival(festival);
                     //updateMySQLSyncSts(festival);
                 }
                 //reloadActivity();
@@ -129,10 +131,12 @@ public class SyncAllData {
         try{
             //If no of array element is not zero
             if(festivalDetails.length != 0){
+                festivalDetailDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivalDetails.length; i++) {
                     FestivalDetail festivalDetail = festivalDetails[i];
-                    updateLocalFestivalDetails(festivalDetail);
+                    this.festivalDetailDao.insert(festivalDetail);
+                    //updateLocalFestivalDetails(festivalDetail);
                 }
             }
         }catch (Exception e){
@@ -183,10 +187,12 @@ public class SyncAllData {
         try{
             //If no of array element is not zero
             if(festivalDetailImages.length != 0){
+                festivalDetailImagesDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivalDetailImages.length; i++) {
                     FestivalDetailImages festivalDetailImage = festivalDetailImages[i];
-                    updateLocalFestivalDetailImage(festivalDetailImage);
+                    this.festivalDetailImagesDao.insert(festivalDetailImage);
+                    //updateLocalFestivalDetailImage(festivalDetailImage);
                 }
             }
         }catch (Exception e){
@@ -194,6 +200,7 @@ public class SyncAllData {
         }
 
     }
+    //@TODO WhatsNew Maybe ?
     private void updateLocalFestivalDetailImage(FestivalDetailImages unSyncFestivalDetailImage){
         Integer updatedCount = 0;
         Integer insertedCount = 0;

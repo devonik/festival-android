@@ -2,7 +2,9 @@ package devnik.trancefestivalticker.activity;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncStatusObserver;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,8 +41,11 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         ContentResolver.addStatusChangeListener(
                 ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
 
-        //Create the Dummy Account
-        //mAccount = CreateSyncAccount(this);
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.devnik_trancefestivalticker_account_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        String preferenceAccountName = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_account_name), "");
+        mAccount = getSyncAccount(this);
+
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
         //new FestivalApi(this, daoSession).execute();
         //new FestivalDetailApi(this, daoSession).execute();
@@ -64,7 +69,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
 
                 }
             }else{
-
+                //getIntent().getExtras().get(KEY_SYNC_REQUEST) is null
 
                 Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
 
@@ -72,8 +77,24 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                 startActivity(intent);
                 finish();
             }
-        }else {
-
+        }else if(preferenceAccountName == ""){
+            //Account exestiert noch nicht
+            Log.e("Account", "is New: Trigger Sync");
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                    /*
+                     * Request the sync for the default account, authority, and
+                     * manual sync settings
+                     */
+            ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
+            editor.putString(getString(R.string.devnik_trancefestivalticker_account_name), mAccount.name);
+            editor.commit();
+        }
+        else {
+            //getIntent().getExtras() is null
             Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -117,6 +138,9 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
 
                 Log.e("TAG", "SYNC PENDING " + syncPending);
                 if (!syncActive && !syncPending){
+                    //@TODO Here a Pending dialog mybe
+                    //@TODO This is called so often ? why ?
+
                     Log.e("TAG", "Sync is finished");
                     //Start Main Activity if synced is finish
 
