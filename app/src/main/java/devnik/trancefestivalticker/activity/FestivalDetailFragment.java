@@ -118,7 +118,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             imageSlider.addSlider(textSliderView);
         }
         imageSlider.setPresetTransformer(SliderLayout.Transformer.ZoomOut);
-        imageSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+        imageSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Top);
         imageSlider.setCustomAnimation(new DescriptionAnimation());
         imageSlider.setDuration(4000);
         imageSlider.addOnPageChangeListener(this);

@@ -81,5 +81,7 @@
         <item name="unselected_width">6dp</item>
         <item name="unselected_height">6dp</item>
     </style>
-
+    <style name="ProgressBar" parent="@android:style/Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@mipmap/ic_action_refresh</item>
+    </style>
 </resources>

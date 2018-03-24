@@ -6,14 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncStatusObserver;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.helper.Helper;
 import devnik.trancefestivalticker.model.DaoSession;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
@@ -26,15 +28,18 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 public class SplashActivity extends AppCompatActivity implements SyncStatusObserver
 {
     // Instance fields
-    Account mAccount;
-
-    private ContentResolver contentResolver;
+    private Account mAccount;
+    private ProgressBar progressBar;
     // Incoming Intent key for extended data
     public static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.progress_bar);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_IN);
+
         ContentResolver.addStatusChangeListener(
                 ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
 
@@ -90,9 +95,9 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         else {
             //getIntent().getExtras() is null
             Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            //Intent intent = new Intent(this, MainActivity.class);
+            //startActivity(intent);
+            //finish();
         }
 
     }
