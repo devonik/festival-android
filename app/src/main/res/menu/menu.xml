@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activity.MainActivity" >
     <group android:id="@+id/group_filter_by_music_genre"/>
-
     <item android:title="refresh"
     android:id="@+id/refresh"
     android:icon="@mipmap/ic_action_refresh"

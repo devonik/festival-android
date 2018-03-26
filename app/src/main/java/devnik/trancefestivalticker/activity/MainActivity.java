@@ -4,13 +4,9 @@ import android.accounts.Account;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,12 +14,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.ActionProvider;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
@@ -31,12 +27,14 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
+import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -53,7 +51,7 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapt
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements MultiSelectionSpinner.OnMultipleItemsSelectedListener{
     private List<Festival> festivals;
     private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
@@ -72,6 +70,7 @@ public class MainActivity extends AppCompatActivity{
     private Account mAccount;
     private DaoSession daoSession;
     private Menu menu;
+    private MultiSelectionSpinner spinner;
     public static boolean isAppRunning = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +96,21 @@ public class MainActivity extends AppCompatActivity{
         // query all festivals, sorted a-z by their text
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
 
+        musicGenreDao = daoSession.getMusicGenreDao();
+        musicGenres = musicGenreDao.queryBuilder().build().list();
 
+        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
+        List<String> genreNames = new ArrayList<String>();
+        if(musicGenres!=null){
+            for (MusicGenre item: musicGenres) {
+                genreNames.add(item.getName());
+            }
+
+            MultiSelectionSpinner multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            multiSelectionSpinner.setItems(genreNames);
+            //multiSelectionSpinner.setSelection(new int[]{0, musicGenres.size()-1});
+            multiSelectionSpinner.setListener(this);
+        }
 
         updateFestivalThumbnailView();
         //triggerRemoteSync();
@@ -111,7 +124,6 @@ public class MainActivity extends AppCompatActivity{
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
-        List<MusicGenre> musicGenres = festivals.get(7).getMusicGenres();
         Log.e("Test", "musicGenres: "+musicGenres);
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
@@ -214,28 +226,31 @@ public class MainActivity extends AppCompatActivity{
         pDialog.setMessage("Transfering Data from Remote MySQL DB and Syncing SQLite. Please wait...");
         pDialog.setCancelable(false);
 
-        //Brauch ich das noch???
         setSupportActionBar(toolbar);
+    }
+    @Override
+    public void selectedIndices(List<Integer> indices) {
+
+    }
+
+    @Override
+    public void selectedStrings(List<String> strings) {
+        Toast.makeText(this, strings.toString(), Toast.LENGTH_LONG).show();
     }
     //Options Menu (ActionBar Menu)
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-        //Add Music Genres to Filter
-        musicGenreDao = daoSession.getMusicGenreDao();
-        musicGenres = musicGenreDao.queryBuilder().build().list();
-        for (MusicGenre item: musicGenres) {
 
-            //groupFilterByMusicGenre.collapseActionView()
-              menu.add(R.id.group_filter_by_music_genre, Menu.FLAG_PERFORM_NO_CLOSE, item.getId().intValue(), item.getName());
-
-        }
-        menu.setGroupCheckable(R.id.group_filter_by_music_genre,true,false);
-        menu.setGroupEnabled(R.id.group_filter_by_music_genre, true);
 
         this.menu = menu;
         return true;
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        return super.onPrepareOptionsMenu(menu);
     }
     //When Options Menu is selected
     @Override
@@ -261,10 +276,6 @@ public class MainActivity extends AppCompatActivity{
                 festivalDetailDao.deleteAll();
                 festivalDetailImagesDao.deleteAll();
                 return true;
-            case 1:
-               // if (item.isChecked()) item.setChecked(false);
-               // else item.setChecked(true);
-                //return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
