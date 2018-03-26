@@ -71,8 +71,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
-        Log.d("SyncAdapter", "Starting sync");
-        Log.d("SyncAdapter", "onPerformSync for account[" + account.name + "], extras ["+extras+"], "+
+        Log.e("SyncAdapter", "Starting sync");
+        Log.e("SyncAdapter", "onPerformSync for account[" + account.name + "], extras ["+extras+"], "+
                 "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{

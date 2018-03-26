@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.api.SyncAllData;
 import devnik.trancefestivalticker.model.DaoSession;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
@@ -95,9 +96,9 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         else {
             //getIntent().getExtras() is null
             Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
-            //Intent intent = new Intent(this, MainActivity.class);
-            //startActivity(intent);
-            //finish();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
 
     }

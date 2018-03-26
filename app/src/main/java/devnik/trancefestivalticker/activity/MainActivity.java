@@ -13,6 +13,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
@@ -95,6 +97,8 @@ public class MainActivity extends AppCompatActivity{
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
+        List<MusicGenre> musicGenres = festivals.get(7).getMusicGenres();
+        Log.e("Test", "musicGenres: "+musicGenres);
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 

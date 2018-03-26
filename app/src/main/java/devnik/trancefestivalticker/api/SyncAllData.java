@@ -16,6 +16,10 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.MusicGenre;
+import devnik.trancefestivalticker.model.MusicGenreDao;
+import devnik.trancefestivalticker.model.MusicGenreFestivals;
+import devnik.trancefestivalticker.model.MusicGenreFestivalsDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 
 /**
@@ -34,6 +38,9 @@ public class SyncAllData {
     private List<FestivalDetailImages> localFestivalDetailImages;
     private FestivalDetailImagesDao festivalDetailImagesDao;
 
+    private MusicGenreDao musicGenreDao;
+    private MusicGenreFestivalsDao musicGenreFestivalsDao;
+
     public SyncAllData(DaoSession daoSession){
         this.daoSession = daoSession;
         festivalDao = daoSession.getFestivalDao();
@@ -46,14 +53,20 @@ public class SyncAllData {
         festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
         localFestivalDetailImages = festivalDetailImagesDao.queryBuilder().build().list();
 
+        musicGenreDao = daoSession.getMusicGenreDao();
+        musicGenreFestivalsDao = daoSession.getMusicGenreFestivalsDao();
+
         loadFestivals();
         loadFestivalDetails();
         loadFestivalDetailImages();
+
+        //MusicGenre
+        loadMusicGenre();
+        loadMusicGenreFestivals();
     }
     //***********************************Festivals****************************************//
     public void loadFestivals(){
         try {
-
             String url = "https://festivalticker.herokuapp.com/api/v1/festivals";
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -61,7 +74,6 @@ public class SyncAllData {
             if(festivals.length > 0){
                 updateSQLiteFestivals(festivals);
             }
-
             //return festivals;
         }
         catch (Exception e) {
@@ -221,5 +233,74 @@ public class SyncAllData {
         whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
 
         Log.d("DaoFestival", "Inserted new festival detail image, ID: " + unSyncFestivalDetailImage.getFestival_detail_images_id());
+    }
+
+    //*******************************MusicGenre***************************************//
+    public void loadMusicGenre(){
+        try {
+            String url = "https://festivalticker.herokuapp.com/api/v1/musicGenre";
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            MusicGenre[] musicGenres = restTemplate.getForObject(url, MusicGenre[].class);
+            if(musicGenres.length>0){
+                updateSQLiteMusicGenres(musicGenres);
+            }
+
+        } catch (Exception e) {
+            Log.e("MainActivity", e.getMessage(), e);
+        }
+    }
+    public void updateSQLiteMusicGenres(MusicGenre[] musicGenres){
+
+        try{
+            //If no of array element is not zero
+            if(musicGenres.length != 0){
+                musicGenreDao.deleteAll();
+                // Loop through each array element, get JSON object which has festival and username
+                for (int i = 0; i < musicGenres.length; i++) {
+                    MusicGenre musicGenre = musicGenres[i];
+                    this.musicGenreDao.insert(musicGenre);
+                    //updateLocalFestivalDetailImage(festivalDetailImage);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void loadMusicGenreFestivals(){
+        try {
+            String url = "https://festivalticker.herokuapp.com/api/v1/musicGenreFestivals";
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            MusicGenreFestivals[] musicGenreFestivals = restTemplate.getForObject(url, MusicGenreFestivals[].class);
+            if(musicGenreFestivals.length>0){
+                updateSQLiteMusicGenreFestivals(musicGenreFestivals);
+            }
+
+        } catch (Exception e) {
+            Log.e("MainActivity", e.getMessage(), e);
+        }
+    }
+    public void updateSQLiteMusicGenreFestivals(MusicGenreFestivals[] musicGenreFestivals){
+
+        try{
+            //If no of array element is not zero
+            if(musicGenreFestivals.length != 0){
+                musicGenreFestivalsDao.deleteAll();
+                // Loop through each array element, get JSON object which has festival and username
+                for (int i = 0; i < musicGenreFestivals.length; i++) {
+                    MusicGenreFestivals musicGenreFestival = musicGenreFestivals[i];
+                    this.musicGenreFestivalsDao.insert(musicGenreFestival);
+                    //updateLocalFestivalDetailImage(festivalDetailImage);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }
