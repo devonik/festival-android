@@ -193,4 +193,5 @@ public class Festival implements Serializable {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getFestivalDao() : null;
     }
+
 }
