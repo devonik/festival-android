@@ -1,10 +1,9 @@
 package devnik.trancefestivalticker.activity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.accounts.Account;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -17,26 +16,25 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.greendao.query.Query;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
-import devnik.trancefestivalticker.api.FestivalApi;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
+import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -45,16 +43,22 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.MusicGenre;
+import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
-public class MainActivity extends AppCompatActivity{
+import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
+
+public class MainActivity extends AppCompatActivity implements MultiSelectionSpinner.OnMultipleItemsSelectedListener{
     private List<Festival> festivals;
     private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
     private FestivalDetailDao festivalDetailDao;
     private FestivalDetailImagesDao festivalDetailImagesDao;
+    private MusicGenreDao musicGenreDao;
+    private List<MusicGenre> musicGenres;
     private Query<Festival> festivalQuery;
     private List<FestivalDetail> festivalDetails;
     private List<FestivalDetailImages> festivalDetailImages;
@@ -63,10 +67,17 @@ public class MainActivity extends AppCompatActivity{
     private RecyclerView recyclerView;
     // Progress Dialog Object
     private ProgressDialog pDialog;
+    private Account mAccount;
+    private DaoSession daoSession;
+    private Menu menu;
+    private MultiSelectionSpinner spinner;
+    public static boolean isAppRunning = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        isAppRunning = true;
         //get the festival DAO
-        DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
+        daoSession = ((App)this.getApplication()).getDaoSession();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -85,16 +96,35 @@ public class MainActivity extends AppCompatActivity{
         // query all festivals, sorted a-z by their text
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
 
+        musicGenreDao = daoSession.getMusicGenreDao();
+        musicGenres = musicGenreDao.queryBuilder().build().list();
+
+        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
+        List<String> genreNames = new ArrayList<String>();
+        if(musicGenres!=null){
+            for (MusicGenre item: musicGenres) {
+                genreNames.add(item.getName());
+            }
+
+            MultiSelectionSpinner multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            multiSelectionSpinner.setItems(genreNames);
+            //multiSelectionSpinner.setSelection(new int[]{0, musicGenres.size()-1});
+            multiSelectionSpinner.setListener(this);
+        }
 
         updateFestivalThumbnailView();
         //triggerRemoteSync();
 
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
+
+        mAccount = getSyncAccount(this);
     }
+    @Override protected void onDestroy() { super.onDestroy(); isAppRunning = false; }
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
+        Log.e("Test", "musicGenres: "+musicGenres);
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 
@@ -196,41 +226,58 @@ public class MainActivity extends AppCompatActivity{
         pDialog.setMessage("Transfering Data from Remote MySQL DB and Syncing SQLite. Please wait...");
         pDialog.setCancelable(false);
 
-        //Brauch ich das noch???
         setSupportActionBar(toolbar);
+    }
+    @Override
+    public void selectedIndices(List<Integer> indices) {
+
+    }
+
+    @Override
+    public void selectedStrings(List<String> strings) {
+        Toast.makeText(this, strings.toString(), Toast.LENGTH_LONG).show();
     }
     //Options Menu (ActionBar Menu)
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
+
+
+        this.menu = menu;
         return true;
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        return super.onPrepareOptionsMenu(menu);
     }
     //When Options Menu is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         //Handle action bar item clicks here
-        int id = item.getItemId();
-        //When Sync action button is clicked
-        if(id == R.id.refresh){
-            pDialog.show();
-            //triggerRemoteSync();
-            reloadActivity();
-            return true;
-        }
-        if(id == R.id.resetDb){
-            festivalDao.deleteAll();
-            festivalDetailDao.deleteAll();
-            festivalDetailImagesDao.deleteAll();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    public void triggerRemoteSync(){
-        if(isNetworkAvailable()) {
-            //new FestivalApi(MainActivity.this,getApplicationContext(),pDialog,festivals).execute();
-            //new FestivalDetailApi(getApplicationContext(), festivalDetails).execute();
-            //new FestivalDetailImagesApi(getApplicationContext(), festivalDetailImages).execute();
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                pDialog.show();
+                // Pass the settings flags by inserting them in a bundle
+                Bundle settingsBundle = new Bundle();
+                settingsBundle.putBoolean(
+                        ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                settingsBundle.putBoolean(
+                        ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        /*
+         * Request the sync for the default account, authority, and
+         * manual sync settings
+         */
+                ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
+                return true;
+            case R.id.resetDb:
+                festivalDao.deleteAll();
+                festivalDetailDao.deleteAll();
+                festivalDetailImagesDao.deleteAll();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

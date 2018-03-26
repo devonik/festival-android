@@ -1,13 +1,25 @@
 package devnik.trancefestivalticker;
 
+import android.accounts.Account;
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.greendao.database.Database;
 
 import devnik.trancefestivalticker.model.DaoMaster;
 import devnik.trancefestivalticker.model.DaoMaster.DevOpenHelper;
 import devnik.trancefestivalticker.model.DaoSession;
+import devnik.trancefestivalticker.sync.SyncAdapter;
+
+import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 
 
 /**
@@ -20,9 +32,13 @@ public class App extends Application{
 
     private DaoSession daoSession;
     private ProgressDialog progressDialog;
+    private Account mAccount;
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseApp.initializeApp(getApplicationContext());
+        SyncAdapter.initializeSyncAdapter(this);
+        FirebaseMessaging.getInstance().subscribeToTopic("news");
         //Initialize Progress Dialog properties
 
         DevOpenHelper helper = new DevOpenHelper(this, "festival-db");
