@@ -133,7 +133,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     @Override
     public void filter(List<String> musicGenres) {
 
-        if (musicGenres == null) {
+        if (musicGenres.size()==0) {
+            //Reset Filter
             filteredFestivalList = new ArrayList<>(festivals);
             this.setVisible(true);
         } else {
@@ -149,10 +150,6 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                         }
                     }
                 }
-            }
-            if(musicGenres.size()==0){
-                //Reset Filter
-                filteredFestivalList = festivals;
             }
             this.setVisible(!filteredFestivalList.isEmpty());
         }
