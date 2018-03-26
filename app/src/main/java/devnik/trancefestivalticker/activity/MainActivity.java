@@ -32,6 +32,7 @@ import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.adapter.IFilterableSection;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
@@ -47,6 +48,7 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
+import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
@@ -86,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
 
         festivalDao = daoSession.getFestivalDao();
+        festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
+
         festivalDetailDao = daoSession.getFestivalDetailDao();
         festivalDetails = festivalDetailDao.queryBuilder().build().list();
 
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //whatsNewDao = daoSession.getWhatsNewDao();
         //whatsNewDao.insert(null);
         // query all festivals, sorted a-z by their text
-        festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
+
 
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
@@ -235,7 +239,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     @Override
     public void selectedStrings(List<String> strings) {
-        Toast.makeText(this, strings.toString(), Toast.LENGTH_LONG).show();
+        for (Section section : sectionAdapter.getCopyOfSectionsMap().values()) {
+            if (section instanceof IFilterableSection) {
+                ((IFilterableSection) section).filter(strings);
+            }
+            sectionAdapter.notifyDataSetChanged();
+            Toast.makeText(this, strings.toString(), Toast.LENGTH_LONG).show();
+        }
     }
     //Options Menu (ActionBar Menu)
     @Override

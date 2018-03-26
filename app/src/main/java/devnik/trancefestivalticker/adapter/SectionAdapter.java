@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,16 +17,26 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import android.text.format.DateFormat;
 
+import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.DetailActivity;
 import devnik.trancefestivalticker.model.CustomDate;
+import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDao;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
+import devnik.trancefestivalticker.model.MusicGenre;
+import devnik.trancefestivalticker.model.MusicGenreDao;
+import devnik.trancefestivalticker.model.MusicGenreFestivals;
+import devnik.trancefestivalticker.model.MusicGenreFestivalsDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
@@ -33,11 +44,15 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
  * Created by nik on 21.02.2018.
  */
 
-public class SectionAdapter extends StatelessSection implements View.OnLongClickListener {
+public class SectionAdapter extends StatelessSection implements View.OnLongClickListener, IFilterableSection {
+
     private Context mContext;
     private ArrayList<Festival> festivals;
+    private ArrayList<Festival> filteredFestivalList;
     private FestivalDetailDao festivalDetailDao;
     private Query<FestivalDetail> festivalDetailQuery;
+    private FestivalDao festivalDao;
+    private DaoSession daoSession;
 
     private CustomDate customDate;
     public FragmentManager fragmentManager;
@@ -51,11 +66,14 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         this.customDate = customDate;
         this.festivals = festivals;
         this.fragmentManager = fragmentManager;
+        this.filteredFestivalList = new ArrayList<>(festivals);
+        daoSession = ((App)context).getDaoSession();
+        festivalDao = daoSession.getFestivalDao();
     }
 
     @Override
     public int getContentItemsTotal() {
-        return festivals.size(); // number of items of this section
+        return filteredFestivalList.size(); // number of items of this section
     }
 
     @Override
@@ -67,7 +85,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
-        final Festival festival = festivals.get(position);
+        final Festival festival = filteredFestivalList.get(position);
         // bind your view here
                 Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
@@ -111,6 +129,33 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         headerHolder.monthHeader.setText(customDate.getMonth());
 
+    }
+    @Override
+    public void filter(List<String> musicGenres) {
+
+        if (musicGenres == null) {
+            filteredFestivalList = new ArrayList<>(festivals);
+            this.setVisible(true);
+        } else {
+            filteredFestivalList.clear();
+            for(String filterGenre:musicGenres){
+                for (Festival festival : festivals) {
+                    if(!filteredFestivalList.contains(festival)) {
+                        for (MusicGenre musicGenre : festival.getMusicGenres()) {
+
+                            if (musicGenre.getName() == filterGenre) {
+                                filteredFestivalList.add(festival);
+                            }
+                        }
+                    }
+                }
+            }
+            if(musicGenres.size()==0){
+                //Reset Filter
+                filteredFestivalList = festivals;
+            }
+            this.setVisible(!filteredFestivalList.isEmpty());
+        }
     }
 
     class MyItemViewHolder extends RecyclerView.ViewHolder{
