@@ -2,10 +2,12 @@ package devnik.trancefestivalticker.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +44,7 @@ import java.util.List;
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.PagerAdapter;
+import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -81,6 +84,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         ticket_url = (TextView) view.findViewById(R.id.ticket_url);
         price = (TextView) view.findViewById(R.id.price);
         description = (TextView) view.findViewById(R.id.description);
+
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
         //AdMob
         // Init AdMob
@@ -143,7 +147,13 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
         homepage_url.setText(festivalDetail.getHomepage_url());
         ticket_url.setText(festivalDetail.getTicket_url());
-        description.setText(festivalDetail.getDescription());
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
+        }else{
+            description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+        }
+
     }
     public void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){
