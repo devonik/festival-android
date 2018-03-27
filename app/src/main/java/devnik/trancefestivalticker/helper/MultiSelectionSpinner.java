@@ -119,9 +119,10 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
         mSelection = new boolean[_items.length];
         mSelectionAtStart  = new boolean[_items.length];
         simple_adapter.clear();
-        simple_adapter.add(_items[0]);
+        //Add first item in the Text
+        //simple_adapter.add(_items[0]);
         Arrays.fill(mSelection, false);
-        mSelection[0] = true;
+        //mSelection[0] = true;
     }
 
     public void setSelection(String[] selection) {
