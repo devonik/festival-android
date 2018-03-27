@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -36,9 +37,13 @@ public class App extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+
         FirebaseApp.initializeApp(getApplicationContext());
         SyncAdapter.initializeSyncAdapter(this);
         FirebaseMessaging.getInstance().subscribeToTopic("news");
+
+
+
         //Initialize Progress Dialog properties
 
         DevOpenHelper helper = new DevOpenHelper(this, "festival-db");

@@ -28,6 +28,11 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.greendao.query.Query;
@@ -60,6 +65,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private View view;
     private SliderLayout imageSlider;
 
+    //AdMob
+    private AdView mAdView;
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
         return f;
@@ -75,6 +82,44 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         price = (TextView) view.findViewById(R.id.price);
         description = (TextView) view.findViewById(R.id.description);
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
+        //AdMob
+        // Init AdMob
+        MobileAds.initialize(getContext(), "ca-app-pub-4609998981070446~5371814947");
+        mAdView = view.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        mAdView.setAdListener(new AdListener(){
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                mAdView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                mAdView.destroy();
+                mAdView.setVisibility(View.GONE);
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
 
         festival = (Festival) getArguments().getSerializable("festival");
 
@@ -117,12 +162,12 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             imageSlider.addSlider(textSliderView);
         }
+
         imageSlider.setPresetTransformer(SliderLayout.Transformer.ZoomOut);
         imageSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Top);
         imageSlider.setCustomAnimation(new DescriptionAnimation());
         imageSlider.setDuration(4000);
         imageSlider.addOnPageChangeListener(this);
-
 
     }
     @Override
