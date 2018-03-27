@@ -14,6 +14,8 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.greenrobot.greendao.annotation.Id;
+
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.DaoSession;
@@ -50,7 +52,9 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
 
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
         Log.e("SplashActivity","Bundle: "+getIntent().getExtras());
+
         if(getIntent().getExtras() != null ) {
+            Log.e("SplashActivity", "Bundle Key_sync: "+getIntent().getExtras().get(KEY_SYNC_REQUEST));
             if(getIntent().getExtras().get(KEY_SYNC_REQUEST) != null) {
                 if (getIntent().getExtras().get(KEY_SYNC_REQUEST).equals("sync")) {
                     //The App is called by firebase message while app was in background
@@ -146,6 +150,9 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                     //Prevent double Intent by FCM, if App is already running
                     if (MainActivity.isAppRunning) {
                         Log.e("SyncFinished", "New Results are not in yet, waitin for restart app");
+
+                        //Delete b4 productivity
+                        Toast.makeText(getApplicationContext(),R.string.toastIfAppIsOpen,Toast.LENGTH_SHORT).show();
                     } else {
                         // Create the dummy account
                         Toast.makeText(getApplicationContext(), "app is called by fcm", Toast.LENGTH_SHORT).show();

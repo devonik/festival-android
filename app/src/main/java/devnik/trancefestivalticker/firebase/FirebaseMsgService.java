@@ -20,12 +20,6 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 public class FirebaseMsgService extends FirebaseMessagingService {
     private final String TAG = "FirebaseMsgService";
     // Constants
-    // Content provider authority
-    public static final String AUTHORITY = "devnik.trancefestivalticker.provider";
-    // Account type
-    public static final String ACCOUNT_TYPE = "devnik.trancefestivalticker";
-    // Account
-    public static final String ACCOUNT = "default_account";
     // Incoming Intent key for extended data
     public static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";

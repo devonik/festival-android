@@ -8,4 +8,7 @@
     <string name="devnik.trancefestivalticker.account_name" />
     <string name="sync_account_type">devnik.trancefestivalticker</string>
     <string name="content_authority">devnik.trancefestivalticker.provider</string>
+
+    <!--Toast Nachricht, wenn eine Push Nachricht reinkommt, aber der User die App offen hat-->
+    <string name="toastIfAppIsOpen">Es wurden Daten hinzugefügt/aktualisiert. Beim nächsten Starten der App wird aktualisiert.</string>
 </resources>

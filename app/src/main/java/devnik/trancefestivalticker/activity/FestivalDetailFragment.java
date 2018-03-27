@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,15 +127,20 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     public void loadData(){
         lblTitle.setText(festival.getName());
         lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
-        homepage_url.setText(festivalDetail.getHomepage_url());
-        ticket_url.setText(festivalDetail.getTicket_url());
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
+            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
         }else{
+            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(),null, new UITagHandler()));
+            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(),null, new UITagHandler()));
             description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
         }
-
+        //Important to make the hrefs clickable
+        description.setMovementMethod(LinkMovementMethod.getInstance());
+        homepage_url.setMovementMethod(LinkMovementMethod.getInstance());
+        ticket_url.setMovementMethod(LinkMovementMethod.getInstance());
     }
     public void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){
