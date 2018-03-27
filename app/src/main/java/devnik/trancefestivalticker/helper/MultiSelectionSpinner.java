@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
+import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
@@ -73,7 +74,7 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
 
     @Override
     public boolean performClick() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogBackground);
         builder.setTitle("Filter by Music Genre");
         builder.setMultiChoiceItems(_items, mSelection, this);
         _itemsAtStart = getSelectedItemsAsString();

@@ -16,4 +16,5 @@
         android:scaleType="centerCrop"
         android:padding="5dp"
         android:contentDescription="Image" />
+
 </devnik.trancefestivalticker.helper.SquareLayout>
