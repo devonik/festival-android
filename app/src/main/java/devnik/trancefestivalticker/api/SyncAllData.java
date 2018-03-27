@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
@@ -74,7 +73,6 @@ public class SyncAllData {
             if(festivals.length > 0){
                 updateSQLiteFestivals(festivals);
             }
-            //return festivals;
         }
         catch (Exception e) {
             Log.e("MainActivity", e.getMessage(), e);
@@ -90,39 +88,13 @@ public class SyncAllData {
                 for (int i = 0; i < festivals.length; i++) {
                     Festival remoteFestival = festivals[i];
                     this.festivalDao.insert(remoteFestival);
-                    //updateLocalFestival(festival);
-                    //updateMySQLSyncSts(festival);
                 }
-                //reloadActivity();
             }
         }catch (Exception e){
             e.printStackTrace();
         }
 
     }
-    private void updateLocalFestival(Festival unsyncfestival){
-        Integer updatedCount = 0;
-        Integer insertedCount = 0;
-        for (Festival item: localFestivals) {
-            //Festival already exist in local sqlite, so it should be updated
-            if(item.getFestival_id() == unsyncfestival.getFestival_id()){
-                updatedCount++;
-                this.festivalDao.update(unsyncfestival);
-
-                Log.d("DaoFestival", "Update festival with ID: " + unsyncfestival.getFestival_id());
-                return;
-            }
-        }
-        insertedCount++;
-        this.festivalDao.insert(unsyncfestival);
-        WhatsNew whatsNew = new WhatsNew();
-        whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
-        whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
-
-        Log.d("DaoFestival", "Inserted new festival, ID: " + unsyncfestival.getFestival_id());
-    }
-
-
     //**********************************Festival Details*********************************************//
     public void loadFestivalDetails(){
         try {
@@ -148,34 +120,12 @@ public class SyncAllData {
                 for (int i = 0; i < festivalDetails.length; i++) {
                     FestivalDetail festivalDetail = festivalDetails[i];
                     this.festivalDetailDao.insert(festivalDetail);
-                    //updateLocalFestivalDetails(festivalDetail);
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
 
-    }
-    private void updateLocalFestivalDetails(FestivalDetail unSyncFestivalDetail){
-        Integer updatedCount = 0;
-        Integer insertedCount = 0;
-        for (FestivalDetail item: localFestivalDetails) {
-            //Festival already exist in local sqlite, so it should be updated
-            if(item.getFestival_detail_id() == unSyncFestivalDetail.getFestival_detail_id()){
-                updatedCount++;
-                this.festivalDetailDao.update(unSyncFestivalDetail);
-
-                Log.d("DaoFestival", "Update festival detail with ID: " + unSyncFestivalDetail.getFestival_detail_id());
-                return;
-            }
-        }
-        insertedCount++;
-        this.festivalDetailDao.insert(unSyncFestivalDetail);
-        WhatsNew whatsNew = new WhatsNew();
-        whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
-        whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
-
-        Log.d("DaoFestival", "Inserted new festival detail, ID: " + unSyncFestivalDetail.getFestival_id());
     }
 
     //*******************************FestivalDetailImages***************************************//
@@ -204,7 +154,6 @@ public class SyncAllData {
                 for (int i = 0; i < festivalDetailImages.length; i++) {
                     FestivalDetailImages festivalDetailImage = festivalDetailImages[i];
                     this.festivalDetailImagesDao.insert(festivalDetailImage);
-                    //updateLocalFestivalDetailImage(festivalDetailImage);
                 }
             }
         }catch (Exception e){
@@ -212,29 +161,6 @@ public class SyncAllData {
         }
 
     }
-    //@TODO WhatsNew Maybe ?
-    private void updateLocalFestivalDetailImage(FestivalDetailImages unSyncFestivalDetailImage){
-        Integer updatedCount = 0;
-        Integer insertedCount = 0;
-        for (FestivalDetailImages item: localFestivalDetailImages) {
-            //Festival already exist in local sqlite, so it should be updated
-            if(item.getFestival_detail_images_id() == unSyncFestivalDetailImage.getFestival_detail_images_id()){
-                updatedCount++;
-                this.festivalDetailImagesDao.update(unSyncFestivalDetailImage);
-
-                Log.d("DaoFestival", "Update festival detail images with ID: " + unSyncFestivalDetailImage.getFestival_detail_images_id());
-                return;
-            }
-        }
-        insertedCount++;
-        this.festivalDetailImagesDao.insert(unSyncFestivalDetailImage);
-        WhatsNew whatsNew = new WhatsNew();
-        whatsNew.setUpdatedFestivals("Es wurde/n "+updatedCount+" Festival/s aktualisiert");
-        whatsNew.setInsertedFestivals("Es wurde/n "+insertedCount+" Festival/s hinzugefügt");
-
-        Log.d("DaoFestival", "Inserted new festival detail image, ID: " + unSyncFestivalDetailImage.getFestival_detail_images_id());
-    }
-
     //*******************************MusicGenre***************************************//
     public void loadMusicGenre(){
         try {
@@ -261,7 +187,6 @@ public class SyncAllData {
                 for (int i = 0; i < musicGenres.length; i++) {
                     MusicGenre musicGenre = musicGenres[i];
                     this.musicGenreDao.insert(musicGenre);
-                    //updateLocalFestivalDetailImage(festivalDetailImage);
                 }
             }
         }catch (Exception e){
@@ -269,7 +194,7 @@ public class SyncAllData {
         }
 
     }
-
+    //*******************************MusicGenreFestivals***************************************//
     public void loadMusicGenreFestivals(){
         try {
             String url = "https://festivalticker.herokuapp.com/api/v1/musicGenreFestivals";

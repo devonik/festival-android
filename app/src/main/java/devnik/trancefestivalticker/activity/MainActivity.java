@@ -2,10 +2,6 @@ package devnik.trancefestivalticker.activity;
 
 import android.accounts.Account;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -16,10 +12,6 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
@@ -27,7 +19,6 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
@@ -103,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
 
-        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
         List<String> genreNames = new ArrayList<String>();
         if(musicGenres!=null){
             for (MusicGenre item: musicGenres) {
@@ -111,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             }
 
             MultiSelectionSpinner multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            MultiSelectionSpinner.placeholderText = "Filter by Music Genre ...";
             multiSelectionSpinner.setItems(genreNames);
-            //multiSelectionSpinner.setSelection(new int[]{0, musicGenres.size()-1});
             multiSelectionSpinner.setListener(this);
         }
 
@@ -252,8 +242,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-
-
         this.menu = menu;
         return true;
     }
@@ -265,46 +253,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //When Options Menu is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        //Handle action bar item clicks here
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                pDialog.show();
-                // Pass the settings flags by inserting them in a bundle
-                Bundle settingsBundle = new Bundle();
-                settingsBundle.putBoolean(
-                        ContentResolver.SYNC_EXTRAS_MANUAL, true);
-                settingsBundle.putBoolean(
-                        ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        /*
-         * Request the sync for the default account, authority, and
-         * manual sync settings
-         */
-                ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
-                return true;
-            case R.id.resetDb:
-                festivalDao.deleteAll();
-                festivalDetailDao.deleteAll();
-                festivalDetailImagesDao.deleteAll();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        //Handle menu bar item clicks here
+        return super.onOptionsItemSelected(item);
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-    // Reload MainActivity
-    public void reloadActivity() {
-        //Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
-        finish();
-        startActivity(getIntent());
-    }
-    public void updateUI(){
-        Toast.makeText(this,"Want to update UI",Toast.LENGTH_LONG).show();
-        updateFestivalThumbnailView();
-    }
 }

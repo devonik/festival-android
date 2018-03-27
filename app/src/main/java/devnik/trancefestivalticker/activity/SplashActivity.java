@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.api.SyncAllData;
 import devnik.trancefestivalticker.model.DaoSession;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;

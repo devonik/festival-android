@@ -1,10 +1,10 @@
 package devnik.trancefestivalticker.adapter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,11 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import android.text.format.DateFormat;
-
-import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.Query;
-import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +30,6 @@ import devnik.trancefestivalticker.model.FestivalDao;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.MusicGenre;
-import devnik.trancefestivalticker.model.MusicGenreDao;
-import devnik.trancefestivalticker.model.MusicGenreFestivals;
-import devnik.trancefestivalticker.model.MusicGenreFestivalsDao;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
