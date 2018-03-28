@@ -2,6 +2,7 @@ package devnik.trancefestivalticker.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -12,6 +13,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -80,7 +83,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * https://developer.android.com/training/articles/security-gms-provider.html
          *
          */
-        try {
+        //try {
             /**
              * If the device's Provider is successfully updated (or is already up-to-date), the method returns normally.
              *
@@ -91,7 +94,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
              * The app can then catch the exception and choose an appropriate course of action, such as displaying the standard fix-it flow diagram.
              *
              */
-            ProviderInstaller.installIfNeeded(getContext());
+            /*ProviderInstaller.installIfNeeded(getContext());
         } catch (GooglePlayServicesRepairableException e) {
 
             // Indicates that Google Play services is out of date, disabled, etc.
@@ -101,7 +104,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     e.getConnectionStatusCode(), getContext());
 
             // Notify the SyncManager that a soft error occurred.
-            //syncResult.stats.numIOExceptions++;
+            syncResult.stats.numIoExceptions++;
             return;
 
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -111,8 +114,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             // Notify the SyncManager that a hard error occurred.
             syncResult.stats.numAuthExceptions++;
             return;
-        }
-
+        }*/
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(getContext());
+        googleApiAvailability.showErrorNotification(getContext(),status);
         Log.e("SyncAdapter", "Starting sync");
         Log.e("SyncAdapter", "onPerformSync for account[" + account.name + "], extras ["+extras+"], "+
                 "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");

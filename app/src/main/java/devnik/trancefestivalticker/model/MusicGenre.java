@@ -4,14 +4,17 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 /**
  * Created by niklas on 26.03.18.
  */
 @Entity
-public class MusicGenre {
+public class MusicGenre implements Serializable {
     @Id
     private Long id;
     private String name;
+    static final long serialVersionUID = 44L;
     @Generated(hash = 370455646)
     public MusicGenre(Long id, String name) {
         this.id = id;
