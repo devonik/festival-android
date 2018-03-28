@@ -149,6 +149,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             textSliderView
                     .description(image.getTitle())
                     .image(image.getUrl())
+                    .error(R.drawable.no_internet)
                     .setScaleType(BaseSliderView.ScaleType.Fit)
                     .setOnSliderClickListener(this);
 

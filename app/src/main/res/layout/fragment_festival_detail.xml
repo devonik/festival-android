@@ -8,6 +8,7 @@
     <com.daimajia.slider.library.SliderLayout
         android:id="@+id/slider"
         android:layout_width="match_parent"
+        android:background="@drawable/gradient_color"
         android:layout_height="250sp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
