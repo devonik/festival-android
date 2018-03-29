@@ -39,6 +39,8 @@ public class Festival implements Serializable {
     )
     List<MusicGenre> musicGenres;
 
+    @ToMany(referencedJoinProperty = "festivalId")
+    private List<FestivalTicketPhase> ticketPhases;
 
     static final long serialVersionUID = 42L;
     /** Used to resolve relations */
@@ -151,6 +153,36 @@ public class Festival implements Serializable {
     }
 
     /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 880440003)
+    public List<FestivalTicketPhase> getTicketPhases() {
+        if (ticketPhases == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            FestivalTicketPhaseDao targetDao = daoSession
+                    .getFestivalTicketPhaseDao();
+            List<FestivalTicketPhase> ticketPhasesNew = targetDao
+                    ._queryFestival_TicketPhases(festival_id);
+            synchronized (this) {
+                if (ticketPhases == null) {
+                    ticketPhases = ticketPhasesNew;
+                }
+            }
+        }
+        return ticketPhases;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 117933726)
+    public synchronized void resetTicketPhases() {
+        ticketPhases = null;
+    }
+
+    /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
      */
@@ -186,12 +218,11 @@ public class Festival implements Serializable {
         myDao.update(this);
     }
 
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1732136369)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getFestivalDao() : null;
     }
-
+    
 }
