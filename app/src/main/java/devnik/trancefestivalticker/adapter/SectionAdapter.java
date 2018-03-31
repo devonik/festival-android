@@ -29,6 +29,8 @@ import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
+import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
 import devnik.trancefestivalticker.model.MusicGenre;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
@@ -46,7 +48,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     private Query<FestivalDetail> festivalDetailQuery;
     private FestivalDao festivalDao;
     private DaoSession daoSession;
-
+    private FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private List<FestivalTicketPhase> festivalTicketPhases;
     private CustomDate customDate;
     public FragmentManager fragmentManager;
 
@@ -56,11 +59,13 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 .headerResourceId(R.layout.gallery_section)
                 .build());
         mContext = context;
+
         this.customDate = customDate;
         this.festivals = festivals;
         this.fragmentManager = fragmentManager;
         this.filteredFestivalList = new ArrayList<>(festivals);
         daoSession = ((App)context).getDaoSession();
+        festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
         festivalDao = daoSession.getFestivalDao();
     }
 
@@ -79,6 +84,11 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
         final Festival festival = filteredFestivalList.get(position);
+        final FestivalTicketPhase actualFestivalTicketPhase = festivalTicketPhaseDao.queryBuilder()
+                .where(FestivalTicketPhaseDao.Properties.Festival_id.eq(festival.getFestival_id()),
+                        FestivalTicketPhaseDao.Properties.Sold.eq("no"),
+                        FestivalTicketPhaseDao.Properties.Started.eq("yes")
+                ).build().unique();
         // bind your view here
                 Glide.with(mContext).load(festival.getThumbnail_image_url())
                 .thumbnail(0.5f)
@@ -94,6 +104,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 public void onClick(View v) {
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra("festival", festival);
+                intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(intent);
                 }
             });
@@ -101,7 +113,10 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         itemHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Toast.makeText(mContext, festival.getName()+": "+ DateFormat.format("dd.MM",festival.getDatum_start()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, festival.getName()+": "+
+                        DateFormat.format("dd.MM",festival.getDatum_start())+", "+
+                        actualFestivalTicketPhase.getPrice()+" €",
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

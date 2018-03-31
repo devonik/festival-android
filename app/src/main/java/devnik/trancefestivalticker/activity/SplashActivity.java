@@ -161,8 +161,6 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                         finish();
                     }
 
-
-
                 }
                 else {
 

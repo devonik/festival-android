@@ -35,6 +35,8 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
+import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
 import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
 
-        List<String> genreNames = new ArrayList<String>();
+        List<String> genreNames = new ArrayList<>();
         if(musicGenres!=null){
             for (MusicGenre item: musicGenres) {
                 genreNames.add(item.getName());
@@ -118,11 +120,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
+
         Log.e("Test", "musicGenres: "+musicGenres);
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 
-            ArrayList<Festival> festivalsInSection = new ArrayList<>();
+            ArrayList<Festival> festivalsInSection;
 
             ArrayList<CustomDate> customDateHeader = new ArrayList<>();
             CustomDate customDate = new CustomDate();

@@ -34,6 +34,7 @@ import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
 
 /**
  * Created by nik on 07.03.2018.
@@ -42,12 +43,13 @@ import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 public class FestivalDetailFragment extends DialogFragment implements BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener {
     private Festival festival;
     private FestivalDetail festivalDetail;
+    private FestivalTicketPhase actualFestivalTicketPhase;
 
     private FestivalDetailImagesDao festivalDetailImagesDao;
     private Query<FestivalDetailImages> festivalDetailImagesQuery;
     private List<FestivalDetailImages> festivalDetailImages;
 
-    private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price;
+    private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price, ticketPhaseTitle;
     private View view;
     private SliderLayout imageSlider;
 
@@ -65,6 +67,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         lblDate = (TextView) view.findViewById(R.id.dateString);
         homepage_url = (TextView) view.findViewById(R.id.homepage_url);
         ticket_url = (TextView) view.findViewById(R.id.ticket_url);
+        ticketPhaseTitle = (TextView) view.findViewById(R.id.ticketPhaseTitle);
         price = (TextView) view.findViewById(R.id.price);
         description = (TextView) view.findViewById(R.id.description);
 
@@ -108,8 +111,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         });
 
         festival = (Festival) getArguments().getSerializable("festival");
-
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
+        actualFestivalTicketPhase = (FestivalTicketPhase) getArguments().getSerializable("actualFestivalTicketPhase");
 
         DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
         //Nur wenn das Festival eingetragende Details hat
@@ -141,6 +144,12 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         description.setMovementMethod(LinkMovementMethod.getInstance());
         homepage_url.setMovementMethod(LinkMovementMethod.getInstance());
         ticket_url.setMovementMethod(LinkMovementMethod.getInstance());
+
+        //Set Price
+        if(actualFestivalTicketPhase != null) {
+            ticketPhaseTitle.setText(actualFestivalTicketPhase.getTitle());
+            price.setText(String.valueOf(actualFestivalTicketPhase.getPrice()));
+        }
     }
     public void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){

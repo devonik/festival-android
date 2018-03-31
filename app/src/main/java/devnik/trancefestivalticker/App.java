@@ -3,6 +3,8 @@ package devnik.trancefestivalticker;
 import android.accounts.Account;
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.FirebaseApp;
@@ -28,13 +30,17 @@ public class App extends Application{
     private ProgressDialog progressDialog;
     private Account mAccount;
     @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        MultiDex.install(this);
+    }
+    @Override
     public void onCreate() {
         super.onCreate();
-
         FirebaseApp.initializeApp(getApplicationContext());
         SyncAdapter.initializeSyncAdapter(this);
         FirebaseMessaging.getInstance().subscribeToTopic("news");
-
+        FirebaseMessaging.getInstance().subscribeToTopic("newTicketPhase");
         // Init AdMob
         MobileAds.initialize(this, "ca-app-pub-4609998981070446~5371814947");
 

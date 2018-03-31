@@ -39,7 +39,7 @@ public class Festival implements Serializable {
     )
     List<MusicGenre> musicGenres;
 
-    @ToMany(referencedJoinProperty = "festivalId")
+    @ToMany(referencedJoinProperty = "festival_id")
     private List<FestivalTicketPhase> ticketPhases;
 
     static final long serialVersionUID = 42L;

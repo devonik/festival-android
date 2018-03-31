@@ -4,22 +4,25 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 @Entity
-public class FestivalTicketPhase {
+public class FestivalTicketPhase implements Serializable {
     @Id
     private Long festival_ticket_phase_id;
-    private Long festivalId;
+    private Long festival_id;
     private String title;
     private Double price;
     private String syncStatus;
     private String sold;
     private String started;
-    @Generated(hash = 1039139067)
-    public FestivalTicketPhase(Long festival_ticket_phase_id, Long festivalId,
+    static final long serialVersionUID = 45L;
+    @Generated(hash = 1536001098)
+    public FestivalTicketPhase(Long festival_ticket_phase_id, Long festival_id,
             String title, Double price, String syncStatus, String sold,
             String started) {
         this.festival_ticket_phase_id = festival_ticket_phase_id;
-        this.festivalId = festivalId;
+        this.festival_id = festival_id;
         this.title = title;
         this.price = price;
         this.syncStatus = syncStatus;
@@ -35,11 +38,11 @@ public class FestivalTicketPhase {
     public void setFestival_ticket_phase_id(Long festival_ticket_phase_id) {
         this.festival_ticket_phase_id = festival_ticket_phase_id;
     }
-    public Long getFestivalId() {
-        return this.festivalId;
+    public Long getFestival_id() {
+        return this.festival_id;
     }
-    public void setFestivalId(Long festivalId) {
-        this.festivalId = festivalId;
+    public void setFestival_id(Long festival_id) {
+        this.festival_id = festival_id;
     }
     public String getTitle() {
         return this.title;
@@ -71,4 +74,5 @@ public class FestivalTicketPhase {
     public void setStarted(String started) {
         this.started = started;
     }
+
 }
