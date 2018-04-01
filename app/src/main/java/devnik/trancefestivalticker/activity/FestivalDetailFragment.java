@@ -87,7 +87,9 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                mAdView.setVisibility(View.VISIBLE);
+
+                //TODO If u want ad banner, uncomment these
+                //mAdView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -164,7 +166,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
                     .description(image.getTitle())
                     .image(image.getUrl())
                     .error(R.drawable.no_internet)
-                    .setScaleType(BaseSliderView.ScaleType.Fit)
+                    .setScaleType(BaseSliderView.ScaleType.CenterCrop)
                     .setOnSliderClickListener(this);
 
             //add your extra information

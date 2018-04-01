@@ -147,10 +147,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                         finish();
                     }
 
-                }
-                else {
-                    //Handler which will run after 2 seconds.
-                      new Handler().postDelayed(new Runnable() {
+                }else if((syncActive || syncPending) && !MainActivity.isAppRunning){
+                    new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(),
@@ -159,7 +157,6 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                         }
                     }, 4000);
                 }
-
             }
         });
     }

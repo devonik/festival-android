@@ -175,12 +175,20 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 .disableClickThroughHole(false)
                 .setStyle(Overlay.Style.ROUNDED_RECTANGLE);
         // the return handler is used to manipulate the cleanup of all the tutorial elements
+        ChainTourGuide tourGuide0 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Willkommen!")
+                        .setDescription("Dies ist ein kurzer Guide über die Funktionen der Startseite")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(overlay)
+                .playLater(multiSelectionSpinner);
+
         ChainTourGuide tourGuide1 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
                         .setTitle("Filtere die Festivals")
                         .setDescription("Hier kannst du die Festivals nach Music Genres filtern")
                         .setGravity(Gravity.BOTTOM)
-                        .setBackgroundColor(Color.parseColor("#c0392b"))
                 )
                 .setOverlay(overlay)
                 .playLater(multiSelectionSpinner);
@@ -188,9 +196,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
                         .setTitle("Langer Touch")
-                        .setDescription("Wenn du dieses Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
+                        .setDescription("Wenn du ein Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
                         .setGravity(Gravity.BOTTOM | Gravity.RIGHT)
-                        .setBackgroundColor(Color.parseColor("#c0392b"))
                 )
                 .setOverlay(overlay)
                 .playLater(SectionAdapter.firstItem);
@@ -198,9 +205,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
                         .setTitle("Normaler Touch")
-                        .setDescription("Wenn du dieses Element kurz berührst öffnet sich eine Detail Ansicht.")
+                        .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
                         .setGravity(Gravity.BOTTOM | Gravity.LEFT)
-                        .setBackgroundColor(Color.parseColor("#c0392b"))
                 )
                 .setOverlay(new Overlay()
                         .setBackgroundColor(Color.parseColor("#EE2c3e50"))
@@ -224,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 .playLater(SectionAdapter.secondItem);
 
         Sequence sequence = new Sequence.SequenceBuilder()
-                .add(tourGuide1, tourGuide2, tourGuide3)
+                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3)
                 .setDefaultOverlay(new Overlay()
                         .setEnterAnimation(enterAnimation)
                         .setExitAnimation(exitAnimation)
