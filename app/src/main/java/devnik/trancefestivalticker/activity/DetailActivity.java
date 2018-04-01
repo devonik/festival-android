@@ -15,6 +15,7 @@ import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
 
 
 /**
@@ -23,6 +24,7 @@ import devnik.trancefestivalticker.model.FestivalDetailDao;
 
 public class DetailActivity extends AppCompatActivity{
     private Festival festival;
+    private FestivalTicketPhase actualFestivalTicketPhase;
     private FestivalDetailDao festivalDetailDao;
     private Query<FestivalDetail> festivalDetailQuery;
     private DaoSession daoSession;
@@ -35,7 +37,7 @@ public class DetailActivity extends AppCompatActivity{
         Bundle extras = getIntent().getExtras();
 
         festival = (Festival) extras.get("festival");
-
+        actualFestivalTicketPhase = (FestivalTicketPhase) extras.get("actualFestivalTicketPhase");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
@@ -53,7 +55,7 @@ public class DetailActivity extends AppCompatActivity{
 
 
         final PagerAdapter adapter = new PagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail);
+                (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail, actualFestivalTicketPhase);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(adapter);
@@ -74,6 +76,6 @@ public class DetailActivity extends AppCompatActivity{
         });
 
         //Register Custom Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
+        //Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
     }
 }

@@ -1,34 +1,29 @@
 package devnik.trancefestivalticker.activity;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.DialogFragment;
+import android.text.Html;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageSwitcher;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
-import com.daimajia.slider.library.Indicators.PagerIndicator;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -36,13 +31,13 @@ import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.adapter.PagerAdapter;
+import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
-import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
 
 /**
  * Created by nik on 07.03.2018.
@@ -51,15 +46,18 @@ import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 public class FestivalDetailFragment extends DialogFragment implements BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener {
     private Festival festival;
     private FestivalDetail festivalDetail;
+    private FestivalTicketPhase actualFestivalTicketPhase;
 
     private FestivalDetailImagesDao festivalDetailImagesDao;
     private Query<FestivalDetailImages> festivalDetailImagesQuery;
     private List<FestivalDetailImages> festivalDetailImages;
 
-    private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price;
+    private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price, ticketPhaseTitle;
     private View view;
     private SliderLayout imageSlider;
 
+    //AdMob
+    private AdView mAdView;
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
         return f;
@@ -72,13 +70,56 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         lblDate = (TextView) view.findViewById(R.id.dateString);
         homepage_url = (TextView) view.findViewById(R.id.homepage_url);
         ticket_url = (TextView) view.findViewById(R.id.ticket_url);
+        ticketPhaseTitle = (TextView) view.findViewById(R.id.ticketPhaseTitle);
         price = (TextView) view.findViewById(R.id.price);
         description = (TextView) view.findViewById(R.id.description);
+
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
+        //Scale slider
+
+        //AdMob
+
+        mAdView = view.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        mAdView.setAdListener(new AdListener(){
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+
+                //TODO If u want ad banner, uncomment these
+                //mAdView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                mAdView.destroy();
+                mAdView.setVisibility(View.GONE);
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
 
         festival = (Festival) getArguments().getSerializable("festival");
-
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
+        actualFestivalTicketPhase = (FestivalTicketPhase) getArguments().getSerializable("actualFestivalTicketPhase");
 
         DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
         //Nur wenn das Festival eingetragende Details hat
@@ -96,9 +137,26 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     public void loadData(){
         lblTitle.setText(festival.getName());
         lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
-        homepage_url.setText(festivalDetail.getHomepage_url());
-        ticket_url.setText(festivalDetail.getTicket_url());
-        description.setText(festivalDetail.getDescription());
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+        }else{
+            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(),null, new UITagHandler()));
+            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(),null, new UITagHandler()));
+            description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+        }
+        //Important to make the hrefs clickable
+        description.setMovementMethod(LinkMovementMethod.getInstance());
+        homepage_url.setMovementMethod(LinkMovementMethod.getInstance());
+        ticket_url.setMovementMethod(LinkMovementMethod.getInstance());
+
+        //Set Price
+        if(actualFestivalTicketPhase != null) {
+            ticketPhaseTitle.setText(actualFestivalTicketPhase.getTitle());
+            price.setText(String.valueOf(actualFestivalTicketPhase.getPrice()));
+        }
     }
     public void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){
@@ -107,7 +165,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             textSliderView
                     .description(image.getTitle())
                     .image(image.getUrl())
-                    .setScaleType(BaseSliderView.ScaleType.Fit)
+                    .error(R.drawable.no_internet)
+                    .setScaleType(BaseSliderView.ScaleType.CenterCrop)
                     .setOnSliderClickListener(this);
 
             //add your extra information
@@ -117,12 +176,12 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             imageSlider.addSlider(textSliderView);
         }
+
         imageSlider.setPresetTransformer(SliderLayout.Transformer.ZoomOut);
         imageSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Top);
         imageSlider.setCustomAnimation(new DescriptionAnimation());
         imageSlider.setDuration(4000);
         imageSlider.addOnPageChangeListener(this);
-
 
     }
     @Override
@@ -142,7 +201,6 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
     @Override
     public void onPageSelected(int position) {
-        Log.d("Slider Demo", "Page Changed: " + position);
     }
 
     @Override

@@ -40,4 +40,5 @@ public class MusicGenreFestivals {
     public void setMusic_genre_id(Long music_genre_id) {
         this.music_genre_id = music_genre_id;
     }
+    
 }

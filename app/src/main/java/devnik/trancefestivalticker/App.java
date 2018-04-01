@@ -3,12 +3,10 @@ package devnik.trancefestivalticker;
 import android.accounts.Account;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
+import android.support.multidex.MultiDex;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -18,8 +16,6 @@ import devnik.trancefestivalticker.model.DaoMaster;
 import devnik.trancefestivalticker.model.DaoMaster.DevOpenHelper;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.sync.SyncAdapter;
-
-import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 
 
 /**
@@ -34,11 +30,20 @@ public class App extends Application{
     private ProgressDialog progressDialog;
     private Account mAccount;
     @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        MultiDex.install(this);
+    }
+    @Override
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(getApplicationContext());
         SyncAdapter.initializeSyncAdapter(this);
         FirebaseMessaging.getInstance().subscribeToTopic("news");
+        FirebaseMessaging.getInstance().subscribeToTopic("newTicketPhase");
+        // Init AdMob
+        MobileAds.initialize(this, "ca-app-pub-4609998981070446~5371814947");
+
         //Initialize Progress Dialog properties
 
         DevOpenHelper helper = new DevOpenHelper(this, "festival-db");

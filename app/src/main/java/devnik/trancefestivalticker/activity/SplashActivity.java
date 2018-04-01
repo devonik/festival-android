@@ -9,14 +9,17 @@ import android.content.SyncStatusObserver;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.greenrobot.greendao.annotation.Id;
+
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.api.SyncAllData;
+import devnik.trancefestivalticker.api.SyncTicketPhases;
 import devnik.trancefestivalticker.model.DaoSession;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
@@ -36,6 +39,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress_bar);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -50,12 +54,11 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         mAccount = getSyncAccount(this);
 
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
-        Log.e("SplashActivity","Bundle: "+getIntent().getExtras());
+
         if(getIntent().getExtras() != null ) {
             if(getIntent().getExtras().get(KEY_SYNC_REQUEST) != null) {
                 if (getIntent().getExtras().get(KEY_SYNC_REQUEST).equals("sync")) {
                     //The App is called by firebase message while app was in background
-                    Log.e("SplashActivity", "Bundle: " + getIntent().getExtras().get(KEY_SYNC_REQUEST));
                     Bundle settingsBundle = new Bundle();
                     settingsBundle.putBoolean(
                             ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -68,18 +71,20 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                     ContentResolver.requestSync(getSyncAccount(this), getApplicationContext().getString(R.string.content_authority), settingsBundle);
 
                 }
+                else if (getIntent().getExtras().get(KEY_SYNC_REQUEST).equals("newTicketPhase")) {
+                    new SyncTicketPhases(daoSession).execute();
+
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }else{
-                //getIntent().getExtras().get(KEY_SYNC_REQUEST) is null
-
-                Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         }else if(preferenceAccountName == ""){
             //Account exestiert noch nicht
-            Log.e("Account", "is New: Trigger Sync");
             Bundle settingsBundle = new Bundle();
             settingsBundle.putBoolean(
                     ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -95,7 +100,6 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         }
         else {
             //getIntent().getExtras() is null
-            Toast.makeText(this, "regular app start", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -103,20 +107,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
 
     }
     @Override
-    public void onStart() {
-        super.onStart();
-        Log.e("SplashActivity", "isStarted");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.e("SplashActivity", "Stop");
-    }
-    @Override
     public void onStatusChanged(int which){
         Log.d("SplashActivity", "onStatusChanged: "+which);
-        Log.e("TAG", "Sync Status " + which);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -137,6 +129,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
 
 
                 Log.e("TAG", "SYNC PENDING " + syncPending);
+                Log.e("TAG", "SYNC ACTIVE " + syncActive);
                 if (!syncActive && !syncPending){
                     //@TODO Here a Pending dialog mybe
                     //@TODO This is called so often ? why ?
@@ -147,35 +140,24 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                     //Prevent double Intent by FCM, if App is already running
                     if (MainActivity.isAppRunning) {
                         Log.e("SyncFinished", "New Results are not in yet, waitin for restart app");
+
                     } else {
-                        // Create the dummy account
-                        Toast.makeText(getApplicationContext(), "app is called by fcm", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
 
-
-
+                }else if((syncActive || syncPending) && !MainActivity.isAppRunning){
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Daten werden aktualisiert ... ",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }, 4000);
                 }
-                else {
-
-                }
-                //setRefreshActionButtonState(syncActive || syncPending);
             }
         });
     }
-    /*@Override
-    public void onFestivalApiCompleted(){
-
-    }
-    @Override
-    public void onFestivalDetailApiCompleted(){
-
-    }
-    @Override
-    public void onFestivalDetailImagesApiCompleted(){
-        Toast.makeText(this,"onFestivalDetailImagesApiCompleted",Toast.LENGTH_SHORT).show();
-    }*/
-
 }

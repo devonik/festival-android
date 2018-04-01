@@ -2,16 +2,12 @@ package devnik.trancefestivalticker.activity;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -22,63 +18,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
-import com.google.maps.DistanceMatrixApi;
-import com.google.maps.DistanceMatrixApiRequest;
 import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.PendingResult;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.Distance;
-import com.google.maps.model.DistanceMatrix;
-import com.google.maps.model.DistanceMatrixElementStatus;
-import com.google.maps.model.DistanceMatrixRow;
-
-import org.greenrobot.greendao.query.Query;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.PermissionUtils;
-import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
-import devnik.trancefestivalticker.model.FestivalDetailDao;
 
-import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+import static com.crashlytics.android.Crashlytics.TAG;
+
 /**
  * Created by nik on 09.03.2018.
  */
@@ -225,10 +196,7 @@ public class MapFragmentDialog extends DialogFragment  implements
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            if(festivalLocation == null){
-                                Toast.makeText(getActivity(),"Die Position des Festivals ist nicht hinterlegt", Toast.LENGTH_SHORT).show();
-                            }
-                            else if(mLastKnownLocation == null){
+                            if(mLastKnownLocation == null){
                                 Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
                             }else{
                                 if(carPolyline!=null){
@@ -279,7 +247,7 @@ public class MapFragmentDialog extends DialogFragment  implements
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(getActivity(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+
     }
 
     @Override

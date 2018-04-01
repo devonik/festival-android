@@ -1,61 +1,83 @@
 package devnik.trancefestivalticker.adapter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
-import android.text.format.DateFormat;
 
 import org.greenrobot.greendao.query.Query;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.DetailActivity;
 import devnik.trancefestivalticker.model.CustomDate;
+import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
+import devnik.trancefestivalticker.model.FestivalDao;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
+import devnik.trancefestivalticker.model.FestivalTicketPhase;
+import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
+import devnik.trancefestivalticker.model.MusicGenre;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 
 /**
  * Created by nik on 21.02.2018.
  */
 
-public class SectionAdapter extends StatelessSection implements View.OnLongClickListener {
+public class SectionAdapter extends StatelessSection implements View.OnLongClickListener, IFilterableSection {
     private Context mContext;
     private ArrayList<Festival> festivals;
+    private ArrayList<Festival> filteredFestivalList;
     private FestivalDetailDao festivalDetailDao;
     private Query<FestivalDetail> festivalDetailQuery;
-
+    private FestivalDao festivalDao;
+    private DaoSession daoSession;
+    private FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private List<FestivalTicketPhase> festivalTicketPhases;
     private CustomDate customDate;
     public FragmentManager fragmentManager;
-
+public static View firstItem;
+public static View secondItem;
     public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals, FragmentManager fragmentManager) {
+
         // call constructor with layout resources for this Section header and items
         super(new SectionParameters.Builder(R.layout.gallery_thumbnail)
                 .headerResourceId(R.layout.gallery_section)
                 .build());
         mContext = context;
+
         this.customDate = customDate;
         this.festivals = festivals;
         this.fragmentManager = fragmentManager;
+        this.filteredFestivalList = new ArrayList<>(festivals);
+        daoSession = ((App)context).getDaoSession();
+        festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
+        festivalDao = daoSession.getFestivalDao();
     }
 
     @Override
     public int getContentItemsTotal() {
-        return festivals.size(); // number of items of this section
+        return filteredFestivalList.size(); // number of items of this section
     }
 
     @Override
@@ -67,22 +89,31 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         final MyItemViewHolder itemHolder = (MyItemViewHolder) holder;
-        final Festival festival = festivals.get(position);
+        final Festival festival = filteredFestivalList.get(position);
+        final FestivalTicketPhase actualFestivalTicketPhase = festivalTicketPhaseDao.queryBuilder()
+                .where(FestivalTicketPhaseDao.Properties.Festival_id.eq(festival.getFestival_id()),
+                        FestivalTicketPhaseDao.Properties.Sold.eq("no"),
+                        FestivalTicketPhaseDao.Properties.Started.eq("yes")
+                ).build().unique();
         // bind your view here
-                Glide.with(mContext).load(festival.getThumbnail_image_url())
-                .thumbnail(0.5f)
-                .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.mandala_om_480x480)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-
-                .into(itemHolder.thumbnail);
+                Glide.with(mContext)
+                        .load(festival.getThumbnail_image_url())
+                        .apply(centerCropTransform()
+                                .placeholder(R.drawable.progress_animation)
+                                .error(R.drawable.mandala_om_480x480)
+                                .priority(Priority.HIGH)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                )
+                        .transition(withCrossFade())
+                        .into(itemHolder.thumbnail);
 
             itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra("festival", festival);
+                intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(intent);
                 }
             });
@@ -90,11 +121,24 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         itemHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Toast.makeText(mContext, festival.getName()+": "+ DateFormat.format("dd.MM",festival.getDatum_start()), Toast.LENGTH_SHORT).show();
+                StringBuilder output = new StringBuilder();
+                output.append(festival.getName()+": "+DateFormat.format("dd.MM",festival.getDatum_start()));
+                if(actualFestivalTicketPhase != null){
+                    output.append(", "+actualFestivalTicketPhase.getPrice()+" €");
+                }
+                Toast.makeText(mContext, output, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
 
+        //For Guiding
+        //TODO NOT GOOD
+        if(position == 0 && firstItem == null){
+            firstItem = itemHolder.itemView;
+        }
+        if(position == 1 && secondItem == null){
+            secondItem = itemHolder.itemView;
+        }
     }
     @Override
     public boolean onLongClick(View view) {
@@ -111,6 +155,30 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         headerHolder.monthHeader.setText(customDate.getMonth());
 
+    }
+    @Override
+    public void filter(List<String> musicGenres) {
+
+        if (musicGenres.size()==0) {
+            //Reset Filter
+            filteredFestivalList = new ArrayList<>(festivals);
+            this.setVisible(true);
+        } else {
+            filteredFestivalList.clear();
+            for(String filterGenre:musicGenres){
+                for (Festival festival : festivals) {
+                    if(!filteredFestivalList.contains(festival)) {
+                        for (MusicGenre musicGenre : festival.getMusicGenres()) {
+
+                            if (musicGenre.getName() == filterGenre) {
+                                filteredFestivalList.add(festival);
+                            }
+                        }
+                    }
+                }
+            }
+            this.setVisible(!filteredFestivalList.isEmpty());
+        }
     }
 
     class MyItemViewHolder extends RecyclerView.ViewHolder{
@@ -181,5 +249,4 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         }
     }
-
 }

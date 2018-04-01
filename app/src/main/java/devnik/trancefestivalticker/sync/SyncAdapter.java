@@ -2,6 +2,7 @@ package devnik.trancefestivalticker.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -11,6 +12,13 @@ import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -71,12 +79,52 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
+        /**
+         * https://developer.android.com/training/articles/security-gms-provider.html
+         *
+         */
+        //try {
+            /**
+             * If the device's Provider is successfully updated (or is already up-to-date), the method returns normally.
+             *
+             * If the device's Google Play services library is out of date, the method throws GooglePlayServicesRepairableException.
+             * The app can then catch this exception and show the user an appropriate dialog box to update Google Play services.
+             *
+             * If a non-recoverable error occurs, the method throws GooglePlayServicesNotAvailableException to indicate that it is unable to update the Provider.
+             * The app can then catch the exception and choose an appropriate course of action, such as displaying the standard fix-it flow diagram.
+             *
+             */
+            /*ProviderInstaller.installIfNeeded(getContext());
+        } catch (GooglePlayServicesRepairableException e) {
+
+            // Indicates that Google Play services is out of date, disabled, etc.
+
+            // Prompt the user to install/update/enable Google Play services.
+            GooglePlayServicesUtil.showErrorNotification(
+                    e.getConnectionStatusCode(), getContext());
+
+            // Notify the SyncManager that a soft error occurred.
+            syncResult.stats.numIoExceptions++;
+            return;
+
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // Indicates a non-recoverable error; the ProviderInstaller is not able
+            // to install an up-to-date Provider.
+
+            // Notify the SyncManager that a hard error occurred.
+            syncResult.stats.numAuthExceptions++;
+            return;
+        }*/
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(getContext());
+        googleApiAvailability.showErrorNotification(getContext(),status);
         Log.e("SyncAdapter", "Starting sync");
         Log.e("SyncAdapter", "onPerformSync for account[" + account.name + "], extras ["+extras+"], "+
                 "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{
             new SyncAllData(daoSession);
+
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);
         }

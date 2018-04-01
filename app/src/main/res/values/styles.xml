@@ -12,6 +12,9 @@
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
+    <style name="AlertDialogBackground" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/cardview_light_background</item>
+    </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -82,6 +85,6 @@
         <item name="unselected_height">6dp</item>
     </style>
     <style name="ProgressBar" parent="@android:style/Widget.ProgressBar">
-        <item name="android:indeterminateDrawable">@mipmap/ic_action_refresh</item>
+        <item name="android:indeterminateDrawable">@drawable/ic_action_refresh</item>
     </style>
 </resources>

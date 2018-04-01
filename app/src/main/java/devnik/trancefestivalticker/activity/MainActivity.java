@@ -1,25 +1,25 @@
 package devnik.trancefestivalticker.activity;
 
-import android.accounts.Account;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
@@ -27,11 +27,11 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.adapter.IFilterableSection;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
@@ -47,9 +47,14 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
+import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
-
-import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
+import tourguide.tourguide.ChainTourGuide;
+import tourguide.tourguide.Overlay;
+import tourguide.tourguide.Pointer;
+import tourguide.tourguide.Sequence;
+import tourguide.tourguide.ToolTip;
+import tourguide.tourguide.TourGuide;
 
 public class MainActivity extends AppCompatActivity implements MultiSelectionSpinner.OnMultipleItemsSelectedListener{
     private List<Festival> festivals;
@@ -67,13 +72,36 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private RecyclerView recyclerView;
     // Progress Dialog Object
     private ProgressDialog pDialog;
-    private Account mAccount;
     private DaoSession daoSession;
     private Menu menu;
-    private MultiSelectionSpinner spinner;
+    private MultiSelectionSpinner multiSelectionSpinner;
+
     public static boolean isAppRunning = false;
+
+    //Tour Guide
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor sharedPrefEditor;
+    private String preferenceUserNeedGuiding;
+    public ChainTourGuide mTourGuideHandler;
+    private Animation enterAnimation, exitAnimation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //To force crashlytics Error
+        //Crashlytics.getInstance().crash(); // Force a crash
+
+        /* setup enter and exit animation */
+        //For Touring
+        enterAnimation = new AlphaAnimation(0f, 1f);
+        enterAnimation.setDuration(600);
+        enterAnimation.setFillAfter(true);
+
+        exitAnimation = new AlphaAnimation(1f, 0f);
+        exitAnimation.setDuration(600);
+        exitAnimation.setFillAfter(true);
+
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        sharedPrefEditor = sharedPref.edit();
+        preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
 
         isAppRunning = true;
         //get the festival DAO
@@ -84,8 +112,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
         setUpView();
 
-
         festivalDao = daoSession.getFestivalDao();
+        festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
+
         festivalDetailDao = daoSession.getFestivalDetailDao();
         festivalDetails = festivalDetailDao.queryBuilder().build().list();
 
@@ -94,41 +123,141 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //whatsNewDao = daoSession.getWhatsNewDao();
         //whatsNewDao.insert(null);
         // query all festivals, sorted a-z by their text
-        festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
+
 
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
 
-        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
-        List<String> genreNames = new ArrayList<String>();
+        List<String> genreNames = new ArrayList<>();
         if(musicGenres!=null){
             for (MusicGenre item: musicGenres) {
                 genreNames.add(item.getName());
             }
 
-            MultiSelectionSpinner multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            MultiSelectionSpinner.placeholderText = "Filter by Music Genre ...";
             multiSelectionSpinner.setItems(genreNames);
-            //multiSelectionSpinner.setSelection(new int[]{0, musicGenres.size()-1});
             multiSelectionSpinner.setListener(this);
+
         }
 
         updateFestivalThumbnailView();
-        //triggerRemoteSync();
+
 
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
 
-        mAccount = getSyncAccount(this);
+        if(preferenceUserNeedGuiding.equals("yes")) {
+            //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
+            recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    recyclerView.removeOnLayoutChangeListener(this);
+                    runOverlay_TourGuide();
+                }
+            });
+        }
     }
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+    }
+    private void runOverlay_TourGuide(){
+        //Scroll to top
+        recyclerView.smoothScrollToPosition(0);
+        Overlay overlay = new Overlay()
+                .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                // if setOnClickListener is not used, disableClick() will take effect
+                .disableClick(false)
+                .disableClickThroughHole(false)
+                .setStyle(Overlay.Style.ROUNDED_RECTANGLE);
+        // the return handler is used to manipulate the cleanup of all the tutorial elements
+        ChainTourGuide tourGuide0 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Willkommen!")
+                        .setDescription("Dies ist ein kurzer Guide über die Funktionen der Startseite")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(overlay)
+                .playLater(multiSelectionSpinner);
+
+        ChainTourGuide tourGuide1 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Filtere die Festivals")
+                        .setDescription("Hier kannst du die Festivals nach Music Genres filtern")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(overlay)
+                .playLater(multiSelectionSpinner);
+
+        ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Langer Touch")
+                        .setDescription("Wenn du ein Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
+                        .setGravity(Gravity.BOTTOM | Gravity.RIGHT)
+                )
+                .setOverlay(overlay)
+                .playLater(SectionAdapter.firstItem);
+
+        ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Normaler Touch")
+                        .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
+                        .setGravity(Gravity.BOTTOM | Gravity.LEFT)
+                )
+                .setOverlay(new Overlay()
+                        .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                        // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                        // if setOnClickListener is not used, disableClick() will take effect
+                        .disableClick(false)
+                        .disableClickThroughHole(false)
+                        .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(preferenceUserNeedGuiding.equals("yes")){
+                                    //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
+                                    //Shared Preference
+                                    sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "no");
+                                    sharedPrefEditor.commit();
+                                }
+                                mTourGuideHandler.next();
+                            }
+                        }))
+                .playLater(SectionAdapter.secondItem);
+
+        Sequence sequence = new Sequence.SequenceBuilder()
+                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3)
+                .setDefaultOverlay(new Overlay()
+                        .setEnterAnimation(enterAnimation)
+                        .setExitAnimation(exitAnimation)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mTourGuideHandler.next();
+                            }
+                        })
+                )
+                .setDefaultPointer(null)
+                .setContinueMethod(Sequence.ContinueMethod.OVERLAY_LISTENER)
+                .build();
+
+
+        mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
+    }
+
     @Override protected void onDestroy() { super.onDestroy(); isAppRunning = false; }
     public void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
-        Log.e("Test", "musicGenres: "+musicGenres);
+
         //If tests exists in SQLite DB
         if(festivals.size() > 0){
 
-            ArrayList<Festival> festivalsInSection = new ArrayList<>();
+            ArrayList<Festival> festivalsInSection;
 
             ArrayList<CustomDate> customDateHeader = new ArrayList<>();
             CustomDate customDate = new CustomDate();
@@ -217,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 }
             }
         });
+
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(sectionAdapter);
@@ -227,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         pDialog.setCancelable(false);
 
         setSupportActionBar(toolbar);
+
     }
     @Override
     public void selectedIndices(List<Integer> indices) {
@@ -235,15 +366,19 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     @Override
     public void selectedStrings(List<String> strings) {
-        Toast.makeText(this, strings.toString(), Toast.LENGTH_LONG).show();
+        for (Section section : sectionAdapter.getCopyOfSectionsMap().values()) {
+            if (section instanceof IFilterableSection) {
+                View v = SectionAdapter.firstItem;
+                ((IFilterableSection) section).filter(strings);
+            }
+            sectionAdapter.notifyDataSetChanged();
+        }
     }
     //Options Menu (ActionBar Menu)
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-
-
         this.menu = menu;
         return true;
     }
@@ -255,46 +390,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //When Options Menu is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        //Handle action bar item clicks here
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                pDialog.show();
-                // Pass the settings flags by inserting them in a bundle
-                Bundle settingsBundle = new Bundle();
-                settingsBundle.putBoolean(
-                        ContentResolver.SYNC_EXTRAS_MANUAL, true);
-                settingsBundle.putBoolean(
-                        ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        /*
-         * Request the sync for the default account, authority, and
-         * manual sync settings
-         */
-                ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
-                return true;
-            case R.id.resetDb:
-                festivalDao.deleteAll();
-                festivalDetailDao.deleteAll();
-                festivalDetailImagesDao.deleteAll();
-                return true;
+        //Handle menu bar item clicks here
+        switch (item.getItemId()){
+            case R.id.action_show_tour_guide:
+                runOverlay_TourGuide();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-    // Reload MainActivity
-    public void reloadActivity() {
-        //Intent objIntent = new Intent(getApplicationContext(), MainActivity.class);
-        finish();
-        startActivity(getIntent());
-    }
-    public void updateUI(){
-        Toast.makeText(this,"Want to update UI",Toast.LENGTH_LONG).show();
-        updateFestivalThumbnailView();
-    }
 }

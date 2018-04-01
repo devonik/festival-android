@@ -14,8 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import devnik.trancefestivalticker.App;
+import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
@@ -37,7 +40,7 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
     boolean[] mSelection = null;
     boolean[] mSelectionAtStart = null;
     String _itemsAtStart = null;
-
+    public static String placeholderText;
     ArrayAdapter<String> simple_adapter;
 
     public MultiSelectionSpinner(Context context) {
@@ -73,16 +76,22 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
 
     @Override
     public boolean performClick() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogBackground);
         builder.setTitle("Filter by Music Genre");
         builder.setMultiChoiceItems(_items, mSelection, this);
         _itemsAtStart = getSelectedItemsAsString();
+        if(_itemsAtStart==""){
+            //Kein Item ausgewählt
+            _itemsAtStart = placeholderText;
+        }
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 System.arraycopy(mSelection, 0, mSelectionAtStart, 0, mSelection.length);
+
                 listener.selectedIndices(getSelectedIndices());
                 listener.selectedStrings(getSelectedStrings());
+
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -119,11 +128,12 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
         mSelection = new boolean[_items.length];
         mSelectionAtStart  = new boolean[_items.length];
         simple_adapter.clear();
-        simple_adapter.add(_items[0]);
+        _itemsAtStart = placeholderText;
+        simple_adapter.add(placeholderText);
+        //simple_adapter.add(_items[0]);
         Arrays.fill(mSelection, false);
-        mSelection[0] = true;
+        //mSelection[0] = true;
     }
-
     public void setSelection(String[] selection) {
         for (int i = 0; i < mSelection.length; i++) {
             mSelection[i] = false;
@@ -199,6 +209,7 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
                 selection.add(_items[i]);
             }
         }
+
         return selection;
     }
 
@@ -225,6 +236,10 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
 
                 sb.append(_items[i]);
             }
+        }
+        if(foundOne == false){
+            //Kein Item ausgewählt
+            return placeholderText;
         }
         return sb.toString();
     }

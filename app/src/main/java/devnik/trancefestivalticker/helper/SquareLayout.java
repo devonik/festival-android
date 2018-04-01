@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.RelativeLayout;
 
 /**
  * Created by nik on 19.02.2018.
