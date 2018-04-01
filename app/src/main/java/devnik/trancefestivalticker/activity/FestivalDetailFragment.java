@@ -6,10 +6,13 @@ import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +75,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         description = (TextView) view.findViewById(R.id.description);
 
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
+        //Scale slider
+
         //AdMob
 
         mAdView = view.findViewById(R.id.adView);
@@ -194,7 +199,6 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
     @Override
     public void onPageSelected(int position) {
-        Log.d("Slider Demo", "Page Changed: " + position);
     }
 
     @Override

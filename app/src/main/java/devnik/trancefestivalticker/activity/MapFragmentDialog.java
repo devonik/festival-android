@@ -48,7 +48,8 @@ import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 
-import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+import static com.crashlytics.android.Crashlytics.TAG;
+
 /**
  * Created by nik on 09.03.2018.
  */
@@ -195,10 +196,7 @@ public class MapFragmentDialog extends DialogFragment  implements
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            if(festivalLocation == null){
-                                Toast.makeText(getActivity(),"Die Position des Festivals ist nicht hinterlegt", Toast.LENGTH_SHORT).show();
-                            }
-                            else if(mLastKnownLocation == null){
+                            if(mLastKnownLocation == null){
                                 Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
                             }else{
                                 if(carPolyline!=null){
@@ -249,7 +247,7 @@ public class MapFragmentDialog extends DialogFragment  implements
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(getActivity(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+
     }
 
     @Override

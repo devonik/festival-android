@@ -25,7 +25,8 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <devnik.trancefestivalticker.helper.MultiSelectionSpinner xmlns:android="http://schemas.android.com/apk/res/android"
+            <devnik.trancefestivalticker.helper.MultiSelectionSpinner
+                xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/filter_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -8,11 +8,13 @@ import android.text.format.DateFormat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.greenrobot.greendao.query.Query;
@@ -35,12 +37,14 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
+
 /**
  * Created by nik on 21.02.2018.
  */
 
 public class SectionAdapter extends StatelessSection implements View.OnLongClickListener, IFilterableSection {
-
     private Context mContext;
     private ArrayList<Festival> festivals;
     private ArrayList<Festival> filteredFestivalList;
@@ -52,8 +56,10 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     private List<FestivalTicketPhase> festivalTicketPhases;
     private CustomDate customDate;
     public FragmentManager fragmentManager;
-
+public static View firstItem;
+public static View secondItem;
     public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals, FragmentManager fragmentManager) {
+
         // call constructor with layout resources for this Section header and items
         super(new SectionParameters.Builder(R.layout.gallery_thumbnail)
                 .headerResourceId(R.layout.gallery_section)
@@ -90,14 +96,16 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                         FestivalTicketPhaseDao.Properties.Started.eq("yes")
                 ).build().unique();
         // bind your view here
-                Glide.with(mContext).load(festival.getThumbnail_image_url())
-                .thumbnail(0.5f)
-                .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.mandala_om_480x480)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-
-                .into(itemHolder.thumbnail);
+                Glide.with(mContext)
+                        .load(festival.getThumbnail_image_url())
+                        .apply(centerCropTransform()
+                                .placeholder(R.drawable.progress_animation)
+                                .error(R.drawable.mandala_om_480x480)
+                                .priority(Priority.HIGH)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                )
+                        .transition(withCrossFade())
+                        .into(itemHolder.thumbnail);
 
             itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -113,14 +121,24 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         itemHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Toast.makeText(mContext, festival.getName()+": "+
-                        DateFormat.format("dd.MM",festival.getDatum_start())+", "+
-                        actualFestivalTicketPhase.getPrice()+" €",
-                        Toast.LENGTH_SHORT).show();
+                StringBuilder output = new StringBuilder();
+                output.append(festival.getName()+": "+DateFormat.format("dd.MM",festival.getDatum_start()));
+                if(actualFestivalTicketPhase != null){
+                    output.append(", "+actualFestivalTicketPhase.getPrice()+" €");
+                }
+                Toast.makeText(mContext, output, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
 
+        //For Guiding
+        //TODO NOT GOOD
+        if(position == 0 && firstItem == null){
+            firstItem = itemHolder.itemView;
+        }
+        if(position == 1 && secondItem == null){
+            secondItem = itemHolder.itemView;
+        }
     }
     @Override
     public boolean onLongClick(View view) {
@@ -231,5 +249,4 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         }
     }
-
 }

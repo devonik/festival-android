@@ -5,6 +5,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 public class FestivalTicketPhase implements Serializable {
@@ -75,4 +76,23 @@ public class FestivalTicketPhase implements Serializable {
         this.started = started;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FestivalTicketPhase that = (FestivalTicketPhase) o;
+        return Objects.equals(festival_ticket_phase_id, that.festival_ticket_phase_id) &&
+                Objects.equals(festival_id, that.festival_id) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(price, that.price) &&
+                Objects.equals(syncStatus, that.syncStatus) &&
+                Objects.equals(sold, that.sold) &&
+                Objects.equals(started, that.started);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(festival_ticket_phase_id, festival_id, title, price, syncStatus, sold, started);
+    }
 }
