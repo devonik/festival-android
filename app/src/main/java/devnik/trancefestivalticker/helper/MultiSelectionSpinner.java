@@ -37,10 +37,23 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
     private OnMultipleItemsSelectedListener listener;
 
     String[] _items = null;
+
+    //The items that are checken in the current dialog
     boolean[] mSelection = null;
+
+    //All items that are checked since last filter open
     boolean[] mSelectionAtStart = null;
+
+    //All Items unchecked: only need for back to the roots
+    boolean[] mSelectionAtFirstState = null;
+
+    //Item should be checked at beginning
     String _itemsAtStart = null;
+
+    //Is Set by the activity
     public static String placeholderText;
+
+    //Text is shown on the first view
     ArrayAdapter<String> simple_adapter;
 
     public MultiSelectionSpinner(Context context) {
@@ -77,14 +90,14 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
     @Override
     public boolean performClick() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogBackground);
-        builder.setTitle("Filter by Music Genre");
+        builder.setTitle("Filtere nach dem Genre");
         builder.setMultiChoiceItems(_items, mSelection, this);
         _itemsAtStart = getSelectedItemsAsString();
         if(_itemsAtStart==""){
             //Kein Item ausgewählt
             _itemsAtStart = placeholderText;
         }
-        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Filtern", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 System.arraycopy(mSelection, 0, mSelectionAtStart, 0, mSelection.length);
@@ -94,12 +107,22 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
 
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 simple_adapter.clear();
                 simple_adapter.add(_itemsAtStart);
                 System.arraycopy(mSelectionAtStart, 0, mSelection, 0, mSelectionAtStart.length);
+            }
+        });
+        builder.setNeutralButton("Zurücksetzen", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                simple_adapter.clear();
+                simple_adapter.add(placeholderText);
+                System.arraycopy(mSelectionAtFirstState, 0, mSelection, 0,mSelectionAtFirstState.length);
+                listener.selectedIndices(getSelectedIndices());
+                listener.selectedStrings(getSelectedStrings());
             }
         });
         builder.show();
@@ -127,6 +150,7 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
         _items = items.toArray(new String[items.size()]);
         mSelection = new boolean[_items.length];
         mSelectionAtStart  = new boolean[_items.length];
+        mSelectionAtFirstState  = new boolean[_items.length];
         simple_adapter.clear();
         _itemsAtStart = placeholderText;
         simple_adapter.add(placeholderText);

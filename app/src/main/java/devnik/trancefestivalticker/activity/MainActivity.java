@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private ProgressDialog pDialog;
     private DaoSession daoSession;
     private Menu menu;
+    private Toolbar toolbar;
     private MultiSelectionSpinner multiSelectionSpinner;
 
     public static boolean isAppRunning = false;
@@ -172,8 +173,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
                 // if setOnClickListener is not used, disableClick() will take effect
                 .disableClick(false)
-                .disableClickThroughHole(false)
-                .setStyle(Overlay.Style.ROUNDED_RECTANGLE);
+                .disableClickThroughHole(true)
+                .setStyle(Overlay.Style.CIRCLE);
         // the return handler is used to manipulate the cleanup of all the tutorial elements
         ChainTourGuide tourGuide0 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
@@ -208,13 +209,22 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                         .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
                         .setGravity(Gravity.BOTTOM | Gravity.LEFT)
                 )
+                .setOverlay(overlay)
+                .playLater(SectionAdapter.secondItem);
+
+        ChainTourGuide tourGuide4 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Hilfe")
+                        .setDescription("Du kannst mich jederzeit erneut rufen, wenn du hilfe brauchst")
+                        .setGravity(Gravity.BOTTOM | Gravity.LEFT)
+                )
                 .setOverlay(new Overlay()
                         .setBackgroundColor(Color.parseColor("#EE2c3e50"))
                         // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
                         // if setOnClickListener is not used, disableClick() will take effect
                         .disableClick(false)
                         .disableClickThroughHole(false)
-                        .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
+                        .setStyle(Overlay.Style.CIRCLE)
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -227,10 +237,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                                 mTourGuideHandler.next();
                             }
                         }))
-                .playLater(SectionAdapter.secondItem);
+                .playLater(toolbar.findViewById(R.id.action_show_tour_guide));
 
         Sequence sequence = new Sequence.SequenceBuilder()
-                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3)
+                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3, tourGuide4)
                 .setDefaultOverlay(new Overlay()
                         .setEnterAnimation(enterAnimation)
                         .setExitAnimation(exitAnimation)
@@ -332,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
