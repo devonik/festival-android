@@ -15,7 +15,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "pre-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }
@@ -48,7 +48,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:12.0.1'
     implementation 'com.google.firebase:firebase-database:12.0.1'
     implementation 'com.google.firebase:firebase-messaging:12.0.1'
-    implementation 'com.google.firebase:firebase-ads:12.0.1'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.1'
     implementation 'com.google.firebase:firebase-perf:12.0.1'
     implementation 'com.google.maps:google-maps-services:0.2.6'
@@ -65,7 +64,7 @@ dependencies {
     implementation 'org.springframework.android:spring-android-rest-template:2.0.0.M3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
     //object mapping
-    //compile 'com.kace.android:sqlite-object-mapping:0.0.3'
+    
     implementation 'org.greenrobot:greendao:3.2.2'
     // add library
     // volley

@@ -12,7 +12,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.4"
+        android:layout_weight="0.5"
         android:orientation="vertical">
 
         <com.daimajia.slider.library.SliderLayout
@@ -47,7 +47,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.6">
+        android:layout_weight="0.5">
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -146,16 +146,6 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-    <!--Productive AdMob: ca-app-pub-4609998981070446/1289099706 (Replace this with the test AdMob b4 go productivly)-->
-    <!--Test Ad: ca-app-pub-3940256099942544/6300978111-->
-    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
 
 </LinearLayout>

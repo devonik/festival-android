@@ -2,24 +2,37 @@ package devnik.trancefestivalticker.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.InputType;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
@@ -35,6 +48,7 @@ import devnik.trancefestivalticker.adapter.IFilterableSection;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
+import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -74,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private ProgressDialog pDialog;
     private DaoSession daoSession;
     private Menu menu;
+    private MenuItem menuItemShowGuide;
     private Toolbar toolbar;
     private MultiSelectionSpinner multiSelectionSpinner;
 
@@ -81,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     //Tour Guide
     private SharedPreferences sharedPref;
-    private SharedPreferences.Editor sharedPrefEditor;
     private String preferenceUserNeedGuiding;
     public ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
@@ -101,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         exitAnimation.setFillAfter(true);
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        sharedPrefEditor = sharedPref.edit();
+
         preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
 
         isAppRunning = true;
@@ -148,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
 
-        if(preferenceUserNeedGuiding.equals("yes")) {
+        /*if(preferenceUserNeedGuiding.equals("yes")) {
             //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
             recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
@@ -157,106 +171,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     runOverlay_TourGuide();
                 }
             });
-        }
+        }*/
     }
     @Override
     protected void onResume()
     {
         super.onResume();
 
-    }
-    private void runOverlay_TourGuide(){
-        //Scroll to top
-        recyclerView.smoothScrollToPosition(0);
-        Overlay overlay = new Overlay()
-                .setBackgroundColor(Color.parseColor("#EE2c3e50"))
-                // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
-                // if setOnClickListener is not used, disableClick() will take effect
-                .disableClick(false)
-                .disableClickThroughHole(true)
-                .setStyle(Overlay.Style.CIRCLE);
-        // the return handler is used to manipulate the cleanup of all the tutorial elements
-        ChainTourGuide tourGuide0 = ChainTourGuide.init(this)
-                .setToolTip(new ToolTip()
-                        .setTitle("Willkommen!")
-                        .setDescription("Dies ist ein kurzer Guide über die Funktionen der Startseite")
-                        .setGravity(Gravity.BOTTOM)
-                )
-                .setOverlay(overlay)
-                .playLater(multiSelectionSpinner);
-
-        ChainTourGuide tourGuide1 = ChainTourGuide.init(this)
-                .setToolTip(new ToolTip()
-                        .setTitle("Filtere die Festivals")
-                        .setDescription("Hier kannst du die Festivals nach Music Genres filtern")
-                        .setGravity(Gravity.BOTTOM)
-                )
-                .setOverlay(overlay)
-                .playLater(multiSelectionSpinner);
-
-        ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
-                .setToolTip(new ToolTip()
-                        .setTitle("Langer Touch")
-                        .setDescription("Wenn du ein Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
-                        .setGravity(Gravity.BOTTOM | Gravity.RIGHT)
-                )
-                .setOverlay(overlay)
-                .playLater(SectionAdapter.firstItem);
-
-        ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
-                .setToolTip(new ToolTip()
-                        .setTitle("Normaler Touch")
-                        .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
-                        .setGravity(Gravity.BOTTOM | Gravity.LEFT)
-                )
-                .setOverlay(overlay)
-                .playLater(SectionAdapter.secondItem);
-
-        ChainTourGuide tourGuide4 = ChainTourGuide.init(this)
-                .setToolTip(new ToolTip()
-                        .setTitle("Hilfe")
-                        .setDescription("Du kannst mich jederzeit erneut rufen, wenn du hilfe brauchst")
-                        .setGravity(Gravity.BOTTOM | Gravity.LEFT)
-                )
-                .setOverlay(new Overlay()
-                        .setBackgroundColor(Color.parseColor("#EE2c3e50"))
-                        // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
-                        // if setOnClickListener is not used, disableClick() will take effect
-                        .disableClick(false)
-                        .disableClickThroughHole(false)
-                        .setStyle(Overlay.Style.CIRCLE)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if(preferenceUserNeedGuiding.equals("yes")){
-                                    //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
-                                    //Shared Preference
-                                    sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "no");
-                                    sharedPrefEditor.commit();
-                                }
-                                mTourGuideHandler.next();
-                            }
-                        }))
-                .playLater(toolbar.findViewById(R.id.action_show_tour_guide));
-
-        Sequence sequence = new Sequence.SequenceBuilder()
-                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3, tourGuide4)
-                .setDefaultOverlay(new Overlay()
-                        .setEnterAnimation(enterAnimation)
-                        .setExitAnimation(exitAnimation)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mTourGuideHandler.next();
-                            }
-                        })
-                )
-                .setDefaultPointer(null)
-                .setContinueMethod(Sequence.ContinueMethod.OVERLAY_LISTENER)
-                .build();
-
-
-        mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
     }
 
     @Override protected void onDestroy() { super.onDestroy(); isAppRunning = false; }
@@ -389,9 +310,21 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-        this.menu = menu;
+        menuItemShowGuide = menu.findItem(R.id.action_show_tour_guide);
+        if(preferenceUserNeedGuiding.equals("yes")) {
+            //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
+            //recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                //@Override
+                //public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    //recyclerView.removeOnLayoutChangeListener(this);
+                    runOverlay_TourGuide();
+                //}
+            //});
+        }
+
         return true;
     }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
@@ -404,9 +337,176 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         switch (item.getItemId()){
             case R.id.action_show_tour_guide:
                 runOverlay_TourGuide();
+            case R.id.menu_policy:
+                showPolicy();
+            case R.id.menu_credits:
+                showCredits();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+    private void runOverlay_TourGuide(){
+        //Scroll to top
+        recyclerView.smoothScrollToPosition(0);
+        Overlay overlay = new Overlay()
+                .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                // if setOnClickListener is not used, disableClick() will take effect
+                .disableClick(false)
+                .disableClickThroughHole(true)
+                .setStyle(Overlay.Style.CIRCLE);
+        // the return handler is used to manipulate the cleanup of all the tutorial elements
+        ChainTourGuide tourGuide0 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Willkommen!")
+                        .setDescription("Dies ist ein kurzer Guide über die Funktionen der Startseite")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(new Overlay()
+                        .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                        // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                        // if setOnClickListener is not used, disableClick() will take effect
+                        .disableClick(false)
+                        .disableClickThroughHole(true)
+                        .setStyle(Overlay.Style.ROUNDED_RECTANGLE))
+                .playLater(toolbar);
 
+        ChainTourGuide tourGuide1 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Filtere die Festivals")
+                        .setDescription("Hier kannst du die Festivals nach Music Genres filtern")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(new Overlay()
+                        .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                        // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                        // if setOnClickListener is not used, disableClick() will take effect
+                        .disableClick(false)
+                        .disableClickThroughHole(true)
+                        .setStyle(Overlay.Style.ROUNDED_RECTANGLE))
+                .playLater(multiSelectionSpinner);
+
+        ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Langer Touch")
+                        .setDescription("Wenn du ein Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
+                        .setGravity(Gravity.TOP|Gravity.END)
+                )
+                .setOverlay(overlay)
+                .playLater(SectionAdapter.firstItem);
+
+        ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Normaler Touch")
+                        .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
+                        .setGravity(Gravity.TOP|Gravity.START)
+                )
+                .setOverlay(overlay)
+                .playLater(SectionAdapter.secondItem);
+
+        ChainTourGuide tourGuide4 = ChainTourGuide.init(this)
+                .setToolTip(new ToolTip()
+                        .setTitle("Hilfe")
+                        .setDescription("Du kannst mich jederzeit erneut rufen, wenn du hilfe brauchst")
+                        .setGravity(Gravity.BOTTOM)
+                )
+                .setOverlay(new Overlay()
+                        .setBackgroundColor(Color.parseColor("#EE2c3e50"))
+                        // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
+                        // if setOnClickListener is not used, disableClick() will take effect
+                        .disableClick(false)
+                        .disableClickThroughHole(false)
+                        .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(preferenceUserNeedGuiding.equals("yes")){
+                                    //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
+                                    //Shared Preference
+                                    SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                                    sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "no");
+                                    sharedPrefEditor.apply();
+                                }
+                                mTourGuideHandler.next();
+                            }
+                        }))
+                .playLater(toolbar);
+
+        Sequence sequence = new Sequence.SequenceBuilder()
+                .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3, tourGuide4)
+                .setDefaultOverlay(new Overlay()
+                        .setEnterAnimation(enterAnimation)
+                        .setExitAnimation(exitAnimation)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mTourGuideHandler.next();
+                            }
+                        })
+                )
+                .setDefaultPointer(null)
+                .setContinueMethod(Sequence.ContinueMethod.OVERLAY_LISTENER)
+                .build();
+
+
+        mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
+    }
+    private void showPolicy(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Datenschutz");
+
+        WebView wv = new WebView(this);
+        wv.loadUrl(getString(R.string.policy_url));
+        wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+
+                return true;
+            }
+        });
+
+        builder.setView(wv);
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        builder.show();
+    }
+    private void showCredits(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Datenschutz");
+        TextView creditTextView = new TextView(this);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            creditTextView.setText(Html.fromHtml(getString(R.string.credits_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+        }else{
+            creditTextView.setText(Html.fromHtml(getString(R.string.credits_text),null, new UITagHandler()));
+        }
+        //Important to make the hrefs clickable
+        creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+        builder.setView(creditTextView);
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        builder.show();
+    }
 }

@@ -21,9 +21,6 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -56,8 +53,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private View view;
     private SliderLayout imageSlider;
 
-    //AdMob
-    private AdView mAdView;
+
     public static FestivalDetailFragment newInstance() {
         FestivalDetailFragment f = new FestivalDetailFragment();
         return f;
@@ -77,45 +73,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
         //Scale slider
 
-        //AdMob
 
-        mAdView = view.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
-        mAdView.setAdListener(new AdListener(){
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-
-                //TODO If u want ad banner, uncomment these
-                //mAdView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                mAdView.destroy();
-                mAdView.setVisibility(View.GONE);
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the user is about to return
-                // to the app after tapping on an ad.
-            }
-        });
 
         festival = (Festival) getArguments().getSerializable("festival");
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
@@ -136,6 +94,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     }
     public void loadData(){
         lblTitle.setText(festival.getName());
+
+        //TODO aulagern in string resource für translation
         lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
@@ -166,7 +126,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
                     .description(image.getTitle())
                     .image(image.getUrl())
                     .error(R.drawable.no_internet)
-                    .setScaleType(BaseSliderView.ScaleType.CenterCrop)
+                    .setScaleType(BaseSliderView.ScaleType.FitCenterCrop)
                     .setOnSliderClickListener(this);
 
             //add your extra information

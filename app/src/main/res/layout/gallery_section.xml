@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#2F2F2F"
+    android:background="@drawable/gradient_color"
     android:gravity="center_vertical" >
 
     <TextView
@@ -21,9 +21,9 @@
         android:id="@+id/yearHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
+        android:gravity="end"
         android:padding="8dp"
-        android:text="2018"
+        android:text="@string/actualYear"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFF"

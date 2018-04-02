@@ -85,7 +85,6 @@ public class MapFragmentDialog extends DialogFragment  implements
     private static final int DEFAULT_ZOOM = 15;
     private ProgressDialog progressDialog;
     private SharedPreferences sharedPref;
-    private SharedPreferences.Editor sharedPrefEditor;
     private Polyline carPolyline;
     private Festival festival;
     private FestivalDetail festivalDetail;
@@ -105,7 +104,7 @@ public class MapFragmentDialog extends DialogFragment  implements
         showRoute = rootView.findViewById(R.id.showRoute);
         showFestival = rootView.findViewById(R.id.showFestival);
         sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        sharedPrefEditor = sharedPref.edit();
+
 
         festival = (Festival) getArguments().getSerializable("festival");
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
@@ -302,8 +301,9 @@ public class MapFragmentDialog extends DialogFragment  implements
                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
 
             //Shared Preference
+            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
             sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), encodedPath);
-            sharedPrefEditor.commit();
+            sharedPrefEditor.apply();
         } catch (Exception e) {
             // Handle error
         }

@@ -96,7 +96,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                      */
             ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
             editor.putString(getString(R.string.devnik_trancefestivalticker_account_name), mAccount.name);
-            editor.commit();
+            editor.apply();
         }
         else {
             //getIntent().getExtras() is null

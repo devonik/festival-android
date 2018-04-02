@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">TFT - Trance Festival Ticker</string>
+    <string name="actualYear">2018</string>
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to draw the \'my location\' feature, which shows your current location on the map.</string>
     <string name="location_permission_denied">The route function requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'\'.</string>
@@ -10,7 +11,11 @@
     <string name="sync_account_type">devnik.trancefestivalticker</string>
 
     <string name="content_authority">devnik.trancefestivalticker.provider</string>
-
-    <!--Toast Nachricht, wenn eine Push Nachricht reinkommt, aber der User die App offen hat-->
-    <string name="toastIfAppIsOpen">Es wurden Daten hinzugefügt/aktualisiert. Beim nächsten Starten der App wird aktualisiert.</string>
+    <string name="policy_url">http:\\webapps.niklas-grieger.de\\Festivalticker\\policy\\privacy_policy.html</string>
+    <string name="credits_text"><![CDATA[<p>Hi, Der Entwickler dieser App bin ich, Niklas.<p>
+                                         <p>Die Texte und Bilder sind in zusammenarbeit mit dem Beitreiber der Seite goazin.de entstanden</p>
+                                         <hr>
+                                         <br><br>
+                                         <p>Bei Fragen oder Anregungen kannst du mich unter der eMail Adresse developer@niklas-grieger.de erreichen.</p>
+                                         <p>Die Webseite (goazin.de) auf der du noch weitere Infos, wie z.B. diverse Erfahrungsberichte und Interviews, findest du <a href="http://goazin.de/">Hier</a>]]></string>
 </resources>
