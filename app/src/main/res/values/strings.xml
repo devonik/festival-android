@@ -11,7 +11,7 @@
     <string name="sync_account_type">devnik.trancefestivalticker</string>
 
     <string name="content_authority">devnik.trancefestivalticker.provider</string>
-    <string name="policy_url">https:\\macro-duality-197512.firebaseapp.com\\policy\\no</string>
+    <string name="policy_url">http://webapps.niklas-grieger.de/TFTApp/policy.html</string>
     <string name="credits_text"><![CDATA[<p>Hi, Der Entwickler dieser App bin ich, Niklas.<p>
                                          <p>Die Texte und Bilder sind in zusammenarbeit mit dem Beitreiber der Seite goazin.de entstanden</p>
                                          <hr>

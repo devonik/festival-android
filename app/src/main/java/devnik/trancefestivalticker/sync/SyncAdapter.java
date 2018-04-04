@@ -94,27 +94,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
              * The app can then catch the exception and choose an appropriate course of action, such as displaying the standard fix-it flow diagram.
              *
              */
-            /*ProviderInstaller.installIfNeeded(getContext());
-        } catch (GooglePlayServicesRepairableException e) {
-
-            // Indicates that Google Play services is out of date, disabled, etc.
-
-            // Prompt the user to install/update/enable Google Play services.
-            GooglePlayServicesUtil.showErrorNotification(
-                    e.getConnectionStatusCode(), getContext());
-
-            // Notify the SyncManager that a soft error occurred.
-            syncResult.stats.numIoExceptions++;
-            return;
-
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // Indicates a non-recoverable error; the ProviderInstaller is not able
-            // to install an up-to-date Provider.
-
-            // Notify the SyncManager that a hard error occurred.
-            syncResult.stats.numAuthExceptions++;
-            return;
-        }*/
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(getContext());
         googleApiAvailability.showErrorNotification(getContext(),status);

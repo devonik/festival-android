@@ -1,14 +1,19 @@
 package devnik.trancefestivalticker.activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -31,6 +36,8 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -99,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private String preferenceUserNeedGuiding;
     public ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
+
+    private AlertDialog.Builder builderDialogBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //To force crashlytics Error
@@ -337,10 +347,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         switch (item.getItemId()){
             case R.id.action_show_tour_guide:
                 runOverlay_TourGuide();
+                return true;
             case R.id.menu_policy:
                 showPolicy();
+                return true;
             case R.id.menu_credits:
                 showCredits();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -452,8 +465,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
     }
     private void showPolicy(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Datenschutz");
+
+        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("Datenschutz");
 
         WebView wv = new WebView(this);
         wv.loadUrl(getString(R.string.policy_url));
@@ -461,31 +475,31 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
-
                 return true;
             }
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // TODO Auto-generated method stub
+                super.onPageFinished(view, url);
+            }
         });
-
-        builder.setView(wv);
+        builderDialogBuilder.setView(wv);
         // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-
-        builder.show();
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
     private void showCredits(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Datenschutz");
-        TextView creditTextView = new TextView(this);
 
+        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("Credits");
+        TextView creditTextView = new TextView(this);
+        creditTextView.setPadding(15,15,15,15);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             creditTextView.setText(Html.fromHtml(getString(R.string.credits_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
         }else{
@@ -494,19 +508,16 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Important to make the hrefs clickable
         creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        builder.setView(creditTextView);
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
 
-        builder.show();
+        builderDialogBuilder.setView(creditTextView);
+        // Set up the buttons
+        builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
 }

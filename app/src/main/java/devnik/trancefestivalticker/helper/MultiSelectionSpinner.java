@@ -1,10 +1,10 @@
 package devnik.trancefestivalticker.helper;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.support.v7.widget.AppCompatSpinner;
@@ -89,11 +89,11 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
 
     @Override
     public boolean performClick() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogBackground);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), AlertDialog.THEME_HOLO_LIGHT);
         builder.setTitle("Filtere nach dem Genre");
         builder.setMultiChoiceItems(_items, mSelection, this);
         _itemsAtStart = getSelectedItemsAsString();
-        if(_itemsAtStart==""){
+        if(_itemsAtStart.equals("")){
             //Kein Item ausgewählt
             _itemsAtStart = placeholderText;
         }

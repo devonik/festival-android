@@ -64,3 +64,5 @@ fastlane/readme.md
 
 
 \.idea/caches/
+
+app/build\.gradle
