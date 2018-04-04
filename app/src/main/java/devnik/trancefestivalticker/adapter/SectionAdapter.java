@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -95,16 +96,17 @@ public static View secondItem;
                         FestivalTicketPhaseDao.Properties.Sold.eq("no"),
                         FestivalTicketPhaseDao.Properties.Started.eq("yes")
                 ).build().unique();
+
+        RequestOptions glideOptions = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.progress_animation)
+                .error(R.drawable.mandala_om_480x480)
+                .priority(Priority.HIGH)
+                .diskCacheStrategy(DiskCacheStrategy.ALL);
         // bind your view here
                 Glide.with(mContext)
                         .load(festival.getThumbnail_image_url())
-                        .apply(centerCropTransform()
-                                .placeholder(R.drawable.progress_animation)
-                                .error(R.drawable.mandala_om_480x480)
-                                .priority(Priority.HIGH)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                )
-                        .transition(withCrossFade())
+                        .apply(glideOptions)
                         .into(itemHolder.thumbnail);
 
             itemHolder.itemView.setOnClickListener(new View.OnClickListener() {

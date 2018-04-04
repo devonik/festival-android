@@ -12,10 +12,10 @@
 
     <string name="content_authority">devnik.trancefestivalticker.provider</string>
     <string name="policy_url">http://webapps.niklas-grieger.de/TFTApp/policy.html</string>
-    <string name="credits_text"><![CDATA[<p>Hi, Der Entwickler dieser App bin ich, Niklas.<p>
-                                         <p>Die Texte und Bilder sind in zusammenarbeit mit dem Beitreiber der Seite goazin.de entstanden</p>
+    <string name="credits_text"><![CDATA[<p>Entwickler: Niklas Grieger<p>
+                                         <p>Die Texte und Bilder sind in zusammenarbeit mit dem Beitreiber der Seite <i>goazin.de</i> entstanden</p>
                                          <hr>
-                                         <br><br>
+                                         <br>
                                          <p>Bei Fragen oder Anregungen kannst du mich unter der eMail Adresse developer@niklas-grieger.de erreichen.</p>
-                                         <p>Die Webseite (goazin.de) auf der du noch weitere Infos, wie z.B. diverse Erfahrungsberichte und Interviews, findest du <a href="http://goazin.de/">Hier</a>]]></string>
+                                         <p>Die Webseite (goazin.de) auf der du noch weitere Infos, wie z.B. diverse Erfahrungsberichte und Interviews, findest du <a href="http://goazin.de/">hier</a>]]></string>
 </resources>
