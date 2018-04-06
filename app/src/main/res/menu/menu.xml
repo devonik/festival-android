@@ -11,10 +11,10 @@
     <group>
         <item
             android:id="@+id/menu_policy"
-            android:title="Datenschutz"/>
+            android:title="Impressum"/>
         <item
             android:id="@+id/menu_credits"
-            android:title="Credits"/>
+            android:title="Sonstiges"/>
     </group>
 
 </menu>

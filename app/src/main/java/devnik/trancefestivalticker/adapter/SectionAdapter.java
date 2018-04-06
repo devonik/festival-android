@@ -57,8 +57,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     private List<FestivalTicketPhase> festivalTicketPhases;
     private CustomDate customDate;
     public FragmentManager fragmentManager;
-public static View firstItem;
-public static View secondItem;
+
     public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals, FragmentManager fragmentManager) {
 
         // call constructor with layout resources for this Section header and items
@@ -133,14 +132,6 @@ public static View secondItem;
             }
         });
 
-        //For Guiding
-        //TODO NOT GOOD
-        if(position == 0 && firstItem == null){
-            firstItem = itemHolder.itemView;
-        }
-        if(position == 1 && secondItem == null){
-            secondItem = itemHolder.itemView;
-        }
     }
     @Override
     public boolean onLongClick(View view) {

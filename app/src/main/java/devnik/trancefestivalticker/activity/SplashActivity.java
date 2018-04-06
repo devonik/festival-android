@@ -153,7 +153,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                         public void run() {
                             Toast.makeText(getApplicationContext(),
                                     "Daten werden aktualisiert ... ",
-                                    Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }, 4000);
                 }

@@ -309,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public void selectedStrings(List<String> strings) {
         for (Section section : sectionAdapter.getCopyOfSectionsMap().values()) {
             if (section instanceof IFilterableSection) {
-                View v = SectionAdapter.firstItem;
                 ((IFilterableSection) section).filter(strings);
             }
             sectionAdapter.notifyDataSetChanged();
@@ -399,14 +398,21 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                         .setStyle(Overlay.Style.ROUNDED_RECTANGLE))
                 .playLater(multiSelectionSpinner);
 
+        RecyclerView.ViewHolder firstFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(1);
+        View firstFestivalView = firstFestivalViewHolder.itemView;
+
         ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
                         .setTitle("Langer Touch")
-                        .setDescription("Wenn du ein Element mit einem Langen Touch berührst, siehst du eine kurze Info dazu.")
+                        .setDescription("Wenn du ein Element mit einem langen Touch berührst, siehst du eine kurze Info dazu.")
                         .setGravity(Gravity.TOP|Gravity.END)
                 )
                 .setOverlay(overlay)
-                .playLater(SectionAdapter.firstItem);
+                .playLater(firstFestivalView);
+
+
+        RecyclerView.ViewHolder secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(2);
+        View secondFestivalView = secondFestivalViewHolder.itemView;
 
         ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
@@ -415,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                         .setGravity(Gravity.TOP|Gravity.START)
                 )
                 .setOverlay(overlay)
-                .playLater(SectionAdapter.secondItem);
+                .playLater(secondFestivalView);
 
         ChainTourGuide tourGuide4 = ChainTourGuide.init(this)
                 .setToolTip(new ToolTip()
@@ -467,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private void showPolicy(){
 
         builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
-        builderDialogBuilder.setTitle("Datenschutz");
+        builderDialogBuilder.setTitle("Impressum");
 
         WebView wv = new WebView(this);
         wv.loadUrl(getString(R.string.policy_url));
@@ -497,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private void showCredits(){
 
         builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
-        builderDialogBuilder.setTitle("Credits");
+        builderDialogBuilder.setTitle("Sonstiges");
         TextView creditTextView = new TextView(this);
         creditTextView.setPadding(15,15,15,15);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
