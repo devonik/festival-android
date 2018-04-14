@@ -23,7 +23,10 @@ import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
 
 import org.greenrobot.greendao.query.Query;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
+import java.util.Date;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
@@ -92,11 +95,33 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         }
         return view;
     }
+    public String festivalStatus(){
+        Date start = festival.getDatum_start();
+        Date end = festival.getDatum_end();
+        Date today = new Date();
+
+        if(today.after(start) && today.before(end)){
+            //Festival is now!
+            return "( Läuft gerade! )";
+        }
+        else if(today.before(start)){
+            //Festival start is comming
+            return "( Noch "+calcDaysTillStart(start)+" Tage )";
+        }else if(today.after(start)){
+            //Festival is expired
+            return "( Abgelaufen! )";
+        }
+        return "";
+    }
+    public int calcDaysTillStart(Date startDate){
+        Date today = new Date();
+        return Days.daysBetween(new LocalDate(today.getTime()), new LocalDate(startDate.getTime())).getDays();
+    }
     public void loadData(){
         lblTitle.setText(festival.getName());
 
         //TODO aulagern in string resource für translation
-        lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()));
+        lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()) + " "+festivalStatus());
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));

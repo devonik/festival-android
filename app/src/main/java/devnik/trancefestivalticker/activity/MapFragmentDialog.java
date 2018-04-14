@@ -275,7 +275,8 @@ public class MapFragmentDialog extends DialogFragment  implements
         com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
         DirectionsApiRequest req = DirectionsApi.newRequest(context)
                 .origin(origin)
-                .destination(destination);
+                .destination(destination)
+                .language("de");
         // Synchronous
         try {
             DirectionsResult result = req.await();
