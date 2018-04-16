@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
 
         isAppRunning = true;
-        //get the festival DAO
+
         daoSession = ((App)this.getApplication()).getDaoSession();
 
         super.onCreate(savedInstanceState);
@@ -321,12 +321,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         getMenuInflater().inflate(R.menu.menu, menu);
         menuItemShowGuide = menu.findItem(R.id.action_show_tour_guide);
         if(preferenceUserNeedGuiding.equals("yes")) {
-            //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
-            //recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                //@Override
-                //public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    //recyclerView.removeOnLayoutChangeListener(this);
-                    runOverlay_TourGuide();
+            if(festivals.size()>0){
+                runOverlay_TourGuide();
+            }else{
+                Toast.makeText(this,"Festivals konnten nicht geladen werden. Hast du Netz?",Toast.LENGTH_SHORT).show();
+            }
+
                 //}
             //});
         }
