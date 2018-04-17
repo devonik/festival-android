@@ -6,8 +6,12 @@ import org.greenrobot.greendao.query.Query;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
+import de.danielbechler.diff.ObjectDifferBuilder;
+import de.danielbechler.diff.node.DiffNode;
+import de.danielbechler.diff.node.Visit;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
@@ -22,6 +26,7 @@ import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.MusicGenreFestivals;
 import devnik.trancefestivalticker.model.MusicGenreFestivalsDao;
 import devnik.trancefestivalticker.model.WhatsNew;
+import devnik.trancefestivalticker.model.WhatsNewDao;
 
 /**
  * Created by niklas on 23.03.18.
@@ -42,6 +47,7 @@ public class SyncAllData {
     private MusicGenreDao musicGenreDao;
     private MusicGenreFestivalsDao musicGenreFestivalsDao;
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private WhatsNewDao whatsNewDao;
 
     public SyncAllData(DaoSession daoSession){
         this.daoSession = daoSession;
@@ -59,6 +65,7 @@ public class SyncAllData {
         musicGenreFestivalsDao = daoSession.getMusicGenreFestivalsDao();
 
         festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
+        whatsNewDao = daoSession.getWhatsNewDao();
 
         loadFestivals();
         loadFestivalDetails();
@@ -83,14 +90,29 @@ public class SyncAllData {
             }
         }
         catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadFestivals()", e.getMessage(), e);
         }
     }
-    public void updateSQLiteFestivals(Festival[] festivals){
+    public void updateSQLiteFestivals(final Festival[] festivals){
 
         try{
             //If no of array element is not zero
             if(festivals.length != 0){
+                if(Arrays.asList(festivals).equals(localFestivals)){
+                    Log.e("Festivals check equal", "All objects are equal... no update needed!");
+                }
+                DiffNode diff = ObjectDifferBuilder.buildDefault().compare(festivals, localFestivals);
+                diff.visit(new DiffNode.Visitor()
+                {
+                    public void node(DiffNode node, Visit visit)
+                    {
+                        final Object baseValue = node.canonicalGet(localFestivals);
+                        final Object workingValue = node.canonicalGet(festivals);
+                        final String message = node.getPath() + " changed from " +
+                                baseValue + " to " + workingValue;
+                        System.out.println(message);
+                    }
+                });
                 festivalDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivals.length; i++) {
@@ -115,7 +137,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadFestivalDetails()", e.getMessage(), e);
         }
     }
     public void updateSQLiteDetails(FestivalDetail[] festivalDetails){
@@ -149,7 +171,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadDetailImages()", e.getMessage(), e);
         }
     }
     public void updateSQLiteDetailImages(FestivalDetailImages[] festivalDetailImages){
@@ -182,7 +204,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadMusicGenre()", e.getMessage(), e);
         }
     }
     public void updateSQLiteMusicGenres(MusicGenre[] musicGenres){
@@ -215,7 +237,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadMusicGenreFe()", e.getMessage(), e);
         }
     }
     public void updateSQLiteMusicGenreFestivals(MusicGenreFestivals[] musicGenreFestivals){
@@ -247,7 +269,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadTicketPhases()", e.getMessage(), e);
         }
     }
     public void updateSQLiteFestivalTicketPhases(FestivalTicketPhase[] festivalTicketPhases){

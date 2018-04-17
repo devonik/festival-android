@@ -13,6 +13,8 @@ import org.greenrobot.greendao.annotation.ToMany;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Transient;
 
@@ -218,11 +220,34 @@ public class Festival implements Serializable {
         myDao.update(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Festival festival = (Festival) o;
+        return Objects.equals(festival_id, festival.festival_id) &&
+                Objects.equals(festival_detail_id, festival.festival_detail_id) &&
+                Objects.equals(name, festival.name) &&
+                Objects.equals(thumbnail_image_url, festival.thumbnail_image_url) &&
+                Objects.equals(datum_start, festival.datum_start) &&
+                Objects.equals(datum_end, festival.datum_end) &&
+                Objects.equals(syncStatus, festival.syncStatus) &&
+                Objects.equals(musicGenres, festival.musicGenres) &&
+                Objects.equals(ticketPhases, festival.ticketPhases) &&
+                Objects.equals(daoSession, festival.daoSession) &&
+                Objects.equals(myDao, festival.myDao);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(festival_id, festival_detail_id, name, thumbnail_image_url, datum_start, datum_end, syncStatus, musicGenres, ticketPhases, daoSession, myDao);
+    }
+
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1732136369)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getFestivalDao() : null;
     }
-    
 }

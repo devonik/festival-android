@@ -11,41 +11,25 @@ import org.greenrobot.greendao.annotation.Id;
 public class WhatsNew {
     @Id
     private Long id;
-    private String updatedFestivals;
-    private String insertedFestivals;
-
-    @Generated(hash = 975411442)
-    public WhatsNew(Long id, String updatedFestivals, String insertedFestivals) {
+    private String item;
+    @Generated(hash = 365969137)
+    public WhatsNew(Long id, String item) {
         this.id = id;
-        this.updatedFestivals = updatedFestivals;
-        this.insertedFestivals = insertedFestivals;
+        this.item = item;
     }
-
     @Generated(hash = 596195766)
     public WhatsNew() {
     }
-
-    public String getUpdatedFestivals() {
-        return updatedFestivals;
-    }
-
-    public void setUpdatedFestivals(String updatedFestivals) {
-        this.updatedFestivals = updatedFestivals;
-    }
-
-    public String getInsertedFestivals() {
-        return insertedFestivals;
-    }
-
-    public void setInsertedFestivals(String insertedFestivals) {
-        this.insertedFestivals = insertedFestivals;
-    }
-
     public Long getId() {
         return this.id;
     }
-
     public void setId(Long id) {
         this.id = id;
+    }
+    public String getItem() {
+        return this.item;
+    }
+    public void setItem(String item) {
+        this.item = item;
     }
 }
