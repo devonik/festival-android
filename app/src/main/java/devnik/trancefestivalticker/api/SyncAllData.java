@@ -6,8 +6,10 @@ import org.greenrobot.greendao.query.Query;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ObjectStreamField;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import de.danielbechler.diff.ObjectDifferBuilder;
 import de.danielbechler.diff.node.DiffNode;
@@ -98,24 +100,47 @@ public class SyncAllData {
         try{
             //If no of array element is not zero
             if(festivals.length != 0){
-                if(Arrays.asList(festivals).equals(localFestivals)){
-                    Log.e("Festivals check equal", "All objects are equal... no update needed!");
-                }
-                DiffNode diff = ObjectDifferBuilder.buildDefault().compare(festivals, localFestivals);
-                diff.visit(new DiffNode.Visitor()
-                {
-                    public void node(DiffNode node, Visit visit)
-                    {
-                        final Object baseValue = node.canonicalGet(localFestivals);
-                        final Object workingValue = node.canonicalGet(festivals);
-                        final String message = node.getPath() + " changed from " +
-                                baseValue + " to " + workingValue;
-                        System.out.println(message);
+
+                //Cheack Whats new
+                for(final Festival remoteFestival : festivals){
+                    final Festival localFestival = festivalDao.queryBuilder().where(FestivalDao.Properties.Festival_id.eq(remoteFestival.getFestival_id())).unique();
+                    if(localFestival != null){
+                        //Item exestiert bereits lokal
+                        DiffNode diff = ObjectDifferBuilder.buildDefault().compare(remoteFestival, localFestival);
+                        diff.visit(new DiffNode.Visitor()
+                        {
+                            public void node(DiffNode node, Visit visit)
+                            {
+                                final Object baseValue = node.canonicalGet(remoteFestival);
+                                final Object workingValue = node.canonicalGet(localFestival);
+                                WhatsNew whatsNew = new WhatsNew();
+                                whatsNew.setItem(node.getPath() + " changed from \n" +
+                                                 baseValue + " to " + workingValue);
+                                whatsNew.setFestivalName(localFestival.getName());
+                                whatsNewDao.insert(whatsNew);
+                                final String message = node.getPath() + " changed from " +
+                                        baseValue + " to " + workingValue;
+                                System.out.println(message);
+                            }
+                        });
+
+                        //festivalDao.update(remoteFestival);
+                    }else{
+                        //Festival is new
+                        WhatsNew whatsNew = new WhatsNew();
+                        whatsNew.setItem("Neu!");
+                        whatsNew.setFestivalName(remoteFestival.getName());
+                        whatsNewDao.insert(whatsNew);
+                        //festivalDao.insert(remoteFestival);
                     }
-                });
+                }
+
+
+
                 festivalDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivals.length; i++) {
+
                     Festival remoteFestival = festivals[i];
                     this.festivalDao.insert(remoteFestival);
                 }
