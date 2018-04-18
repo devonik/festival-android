@@ -2,10 +2,12 @@ package devnik.trancefestivalticker.activity;
 
 import android.accounts.Account;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SyncStatusObserver;
 import android.graphics.Color;
@@ -49,6 +51,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
     // Incoming Intent key for extended data
     public static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
+    public static final String ACTION_FINISHED_SYNC = "devnik.trancefestivalticker.ACTION_FINISHED_SYNC";
+    private static IntentFilter syncIntentFilter = new IntentFilter(ACTION_FINISHED_SYNC);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,8 +65,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         festivalDao = daoSession.getFestivalDao();
 
 
-        ContentResolver.addStatusChangeListener(
-                ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
+        //ContentResolver.addStatusChangeListener(
+         //       ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
 
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.devnik_trancefestivalticker_account_name), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -157,7 +161,34 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         }
 
     }
+    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (MainActivity.isAppRunning) {
+                Log.e("SyncFinished", "New Results are not in yet, waitin for restart app");
+
+            } else {
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    };
     @Override
+    protected void onResume(){
+        super.onResume();
+        // register for sync
+        registerReceiver(syncFinishedReceiver, syncIntentFilter);
+        // do your resuming magic
+    }
+    @Override
+    protected void onPause() {
+        unregisterReceiver(syncFinishedReceiver);
+        super.onPause();
+    }
+
+    /*@Override
     public void onStatusChanged(int which){
         Log.d("SplashActivity", "onStatusChanged: "+which);
         runOnUiThread(new Runnable() {
@@ -214,7 +245,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                 }
             }
         });
-    }
+    }*/
     private void showNoConnectionDialog(){
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

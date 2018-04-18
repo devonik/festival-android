@@ -7,6 +7,7 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
@@ -22,6 +23,7 @@ import com.google.android.gms.security.ProviderInstaller;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.activity.SplashActivity;
 import devnik.trancefestivalticker.api.SyncAllData;
 import devnik.trancefestivalticker.model.DaoSession;
 
@@ -107,6 +109,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);
         }
+        getContext().sendBroadcast(new Intent(SplashActivity.ACTION_FINISHED_SYNC));
     }
     /**
      * Helper method to have the sync adapter sync immediately

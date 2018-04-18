@@ -102,9 +102,9 @@ public class SyncAllData {
             if(festivals.length != 0){
 
                 //Cheack Whats new
-                for(final Festival remoteFestival : festivals){
+                for(final Festival remoteFestival : festivals) {
                     final Festival localFestival = festivalDao.queryBuilder().where(FestivalDao.Properties.Festival_id.eq(remoteFestival.getFestival_id())).unique();
-                    if(localFestival != null){
+                    /*if(localFestival != null){
                         //Item exestiert bereits lokal
                         DiffNode diff = ObjectDifferBuilder.buildDefault().compare(remoteFestival, localFestival);
                         diff.visit(new DiffNode.Visitor()
@@ -125,14 +125,15 @@ public class SyncAllData {
                         });
 
                         //festivalDao.update(remoteFestival);
-                    }else{
+                    }else{*/
                         //Festival is new
                         WhatsNew whatsNew = new WhatsNew();
                         whatsNew.setItem("Neu!");
                         whatsNew.setFestivalName(remoteFestival.getName());
                         whatsNewDao.insert(whatsNew);
                         //festivalDao.insert(remoteFestival);
-                    }
+                    //}
+                //}
                 }
 
 
