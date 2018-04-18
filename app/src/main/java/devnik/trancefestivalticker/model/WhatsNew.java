@@ -12,10 +12,12 @@ public class WhatsNew {
     @Id
     private Long id;
     private String item;
-    @Generated(hash = 365969137)
-    public WhatsNew(Long id, String item) {
+    private String festivalName;
+    @Generated(hash = 1170987171)
+    public WhatsNew(Long id, String item, String festivalName) {
         this.id = id;
         this.item = item;
+        this.festivalName = festivalName;
     }
     @Generated(hash = 596195766)
     public WhatsNew() {
@@ -32,4 +34,11 @@ public class WhatsNew {
     public void setItem(String item) {
         this.item = item;
     }
+    public String getFestivalName() {
+        return this.festivalName;
+    }
+    public void setFestivalName(String festivalName) {
+        this.festivalName = festivalName;
+    }
+    
 }

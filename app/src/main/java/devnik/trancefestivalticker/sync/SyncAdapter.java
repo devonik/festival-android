@@ -36,9 +36,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Global variables
     // Define a variable to contain a content resolver instance
     ContentResolver mContentResolver;
-    // (60 seconds (1 minute) * 10) / 60 / 60 = 3 hours
+    // (60 seconds (1 minute) * 60) / 60 / 60 = 1 hours
     // (60 seconds (1 minute) * 10) / 60 = 10 min
-    public static final int SYNC_INTERVAL = 60 * 60;
+    public static final int SYNC_INTERVAL = 60 * 10;
     /**
      * Set up the sync adapter
      */

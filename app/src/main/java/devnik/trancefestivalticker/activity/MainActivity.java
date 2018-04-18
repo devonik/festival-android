@@ -3,6 +3,7 @@ package devnik.trancefestivalticker.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.WallpaperColors;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
 
+        whatsNewDao = daoSession.getWhatsNewDao();
+        whatsNews = whatsNewDao.queryBuilder().list();
+
         List<String> genreNames = new ArrayList<>();
         if(musicGenres!=null){
             for (MusicGenre item: musicGenres) {
@@ -172,16 +176,38 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Register Custom Exception Handler
         Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
 
-        /*if(preferenceUserNeedGuiding.equals("yes")) {
-            //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
-            recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    recyclerView.removeOnLayoutChangeListener(this);
-                    runOverlay_TourGuide();
-                }
-            });
-        }*/
+        if(whatsNews.size() >0){
+            //Wenn Whats new einträge vorhanden sind
+            initWhatsNewDialog();
+        }
+
+    }
+    public void initWhatsNewDialog(){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(WhatsNew item : whatsNews){
+            stringBuilder.append(item.getFestivalName());
+            stringBuilder.append("\n - ");
+            stringBuilder.append(item.getItem());
+            stringBuilder.append("\n\n");
+        }
+
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(MainActivity.this);
+        }
+        builder.setTitle("News")
+                .setMessage("Letzte Änderungen:\n\n "+stringBuilder)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        whatsNewDao.deleteAll();
+                        dialog.cancel();
+
+                    }
+                })
+                .setIcon(R.drawable.no_internet)
+                .show();
     }
     @Override
     protected void onResume()
