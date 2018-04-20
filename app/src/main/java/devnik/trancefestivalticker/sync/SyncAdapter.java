@@ -104,7 +104,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{
-            new SyncAllData(daoSession);
+            new SyncAllData(daoSession, getContext());
 
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);

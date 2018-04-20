@@ -1,19 +1,30 @@
 package devnik.trancefestivalticker.api;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import org.greenrobot.greendao.query.Query;
+import org.joda.time.LocalDate;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ObjectStreamField;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import de.danielbechler.diff.ObjectDifferBuilder;
 import de.danielbechler.diff.node.DiffNode;
 import de.danielbechler.diff.node.Visit;
+import devnik.trancefestivalticker.App;
+import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
@@ -35,6 +46,10 @@ import devnik.trancefestivalticker.model.WhatsNewDao;
  */
 
 public class SyncAllData {
+    private SharedPreferences sharedPref;
+    private String preferenceLastOnline;
+
+    private Context context;
     private DaoSession daoSession;
     private FestivalDao festivalDao;
     private Query<Festival> festivalQuery;
@@ -51,8 +66,9 @@ public class SyncAllData {
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
     private WhatsNewDao whatsNewDao;
 
-    public SyncAllData(DaoSession daoSession){
+    public SyncAllData(DaoSession daoSession, Context context){
         this.daoSession = daoSession;
+        this.context = context;
         festivalDao = daoSession.getFestivalDao();
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
         localFestivals = festivalQuery.list();
@@ -79,6 +95,8 @@ public class SyncAllData {
 
         //TicketPhase
         loadFestivalTicketPhases();
+        loadWhatsNew();
+
     }
     //***********************************Festivals****************************************//
     public void loadFestivals(){
@@ -100,43 +118,6 @@ public class SyncAllData {
         try{
             //If no of array element is not zero
             if(festivals.length != 0){
-
-                //Cheack Whats new
-                for(final Festival remoteFestival : festivals) {
-                    final Festival localFestival = festivalDao.queryBuilder().where(FestivalDao.Properties.Festival_id.eq(remoteFestival.getFestival_id())).unique();
-                    /*if(localFestival != null){
-                        //Item exestiert bereits lokal
-                        DiffNode diff = ObjectDifferBuilder.buildDefault().compare(remoteFestival, localFestival);
-                        diff.visit(new DiffNode.Visitor()
-                        {
-                            public void node(DiffNode node, Visit visit)
-                            {
-                                final Object baseValue = node.canonicalGet(remoteFestival);
-                                final Object workingValue = node.canonicalGet(localFestival);
-                                WhatsNew whatsNew = new WhatsNew();
-                                whatsNew.setItem(node.getPath() + " changed from \n" +
-                                                 baseValue + " to " + workingValue);
-                                whatsNew.setFestivalName(localFestival.getName());
-                                whatsNewDao.insert(whatsNew);
-                                final String message = node.getPath() + " changed from " +
-                                        baseValue + " to " + workingValue;
-                                System.out.println(message);
-                            }
-                        });
-
-                        //festivalDao.update(remoteFestival);
-                    }else{*/
-                        //Festival is new
-                        WhatsNew whatsNew = new WhatsNew();
-                        whatsNew.setItem("Neu!");
-                        whatsNew.setFestivalName(remoteFestival.getName());
-                        whatsNewDao.insert(whatsNew);
-                        //festivalDao.insert(remoteFestival);
-                    //}
-                //}
-                }
-
-
 
                 festivalDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
@@ -308,6 +289,40 @@ public class SyncAllData {
                 for (int i = 0; i < festivalTicketPhases.length; i++) {
                     FestivalTicketPhase festivalTicketPhase = festivalTicketPhases[i];
                     this.festivalTicketPhaseDao.insert(festivalTicketPhase);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**************************************WhatsNew****************************************************/
+    public void loadWhatsNew(){
+        try {
+            sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+            preferenceLastOnline = sharedPref.getString(context.getString(R.string.devnik_trancefestivalticker_preference_last_online), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String url = "https://festivalticker.herokuapp.com/api/v1/whatsNew?start="+Date.parse(preferenceLastOnline)+"&end="+DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date());
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            WhatsNew[] whatsNews = restTemplate.getForObject(url, WhatsNew[].class);
+            if(whatsNews.length>0){
+                updateSQLiteWhatsNew(whatsNews);
+            }
+
+        } catch (Exception e) {
+            Log.e("loadWhatsNew()", e.getMessage(), e);
+        }
+    }
+    private void updateSQLiteWhatsNew(WhatsNew[] whatsNews){
+        try{
+            //If no of array element is not zero
+            if(whatsNews.length != 0){
+                whatsNewDao.deleteAll();
+                // Loop through each array element, get JSON object which has festival and username
+                for (int i = 0; i < whatsNews.length; i++) {
+                    WhatsNew whatsNew = whatsNews[i];
+                    this.whatsNewDao.insert(whatsNew);
                 }
             }
         }catch (Exception e){

@@ -40,7 +40,7 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
  * Created by nik on 15.03.2018.
  */
 
-public class SplashActivity extends AppCompatActivity implements SyncStatusObserver
+public class SplashActivity extends AppCompatActivity //implements SyncStatusObserver
 {
     // Instance fields
     private Account mAccount;
