@@ -14,9 +14,9 @@ public class WhatsNew {
     @Id
     private Long id;
     private String content;
-    private Date createdDate;
-    @Generated(hash = 1904455757)
-    public WhatsNew(Long id, String content, Date createdDate) {
+    private String createdDate;
+    @Generated(hash = 1908055086)
+    public WhatsNew(Long id, String content, String createdDate) {
         this.id = id;
         this.content = content;
         this.createdDate = createdDate;
@@ -36,10 +36,10 @@ public class WhatsNew {
     public void setContent(String content) {
         this.content = content;
     }
-    public Date getCreatedDate() {
+    public String getCreatedDate() {
         return this.createdDate;
     }
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 }
