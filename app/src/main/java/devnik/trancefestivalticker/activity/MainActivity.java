@@ -48,6 +48,7 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
@@ -182,11 +183,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     }
     public void initWhatsNewDialog(){
+        HashMap<String, List<String>> hashMap = new HashMap<String, List<String>>();
         StringBuilder stringBuilder = new StringBuilder();
         for(WhatsNew item : whatsNews){
             stringBuilder.append(item.getContent());
-            stringBuilder.append("\ncreatedDate:");
-            stringBuilder.append(item.getCreatedDate());
             stringBuilder.append("\n\n");
         }
 
