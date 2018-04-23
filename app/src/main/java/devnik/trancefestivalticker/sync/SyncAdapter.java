@@ -8,10 +8,13 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,6 +23,8 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.security.ProviderInstaller;
+
+import java.util.Date;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -105,7 +110,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{
             new SyncAllData(daoSession, getContext());
-
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+            sharedPrefEditor.putString(getContext().getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+            sharedPrefEditor.apply();
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);
         }

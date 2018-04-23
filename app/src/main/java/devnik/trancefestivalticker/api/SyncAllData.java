@@ -299,10 +299,13 @@ public class SyncAllData {
     public void loadWhatsNew(){
         try {
             sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-            preferenceLastOnline = sharedPref.getString(context.getString(R.string.devnik_trancefestivalticker_preference_last_online), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+            preferenceLastOnline = sharedPref.getString(context.getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
             SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            String url = "https://festivalticker.herokuapp.com/api/v1/whatsNew?start="+Date.parse(preferenceLastOnline)+"&end="+DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date());
-
+            String url = "https://festivalticker.herokuapp.com/api/v1/whatsNewBetweenDates?start="+
+                    DateFormat.format("dd.MM.yyyy HH:mm:ss",format.parse(preferenceLastOnline))+
+                    "&end="+
+                    DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date());
+            Log.e("loadWhatsNewURL",url);
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             WhatsNew[] whatsNews = restTemplate.getForObject(url, WhatsNew[].class);
