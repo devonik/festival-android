@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -40,7 +41,8 @@ public class App extends Application{
         SyncAdapter.initializeSyncAdapter(this);
         FirebaseMessaging.getInstance().subscribeToTopic("news");
         FirebaseMessaging.getInstance().subscribeToTopic("newTicketPhase");
-
+        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+        MobileAds.initialize(this, "ca-app-pub-4609998981070446/1289099706");
 
         //Initialize Progress Dialog properties
 
