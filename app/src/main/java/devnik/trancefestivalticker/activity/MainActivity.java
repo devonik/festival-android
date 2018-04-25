@@ -44,7 +44,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -174,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
 
         //Register Custom Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
+        //Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
 
         if(whatsNews.size() >0){
             //Wenn Whats new einträge vorhanden sind
@@ -241,12 +244,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     //Holet alle Items aus dem aktuellen Monat aus der SQLite Database
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
-
+                    festivalsInSection.addAll(festivalsByMonth);
                     //Holt alle Items in dem Monat
-                    for(Festival item : festivalsByMonth){
+                    /*for(Festival item : festivalsByMonth){
                         festivalsInSection.add(item);
 
-                    }
+                    }*/
                     i = festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
@@ -259,23 +262,31 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
-                    for(Festival item : festivalsByMonth){
+                    festivalsInSection.addAll(festivalsByMonth);
+                    /*for(Festival item : festivalsByMonth){
                         festivalsInSection.add(item);
 
-                    }
+                    }*/
                     i+=festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
             }
         }
     }
+    //TODO Sobald das Event z.b am 31.05 ist wird es nicht mitgenommen
     public List<Festival> getFestivalsByMonth(Festival festival){
         Date lastDayOfMonth = getLastDateOfMonth(festival.getDatum_start());
-        Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
 
-        Query festivalByMonth = festivalDao.queryBuilder().where(
-                FestivalDao.Properties.Datum_start.between(firstDayOfMonth, lastDayOfMonth)
-        ).build();
+        Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
+        QueryBuilder.LOG_SQL = true;
+        QueryBuilder.LOG_VALUES = true;
+        Query festivalByMonth = festivalDao.queryRawCreate(
+                "WHERE T.DATUM_START >= '"+DateFormat.format("dd.MM.yyyy",firstDayOfMonth)+"'"+
+                        " AND T.DATUM_START <= '"+DateFormat.format("dd.MM.yyyy",lastDayOfMonth)+"'"
+        );
+        /*Query festivalByMonth = festivalDao.queryBuilder().where(
+                FestivalDao.Properties.Datum_start.between(firstDate.getMillis(),lastDate.getMillis())
+        ).build();*/
 
         return festivalByMonth.list();
     }

@@ -40,7 +40,7 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
  * Created by nik on 15.03.2018.
  */
 
-public class SplashActivity extends AppCompatActivity //implements SyncStatusObserver
+public class SplashActivity extends AppCompatActivity// implements SyncStatusObserver
 {
     // Instance fields
     private Account mAccount;
@@ -82,11 +82,11 @@ public class SplashActivity extends AppCompatActivity //implements SyncStatusObs
                 return;
             }
             //Account exestiert noch nicht
-            Bundle settingsBundle = new Bundle();
+            /*Bundle settingsBundle = new Bundle();
             settingsBundle.putBoolean(
                     ContentResolver.SYNC_EXTRAS_MANUAL, true);
             settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);*/
             /*
              * Request the sync for the default account, authority, and
              * manual sync settings
