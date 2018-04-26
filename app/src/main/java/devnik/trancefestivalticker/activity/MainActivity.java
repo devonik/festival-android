@@ -245,11 +245,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
                     festivalsInSection.addAll(festivalsByMonth);
-                    //Holt alle Items in dem Monat
-                    /*for(Festival item : festivalsByMonth){
-                        festivalsInSection.add(item);
-
-                    }*/
                     i = festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
@@ -263,10 +258,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
                     festivalsInSection.addAll(festivalsByMonth);
-                    /*for(Festival item : festivalsByMonth){
-                        festivalsInSection.add(item);
-
-                    }*/
                     i+=festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
@@ -274,31 +265,33 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
     }
     //TODO Sobald das Event z.b am 31.05 ist wird es nicht mitgenommen
-    public List<Festival> getFestivalsByMonth(Festival festival){
+    public List getFestivalsByMonth(Festival festival){
         Date lastDayOfMonth = getLastDateOfMonth(festival.getDatum_start());
-
         Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
-        QueryBuilder.LOG_SQL = true;
-        QueryBuilder.LOG_VALUES = true;
-        Query festivalByMonth = festivalDao.queryRawCreate(
-                "WHERE T.DATUM_START >= '"+DateFormat.format("dd.MM.yyyy",firstDayOfMonth)+"'"+
-                        " AND T.DATUM_START <= '"+DateFormat.format("dd.MM.yyyy",lastDayOfMonth)+"'"
-        );
-        /*Query festivalByMonth = festivalDao.queryBuilder().where(
-                FestivalDao.Properties.Datum_start.between(firstDate.getMillis(),lastDate.getMillis())
-        ).build();*/
+
+        Query festivalByMonth = festivalDao.queryBuilder().where(
+                FestivalDao.Properties.Datum_start.between(firstDayOfMonth,lastDayOfMonth)
+        ).build();
 
         return festivalByMonth.list();
     }
     public static Date getLastDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getActualMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getActualMaximum(Calendar.SECOND));
+        cal.set(Calendar.MILLISECOND, cal.getActualMaximum(Calendar.MILLISECOND));
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
     public static Date getFirstDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
