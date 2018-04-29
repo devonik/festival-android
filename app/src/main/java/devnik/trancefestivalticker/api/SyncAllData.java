@@ -1,13 +1,30 @@
 package devnik.trancefestivalticker.api;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import org.greenrobot.greendao.query.Query;
+import org.joda.time.LocalDate;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ObjectStreamField;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import de.danielbechler.diff.ObjectDifferBuilder;
+import de.danielbechler.diff.node.DiffNode;
+import de.danielbechler.diff.node.Visit;
+import devnik.trancefestivalticker.App;
+import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
@@ -22,12 +39,17 @@ import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.MusicGenreFestivals;
 import devnik.trancefestivalticker.model.MusicGenreFestivalsDao;
 import devnik.trancefestivalticker.model.WhatsNew;
+import devnik.trancefestivalticker.model.WhatsNewDao;
 
 /**
  * Created by niklas on 23.03.18.
  */
 
 public class SyncAllData {
+    private SharedPreferences sharedPref;
+    private String preferenceLastOnline;
+
+    private Context context;
     private DaoSession daoSession;
     private FestivalDao festivalDao;
     private Query<Festival> festivalQuery;
@@ -42,9 +64,11 @@ public class SyncAllData {
     private MusicGenreDao musicGenreDao;
     private MusicGenreFestivalsDao musicGenreFestivalsDao;
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private WhatsNewDao whatsNewDao;
 
-    public SyncAllData(DaoSession daoSession){
+    public SyncAllData(DaoSession daoSession, Context context){
         this.daoSession = daoSession;
+        this.context = context;
         festivalDao = daoSession.getFestivalDao();
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
         localFestivals = festivalQuery.list();
@@ -59,6 +83,7 @@ public class SyncAllData {
         musicGenreFestivalsDao = daoSession.getMusicGenreFestivalsDao();
 
         festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
+        whatsNewDao = daoSession.getWhatsNewDao();
 
         loadFestivals();
         loadFestivalDetails();
@@ -70,6 +95,8 @@ public class SyncAllData {
 
         //TicketPhase
         loadFestivalTicketPhases();
+        loadWhatsNew();
+
     }
     //***********************************Festivals****************************************//
     public void loadFestivals(){
@@ -83,17 +110,19 @@ public class SyncAllData {
             }
         }
         catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadFestivals()", e.getMessage(), e);
         }
     }
-    public void updateSQLiteFestivals(Festival[] festivals){
+    public void updateSQLiteFestivals(final Festival[] festivals){
 
         try{
             //If no of array element is not zero
             if(festivals.length != 0){
+
                 festivalDao.deleteAll();
                 // Loop through each array element, get JSON object which has festival and username
                 for (int i = 0; i < festivals.length; i++) {
+
                     Festival remoteFestival = festivals[i];
                     this.festivalDao.insert(remoteFestival);
                 }
@@ -115,7 +144,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadFestivalDetails()", e.getMessage(), e);
         }
     }
     public void updateSQLiteDetails(FestivalDetail[] festivalDetails){
@@ -149,7 +178,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadDetailImages()", e.getMessage(), e);
         }
     }
     public void updateSQLiteDetailImages(FestivalDetailImages[] festivalDetailImages){
@@ -182,7 +211,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadMusicGenre()", e.getMessage(), e);
         }
     }
     public void updateSQLiteMusicGenres(MusicGenre[] musicGenres){
@@ -215,7 +244,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadMusicGenreFe()", e.getMessage(), e);
         }
     }
     public void updateSQLiteMusicGenreFestivals(MusicGenreFestivals[] musicGenreFestivals){
@@ -247,7 +276,7 @@ public class SyncAllData {
             }
 
         } catch (Exception e) {
-            Log.e("MainActivity", e.getMessage(), e);
+            Log.e("loadTicketPhases()", e.getMessage(), e);
         }
     }
     public void updateSQLiteFestivalTicketPhases(FestivalTicketPhase[] festivalTicketPhases){
@@ -260,6 +289,43 @@ public class SyncAllData {
                 for (int i = 0; i < festivalTicketPhases.length; i++) {
                     FestivalTicketPhase festivalTicketPhase = festivalTicketPhases[i];
                     this.festivalTicketPhaseDao.insert(festivalTicketPhase);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**************************************WhatsNew****************************************************/
+    public void loadWhatsNew(){
+        try {
+            sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+            preferenceLastOnline = sharedPref.getString(context.getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String url = "https://festivalticker.herokuapp.com/api/v1/whatsNewBetweenDates?start="+
+                    DateFormat.format("dd.MM.yyyy HH:mm:ss",format.parse(preferenceLastOnline))+
+                    "&end="+
+                    DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date());
+            Log.e("loadWhatsNewURL",url);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            WhatsNew[] whatsNews = restTemplate.getForObject(url, WhatsNew[].class);
+            if(whatsNews.length>0){
+                updateSQLiteWhatsNew(whatsNews);
+            }
+
+        } catch (Exception e) {
+            Log.e("loadWhatsNew()", e.getMessage(), e);
+        }
+    }
+    private void updateSQLiteWhatsNew(WhatsNew[] whatsNews){
+        try{
+            //If no of array element is not zero
+            if(whatsNews.length != 0){
+                whatsNewDao.deleteAll();
+                // Loop through each array element, get JSON object which has festival and username
+                for (int i = 0; i < whatsNews.length; i++) {
+                    WhatsNew whatsNew = whatsNews[i];
+                    this.whatsNewDao.insert(whatsNew);
                 }
             }
         }catch (Exception e){

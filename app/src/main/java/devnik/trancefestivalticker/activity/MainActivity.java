@@ -3,6 +3,7 @@ package devnik.trancefestivalticker.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.WallpaperColors;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -43,10 +44,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
@@ -104,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //Tour Guide
     private SharedPreferences sharedPref;
     private String preferenceUserNeedGuiding;
+
     public ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
 
@@ -111,9 +117,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //To force crashlytics Error
-        //Crashlytics.getInstance().crash(); // Force a crash
+        super.onCreate(savedInstanceState);
 
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        //SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+        //sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_last_online), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+        //sharedPrefEditor.apply();
+        preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
+        isAppRunning = true;
         /* setup enter and exit animation */
         //For Touring
         enterAnimation = new AlphaAnimation(0f, 1f);
@@ -124,15 +135,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         exitAnimation.setDuration(600);
         exitAnimation.setFillAfter(true);
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
-        preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
-
-        isAppRunning = true;
-
         daoSession = ((App)this.getApplication()).getDaoSession();
 
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         setUpView();
@@ -153,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         musicGenreDao = daoSession.getMusicGenreDao();
         musicGenres = musicGenreDao.queryBuilder().build().list();
 
+        whatsNewDao = daoSession.getWhatsNewDao();
+        whatsNews = whatsNewDao.queryBuilder().list();
+
         List<String> genreNames = new ArrayList<>();
         if(musicGenres!=null){
             for (MusicGenre item: musicGenres) {
@@ -170,18 +177,39 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
 
         //Register Custom Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
+        //Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(this));
 
-        /*if(preferenceUserNeedGuiding.equals("yes")) {
-            //Lister ist nötig, da der Guide erst anfangen darf, wenn der adapter fertig ist
-            recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    recyclerView.removeOnLayoutChangeListener(this);
-                    runOverlay_TourGuide();
-                }
-            });
-        }*/
+        if(whatsNews.size() >0){
+            //Wenn Whats new einträge vorhanden sind
+            initWhatsNewDialog();
+        }
+
+    }
+    public void initWhatsNewDialog(){
+        HashMap<String, List<String>> hashMap = new HashMap<String, List<String>>();
+        StringBuilder stringBuilder = new StringBuilder();
+        for(WhatsNew item : whatsNews){
+            stringBuilder.append(item.getContent());
+            stringBuilder.append("\n\n");
+        }
+
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(MainActivity.this);
+        }
+        builder.setTitle("News")
+                .setMessage("Letzte Änderungen:\n\n "+stringBuilder)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        whatsNewDao.deleteAll();
+                        dialog.cancel();
+
+                    }
+                })
+                .setIcon(R.drawable.no_internet)
+                .show();
     }
     @Override
     protected void onResume()
@@ -216,12 +244,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     //Holet alle Items aus dem aktuellen Monat aus der SQLite Database
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
-
-                    //Holt alle Items in dem Monat
-                    for(Festival item : festivalsByMonth){
-                        festivalsInSection.add(item);
-
-                    }
+                    festivalsInSection.addAll(festivalsByMonth);
                     i = festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
@@ -234,22 +257,20 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
                     festivalsInSection = new ArrayList<>();
-                    for(Festival item : festivalsByMonth){
-                        festivalsInSection.add(item);
-
-                    }
+                    festivalsInSection.addAll(festivalsByMonth);
                     i+=festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection, getSupportFragmentManager()));
                 }
             }
         }
     }
-    public List<Festival> getFestivalsByMonth(Festival festival){
+    //TODO Sobald das Event z.b am 31.05 ist wird es nicht mitgenommen
+    public List getFestivalsByMonth(Festival festival){
         Date lastDayOfMonth = getLastDateOfMonth(festival.getDatum_start());
         Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
 
         Query festivalByMonth = festivalDao.queryBuilder().where(
-                FestivalDao.Properties.Datum_start.between(firstDayOfMonth, lastDayOfMonth)
+                FestivalDao.Properties.Datum_start.between(firstDayOfMonth,lastDayOfMonth)
         ).build();
 
         return festivalByMonth.list();
@@ -257,12 +278,20 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public static Date getLastDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getActualMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getActualMaximum(Calendar.SECOND));
+        cal.set(Calendar.MILLISECOND, cal.getActualMaximum(Calendar.MILLISECOND));
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
     public static Date getFirstDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
@@ -353,6 +382,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             case R.id.menu_credits:
                 showCredits();
                 return true;
+            case R.id.organizer:
+                showOrganizerDialog();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -434,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                         // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
                         // if setOnClickListener is not used, disableClick() will take effect
                         .disableClick(false)
-                        .disableClickThroughHole(false)
+                        .disableClickThroughHole(true)
                         .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -469,6 +501,31 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
 
         mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
+    }
+    public void showOrganizerDialog(){
+        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("Ihre Präsenzmöglichkeiten");
+        TextView creditTextView = new TextView(this);
+        creditTextView.setPadding(15,15,15,15);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            creditTextView.setText(Html.fromHtml(getString(R.string.organizer_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+        }else{
+            creditTextView.setText(Html.fromHtml(getString(R.string.organizer_text),null, new UITagHandler()));
+        }
+        //Important to make the hrefs clickable
+        creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+
+        builderDialogBuilder.setView(creditTextView);
+        // Set up the buttons
+        builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
     private void showPolicy(){
 

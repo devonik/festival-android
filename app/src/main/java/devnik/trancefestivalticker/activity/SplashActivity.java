@@ -2,10 +2,12 @@ package devnik.trancefestivalticker.activity;
 
 import android.accounts.Account;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SyncStatusObserver;
 import android.graphics.Color;
@@ -38,7 +40,7 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
  * Created by nik on 15.03.2018.
  */
 
-public class SplashActivity extends AppCompatActivity implements SyncStatusObserver
+public class SplashActivity extends AppCompatActivity// implements SyncStatusObserver
 {
     // Instance fields
     private Account mAccount;
@@ -49,6 +51,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
     // Incoming Intent key for extended data
     public static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
+    public static final String ACTION_FINISHED_SYNC = "devnik.trancefestivalticker.ACTION_FINISHED_SYNC";
+    private static IntentFilter syncIntentFilter = new IntentFilter(ACTION_FINISHED_SYNC);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,8 +65,8 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
         festivalDao = daoSession.getFestivalDao();
 
 
-        ContentResolver.addStatusChangeListener(
-                ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
+        //ContentResolver.addStatusChangeListener(
+         //       ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
 
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.devnik_trancefestivalticker_account_name), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -78,16 +82,16 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                 return;
             }
             //Account exestiert noch nicht
-            Bundle settingsBundle = new Bundle();
+            /*Bundle settingsBundle = new Bundle();
             settingsBundle.putBoolean(
                     ContentResolver.SYNC_EXTRAS_MANUAL, true);
             settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);*/
             /*
              * Request the sync for the default account, authority, and
              * manual sync settings
              */
-            ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
+            //ContentResolver.requestSync(mAccount, getApplicationContext().getString(R.string.content_authority), settingsBundle);
             editor.putString(getString(R.string.devnik_trancefestivalticker_account_name), mAccount.name);
             editor.apply();
         }
@@ -123,14 +127,68 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                 }
             } else {
                 //INTENT Extra are not null but no firebase message
+                if(festivalDao.queryBuilder().list().size()>0) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else{
+                    //Device hat keine festivals im lokalen speicher
+                    Bundle settingsBundle = new Bundle();
+                    settingsBundle.putBoolean(
+                            ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                    settingsBundle.putBoolean(
+                            ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                    ContentResolver.requestSync(getSyncAccount(this), getApplicationContext().getString(R.string.content_authority), settingsBundle);
+                }
+            }
+        }else {
+            //Normal open app
+            if(festivalDao.queryBuilder().list().size()>0){
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
+            else{
+                //Device hat keine festivals im lokalen speicher
+                Bundle settingsBundle = new Bundle();
+                settingsBundle.putBoolean(
+                        ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                settingsBundle.putBoolean(
+                        ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                ContentResolver.requestSync(getSyncAccount(this), getApplicationContext().getString(R.string.content_authority), settingsBundle);
+            }
         }
 
     }
+    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (MainActivity.isAppRunning) {
+                Log.e("SyncFinished", "New Results are not in yet, waitin for restart app");
+
+            } else {
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    };
     @Override
+    protected void onResume(){
+        super.onResume();
+        // register for sync
+        registerReceiver(syncFinishedReceiver, syncIntentFilter);
+        // do your resuming magic
+    }
+    @Override
+    protected void onPause() {
+        unregisterReceiver(syncFinishedReceiver);
+        super.onPause();
+    }
+
+    /*@Override
     public void onStatusChanged(int which){
         Log.d("SplashActivity", "onStatusChanged: "+which);
         runOnUiThread(new Runnable() {
@@ -160,7 +218,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                     //@TODO This is called so often ? why ?
 
                     Log.e("TAG", "Sync is finished");
-                    festivalList = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build().list();
+                    festivalList = festivalDao.queryBuilder().list();
                     //Start Main Activity if synced is finish
                     if(festivalList.size() > 0) {
                         //Prevent double Intent by FCM, if App is already running
@@ -187,7 +245,7 @@ public class SplashActivity extends AppCompatActivity implements SyncStatusObser
                 }
             }
         });
-    }
+    }*/
     private void showNoConnectionDialog(){
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

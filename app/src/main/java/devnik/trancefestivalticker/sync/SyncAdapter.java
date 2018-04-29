@@ -7,10 +7,14 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,8 +24,11 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.security.ProviderInstaller;
 
+import java.util.Date;
+
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.activity.SplashActivity;
 import devnik.trancefestivalticker.api.SyncAllData;
 import devnik.trancefestivalticker.model.DaoSession;
 
@@ -35,10 +42,11 @@ import devnik.trancefestivalticker.model.DaoSession;
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Global variables
     // Define a variable to contain a content resolver instance
-    ContentResolver mContentResolver;
-    // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private ContentResolver mContentResolver;
+    // (60 seconds * 24 Hours) = 1440 seconds * 60 = 86400 seconds (24 hours)
+    // (60 seconds (1 minute) * 60) / 60 / 60 = 1 hours
+    // (60 seconds (1 minute) * 10) / 60 = 10 min
+    private static final int SYNC_INTERVAL = 60 * 1440;
     /**
      * Set up the sync adapter
      */
@@ -102,28 +110,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 "authority ["+authority+"], provider ["+provider+"], syncResult ["+syncResult+"]");
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{
-            new SyncAllData(daoSession);
-
+            new SyncAllData(daoSession, getContext());
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+            sharedPrefEditor.putString(getContext().getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
+            sharedPrefEditor.apply();
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);
         }
+        getContext().sendBroadcast(new Intent(SplashActivity.ACTION_FINISHED_SYNC));
     }
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
-        Account account = getSyncAccount(context);
-        String authority = context.getString(R.string.content_authority);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // we can enable inexact timers in our periodic sync
-            SyncRequest request = new SyncRequest.Builder().
-                    syncPeriodic(syncInterval, flexTime).
-                    setSyncAdapter(account, authority).
-                    setExtras(new Bundle()).build();
-            ContentResolver.requestSync(request);
-        } else {
-            ContentResolver.addPeriodicSync(account,
-                    authority, new Bundle(), syncInterval);
-        }
-    }
-
     /**
      * Helper method to have the sync adapter sync immediately
      * @param context The context used to access the account service
@@ -170,21 +166,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
              * here.
              */
 
-            //onAccountCreated(newAccount, context);
+            onAccountCreated(newAccount, context);
         }
         return newAccount;
     }
 
     private static void onAccountCreated(Account newAccount, Context context) {
-        /*
-         * Since we've created an account
-         */
-        SyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
-
+        Log.e("onAccountCreated","onAccountCreated");
         /*
          * Without calling setSyncAutomatically, our periodic sync will not be enabled.
          */
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
+        //SyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+        ContentResolver.addPeriodicSync(newAccount,
+                context.getString(R.string.content_authority), new Bundle(), SYNC_INTERVAL);
 
         /*
          * Finally, let's do a sync to get things started
