@@ -15,8 +15,26 @@
     <string name="policy_url">http://webapps.niklas-grieger.de/TFTApp/policy.html</string>
     <string name="credits_text"><![CDATA[<p>Entwickler: Niklas Grieger<p>
                                          <p>Die Texte und Bilder sind in zusammenarbeit mit dem Beitreiber der Seite <i>goazin.de</i> entstanden</p>
-                                         <hr>
                                          <br>
-                                         <p>Bei Fragen oder Anregungen kannst du mich unter der email Adresse developer@niklas-grieger.de erreichen.</p>
-                                         <p>Die Webseite (goazin.de) auf der du noch weitere Infos, wie z.B. diverse Erfahrungsberichte und Interviews, findest du <a href="http://goazin.de/">hier</a>]]></string>
+                                         <p>Bei Fragen oder Anregungen kannst du mich unter der email Adresse trancefestivalticker@gmail.com erreichen.</p>
+                                         <br>
+                                         <p>Die Webseite (goazin.de) auf der du noch weitere Infos, wie z.B. diverse Erfahrungsberichte und Interviews, findest du <a href="http://goazin.de/">hier</a></p>]]></string>
+    <string name="organizer_text"><![CDATA[<p>Möchten sie auch, dass Ihre Veranstaltung in dieser App angezeigt wird? Garkein Problem. Sie haben folgende Möglichkeiten:<p>
+                                         <br>
+                                         <p>1. Sie schicken mir eine Mail an "trancefestivalticker@gmail.com" mit folgenden Infos:</p>
+                                         <br>
+                                            <ul>
+                                                <li> Name der Veranstaltung</li>
+                                                <li> Auflistung der Music Genres die vorkommen werden</li>
+                                                <li> Ihre Vorverkauf Ticket Phasen (Sobald eine nächste Ticketphase beginnt, benötige ich zeitnah eine meldung dazu)</li>
+                                                <li> Der Start und Ende Zeitpunkt</li>
+                                                <li> Eine knappe Beschreibung der Veranstaltung (optional), am besten im HTML format</li>
+                                                <li> Eine Homepage und/oder Ticket URL (beides optional)</li>
+                                                <li> Ort der Veranstaltung (Längen und Breitengrade. Siehe Google Maps)</li>
+                                                <li> Bilder, inkl. Titel und Beschreibung für die Galerie (als Bilddatei oder als URL (bevorzugt))</li>
+                                            </ul>
+                                         <br>
+                                         <p>2. Ich lege Ihnen einen Account an und Sie pflegen die Informationen selbständig über ein Web Formular</p>
+                                         <br>
+                                         <p>Bei sonstigen fragen können Sie mich natürlich auch gerne über die eMail Adresse "trancefestivalticker@gmail.com" kontaktieren.</p>]]></string>
 </resources>

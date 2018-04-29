@@ -382,6 +382,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             case R.id.menu_credits:
                 showCredits();
                 return true;
+            case R.id.organizer:
+                showOrganizerDialog();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -463,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                         // Note: disable click has no effect when setOnClickListener is used, this is here for demo purpose
                         // if setOnClickListener is not used, disableClick() will take effect
                         .disableClick(false)
-                        .disableClickThroughHole(false)
+                        .disableClickThroughHole(true)
                         .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -498,6 +501,31 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
 
         mTourGuideHandler = ChainTourGuide.init(this).playInSequence(sequence);
+    }
+    public void showOrganizerDialog(){
+        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("Ihre Präsenzmöglichkeiten");
+        TextView creditTextView = new TextView(this);
+        creditTextView.setPadding(15,15,15,15);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            creditTextView.setText(Html.fromHtml(getString(R.string.organizer_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+        }else{
+            creditTextView.setText(Html.fromHtml(getString(R.string.organizer_text),null, new UITagHandler()));
+        }
+        //Important to make the hrefs clickable
+        creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+
+        builderDialogBuilder.setView(creditTextView);
+        // Set up the buttons
+        builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
     private void showPolicy(){
 
