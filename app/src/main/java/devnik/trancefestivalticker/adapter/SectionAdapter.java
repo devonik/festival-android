@@ -99,7 +99,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         RequestOptions glideOptions = new RequestOptions()
                 .centerCrop()
                 .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.mandala_om_480x480)
+                .error(R.drawable.no_internet)
                 .priority(Priority.HIGH)
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
         // bind your view here

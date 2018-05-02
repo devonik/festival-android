@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.activity.MapFragmentDialog;
+import devnik.trancefestivalticker.activity.VRView;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
@@ -45,6 +46,10 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 MapFragmentDialog tab2 = new MapFragmentDialog();
                 tab2.setArguments(festivalBundle);
                 return tab2;
+            case 2:
+                VRView tab3 = new VRView();
+                tab3.setArguments(festivalBundle);
+                return tab3;
             default:
                 return null;
         }

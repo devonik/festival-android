@@ -47,6 +47,7 @@ public class DetailActivity extends AppCompatActivity{
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        tabLayout.addTab(tabLayout.newTab().setText("Panorama"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         festivalDetailDao = daoSession.getFestivalDetailDao();

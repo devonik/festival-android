@@ -105,8 +105,15 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             return "( Läuft gerade! )";
         }
         else if(today.before(start)){
+            Integer daysTillStart = calcDaysTillStart(start);
             //Festival start is comming
-            return "( Noch "+calcDaysTillStart(start)+" Tage )";
+            if(daysTillStart > 1){
+                return "( Noch "+calcDaysTillStart(start)+" Tage )";
+            }
+            else if(daysTillStart == 1){
+                return "( Morgen ist es soweit !! )";
+            }
+
         }else if(today.after(start)){
             //Festival is expired
             return "( Abgelaufen! )";
