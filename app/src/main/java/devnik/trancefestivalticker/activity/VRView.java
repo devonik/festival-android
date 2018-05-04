@@ -71,7 +71,7 @@ public class VRView extends DialogFragment
         try {
             istr = assetManager.open("vr_test.jpg");
             panoOptions = new Options();
-            panoOptions.inputType = Options.TYPE_STEREO_OVER_UNDER;
+            panoOptions.inputType = Options.TYPE_MONO;
         } catch (IOException e) {
             Log.e(TAG, "Could not decode default bitmap: " + e);
 
@@ -81,7 +81,7 @@ public class VRView extends DialogFragment
         this.dialog = new ProgressDialog(getActivity());
         this.dialog.setMessage("Processing...");
         this.dialog.show();
-        new GetBitmapFromURLAsync("https://firebasestorage.googleapis.com/v0/b/macro-duality-197512.appspot.com/o/VRPanoSample.jpg?alt=media&token=fd07f7b1-599e-4a1b-b2a4-f59fc5dcda99",
+        new GetBitmapFromURLAsync("https://firebasestorage.googleapis.com/v0/b/macro-duality-197512.appspot.com/o/atWorkMono.jpg?alt=media&token=aa91e7eb-1482-49c5-8c4b-071b727b3135",
                 this).execute();
 
         try {
