@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +90,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     private Festival festival;
     private FestivalDetail festivalDetail;
     private LatLng festivalLocation;
-
+    private View rootView;
     public MapFragmentDialog() {
         // Required empty public constructor
     }
@@ -98,9 +99,20 @@ public class MapFragmentDialog extends DialogFragment  implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        //if (rootView == null) {
+            rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
+            /*ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null)
+                parent.removeView(rootView);*/
+        //}
+        /*try {
 
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
+
+
+        } catch (InflateException e) {
+            //map is already there, just return view as it is
+            return rootView;
+        }*/
         showRoute = rootView.findViewById(R.id.showRoute);
         showFestival = rootView.findViewById(R.id.showFestival);
         sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -118,11 +130,15 @@ public class MapFragmentDialog extends DialogFragment  implements
         MapFragment mapFragment = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
         mapFragment.getMapAsync(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-    //Register Custom Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(getActivity()));
         return rootView;
     }
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        MapFragment f = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
+        if (f != null)
+            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
+    }
     /**
      * Manipulates the map when it's available.
      * This callback is triggered when the map is ready to be used.

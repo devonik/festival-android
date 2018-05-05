@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+
+import com.google.vr.sdk.widgets.video.VrVideoView;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -47,7 +51,8 @@ public class DetailActivity extends AppCompatActivity{
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
-        tabLayout.addTab(tabLayout.newTab().setText("Panorama"));
+        tabLayout.addTab(tabLayout.newTab().setText("360 Photo"));
+        tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         festivalDetailDao = daoSession.getFestivalDetailDao();
@@ -71,7 +76,9 @@ public class DetailActivity extends AppCompatActivity{
                 viewPager.setCurrentItem(tab.getPosition());
             }
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+                //2 = VRPanoView, 3 = VRVideoView
+            }
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
