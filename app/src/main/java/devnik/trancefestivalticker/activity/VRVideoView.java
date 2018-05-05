@@ -175,7 +175,7 @@ public class VRVideoView extends Fragment
             loadVideoStatus = LOAD_VIDEO_STATUS_UNKNOWN;
             VrVideoView.Options options = new VrVideoView.Options();
             options.inputType = VrVideoView.Options.TYPE_MONO;
-            videoWidgetView.loadVideoFromAsset("myvideo_1.mp4", options);
+            videoWidgetView.loadVideoFromAsset("myvideo.mp4", options);
         } catch (IOException e) {
             // An error here is normally due to being unable to locate the file.
             loadVideoStatus = LOAD_VIDEO_STATUS_ERROR;
