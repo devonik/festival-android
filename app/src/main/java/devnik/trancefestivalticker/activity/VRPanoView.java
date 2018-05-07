@@ -91,7 +91,7 @@ public class VRPanoView extends Fragment
     }
     public void loadVRPano(){
         //TODO Image Caching
-        new GetBitmapFromURLAsync("https://firebasestorage.googleapis.com/v0/b/macro-duality-197512.appspot.com/o/atWorkMono.jpg?alt=media&token=aa91e7eb-1482-49c5-8c4b-071b727b3135",
+        new GetBitmapFromURLAsync("https://firebasestorage.googleapis.com/v0/b/macro-duality-197512.appspot.com/o/SAM_100_0032.jpg?alt=media&token=518a6d15-fb12-4a5d-8933-3c5c1ef1cc7e",
                 this).execute();
 
     }

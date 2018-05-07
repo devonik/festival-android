@@ -100,7 +100,7 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
 
                 if (getIntent().getExtras().get(KEY_SYNC_REQUEST).equals("sync")) {
                     //The App is called by firebase message while app was in background
-                    if (isDeviceOnline()) {
+                    //if (isDeviceOnline()) {
                         //Synce die Daten, falls der User netz hat
 
                         Bundle settingsBundle = new Bundle();
@@ -113,10 +113,10 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
                          * manual sync settings
                          */
                         ContentResolver.requestSync(getSyncAccount(this), getApplicationContext().getString(R.string.content_authority), settingsBundle);
-                    }
+                    /*}
                         Intent intent = new Intent(this, MainActivity.class);
                         startActivity(intent);
-                        finish();
+                        finish();*/
 
                 } else if (getIntent().getExtras().get(KEY_SYNC_REQUEST).equals("newTicketPhase")) {
                     new SyncTicketPhases(daoSession).execute();
