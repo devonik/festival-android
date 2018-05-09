@@ -99,6 +99,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
         //if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
             /*ViewGroup parent = (ViewGroup) rootView.getParent();

@@ -37,4 +37,14 @@
                                          <p>2. Ich lege Ihnen einen Account an und Sie pflegen die Informationen selbständig über ein Web Formular</p>
                                          <br>
                                          <p>Bei sonstigen fragen können Sie mich natürlich auch gerne über die eMail Adresse "trancefestivalticker@gmail.com" kontaktieren.</p>]]></string>
+    <string name="vr_video_ask_download">
+        <![CDATA[<p>Es wird empfohlen, dass folgende Video herunterzuladen. Unter anderem aus folgenden Gründen:</p>
+                 <br>
+                 <ul>
+                    <li>Das Video ist in zukunft offline abrufbar</li>
+                    <li>Bessere Peformance</li>
+                 </ul>
+                 <br>
+                 <p>Außerdem wird empfohlen, falls möglich, vor dem download WLAN zu aktivieren, damit das mobile Datenvolumen geschont wird</p>]]>
+    </string>
 </resources>

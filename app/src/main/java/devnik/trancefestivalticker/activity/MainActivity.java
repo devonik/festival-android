@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         //SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
         //sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_last_online), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());

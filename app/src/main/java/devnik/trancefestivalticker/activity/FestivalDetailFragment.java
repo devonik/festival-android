@@ -64,6 +64,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
         lblTitle = (TextView) view.findViewById(R.id.title);
         lblDate = (TextView) view.findViewById(R.id.dateString);
