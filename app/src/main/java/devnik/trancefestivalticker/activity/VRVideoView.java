@@ -148,22 +148,6 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
         }
         videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
         statusText = (TextView) view.findViewById(R.id.status_text);
-        /*AssetManager assetManager = getActivity().getAssets();
-
-
-        try {
-            istr = assetManager.open("vr_test.jpg");
-            panoOptions = new Options();
-            panoOptions.inputType = Options.TYPE_MONO;
-        } catch (IOException e) {
-            Log.e(TAG, "Could not decode default bitmap: " + e);
-
-        }
-
-        //TODO Image Caching
-        this.dialog = new ProgressDialog(getActivity());
-        this.dialog.setMessage("Processing...");
-        this.dialog.show();*/
 
         return view;
     }
@@ -454,42 +438,6 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
             videoWidgetView.seekTo(0);
         }
     }
-
-    /**
-     * Helper class to manage threading.
-     */
-    /*class VideoLoaderTask extends AsyncTask<Pair<Uri, VrVideoView.Options>, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Pair<Uri, VrVideoView.Options>... fileInformation) {
-            try {
-                if (fileInformation == null || fileInformation.length < 1
-                        || fileInformation[0] == null || fileInformation[0].first == null) {
-                    // No intent was specified, so we default to playing the local stereo-over-under video.
-                    VrVideoView.Options options = new VrVideoView.Options();
-                    options.inputType = VrVideoView.Options.TYPE_MONO;
-                    videoWidgetView.loadVideoFromAsset("myvideo.mp4", options);
-                } else {
-                    videoWidgetView.loadVideo(fileInformation[0].first, fileInformation[0].second);
-                }
-            } catch (IOException e) {
-                // An error here is normally due to being unable to locate the file.
-                loadVideoStatus = LOAD_VIDEO_STATUS_ERROR;
-                // Since this is a background thread, we need to switch to the main thread to show a toast.
-                videoWidgetView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast
-                                .makeText(VRVideoView.this.getActivity(), "Error opening file. ", Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-                Log.e(TAG, "Could not open video: " + e);
-            }
-
-            return true;
-        }
-    }*/
-
 
     //Download Video
     /**

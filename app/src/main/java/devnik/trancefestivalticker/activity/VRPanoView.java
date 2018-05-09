@@ -94,26 +94,7 @@ public class VRPanoView extends Fragment
 
         }
         panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
-        // Initial launch of the app or an Activity recreation due to rotation.
-        //handleIntent(getIntent());
-        /*AssetManager assetManager = getActivity().getAssets();
 
-
-        try {
-            istr = assetManager.open("vr_test.jpg");
-            panoOptions = new Options();
-            panoOptions.inputType = Options.TYPE_MONO;
-        } catch (IOException e) {
-            Log.e(TAG, "Could not decode default bitmap: " + e);
-
-        }*/
-
-
-        /*try {
-            istr.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Could not close input stream: " + e);
-        }*/
         return view;
     }
     @Override
