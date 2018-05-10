@@ -11,6 +11,8 @@ import com.google.vr.sdk.widgets.video.VrVideoView;
 
 import org.greenrobot.greendao.query.Query;
 
+import java.util.List;
+
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.adapter.PagerAdapter;
@@ -20,6 +22,8 @@ import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
+import devnik.trancefestivalticker.model.FestivalVrView;
+import devnik.trancefestivalticker.model.FestivalVrViewDao;
 
 
 /**
@@ -45,23 +49,30 @@ public class DetailActivity extends AppCompatActivity{
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        //setSupportActionBar(toolbar);
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Info"));
-        tabLayout.addTab(tabLayout.newTab().setText("Map"));
-        tabLayout.addTab(tabLayout.newTab().setText("360 Photo"));
-        tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         festivalDetailDao = daoSession.getFestivalDetailDao();
         festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
         festivalDetail = festivalDetailQuery.unique();
 
+        DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
+        FestivalVrViewDao festivalVrViewDao = daoSession.getFestivalVrViewDao();
+        FestivalVrView photoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
+        FestivalVrView videoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
+
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText("Info"));
+        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        if(photoVrView != null) {
+            tabLayout.addTab(tabLayout.newTab().setText("360 Foto"));
+        }
+        if(videoVrView != null) {
+            tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
+        }
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final PagerAdapter adapter = new PagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail, actualFestivalTicketPhase);
+                (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail, photoVrView, videoVrView, actualFestivalTicketPhase);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(adapter);

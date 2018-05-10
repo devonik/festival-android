@@ -27,6 +27,8 @@ import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener;
 import com.google.vr.sdk.widgets.pano.VrPanoramaView;
 import com.google.vr.sdk.widgets.pano.VrPanoramaView.Options;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +41,7 @@ import java.net.URLConnection;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
 import devnik.trancefestivalticker.helper.PermissionUtils;
+import devnik.trancefestivalticker.model.FestivalVrView;
 
 public class VRPanoView extends Fragment
         implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -65,6 +68,8 @@ public class VRPanoView extends Fragment
     private Uri photoUri;
     // File url to download
     private static String file_url = "https://niklas-grieger.de/files/360panorma/atWorkMono.jpg";
+    private FestivalVrView vrView;
+    private String fileName;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,23 +81,30 @@ public class VRPanoView extends Fragment
         //TextView sourceText = (TextView) view.findViewById(R.id.source);
         //sourceText.setText(Html.fromHtml(getString(R.string.source)));
         //sourceText.setMovementMethod(LinkMovementMethod.getInstance());
+        vrView = (FestivalVrView) getArguments().getSerializable("photoVrView");
+        try {
+            URL url = new URL(vrView.getUrl());
+            fileName = FilenameUtils.getName(url.getPath());
 
+            //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
+            if(tabIsVisible) {
+                enableStoragePermission();
+                String path = Environment
+                        .getExternalStorageDirectory().toString()
+                        + "/"+fileName;
+                File f = new File(path);  //
+                if(f.exists()){
+                    loadVRPano(path);
+                }else{
+                    downloadVRPano();
+                }
 
-        //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
-        if(tabIsVisible) {
-            enableStoragePermission();
-            String filename = "myphoto.jpg";
-            String path = Environment
-                    .getExternalStorageDirectory().toString()
-                    + "/"+filename;
-            File f = new File(path);  //
-            if(f.exists()){
-                loadVRPano();
-            }else{
-                downloadVRPano();
             }
-
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+
         panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
 
         return view;
@@ -152,13 +164,12 @@ public class VRPanoView extends Fragment
             tabIsVisible = true;
             if(view != null){
                 enableStoragePermission();
-                String filename = "myphoto.jpg";
                 String path = Environment
                         .getExternalStorageDirectory().toString()
-                        + "/"+filename;
+                        + "/"+fileName;
                 File f = new File(path);  //
                 if(f.exists()){
-                    loadVRPano();
+                    loadVRPano(path);
                 }else{
                     downloadVRPano();
                 }
@@ -176,17 +187,12 @@ public class VRPanoView extends Fragment
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pDialog.setCancelable(true);
         pDialog.show();
-        new DownloadFileFromURL().execute(file_url);
+        new DownloadFileFromURL().execute(vrView.getUrl());
     }
-    public void loadVRPano(){
-
+    public void loadVRPano(String path){
         //TODO Image Caching
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        String filename = "myphoto.jpg";
-        String path = Environment
-                .getExternalStorageDirectory().toString()
-                + "/"+filename;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 
         panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
@@ -265,7 +271,7 @@ public class VRPanoView extends Fragment
                 // Output stream
                 OutputStream output = new FileOutputStream(Environment
                         .getExternalStorageDirectory().toString()
-                        + "/myphoto.jpg");
+                        + "/"+fileName);
 
                 byte data[] = new byte[1024];
 
@@ -311,7 +317,10 @@ public class VRPanoView extends Fragment
             // dismiss the dialog after the file was downloaded
             //dismissDialog(progress_bar_type);
             pDialog.hide();
-            loadVRPano();
+            String path = Environment
+                    .getExternalStorageDirectory().toString()
+                    + "/"+fileName;
+            loadVRPano(path);
         }
 
     }

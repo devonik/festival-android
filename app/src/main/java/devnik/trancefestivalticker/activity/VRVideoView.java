@@ -37,6 +37,8 @@ import com.google.vr.sdk.widgets.pano.VrPanoramaView.Options;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,6 +53,7 @@ import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.UITagHandler;
+import devnik.trancefestivalticker.model.FestivalVrView;
 
 public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPermissionsResultCallback
         //implements GetBitmapFromURLAsync.GetBitmapFromURLCompleted
@@ -124,6 +127,9 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
 
     // File url to download
     private static String file_url = "https://niklas-grieger.de/files/360video/test.mp4";
+
+    private FestivalVrView vrView;
+    private String fileName;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -132,18 +138,24 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
 
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
         if(tabIsVisible) {
-            enableStoragePermission();
-            String filename = "myvideo.mp4";
-            String path = Environment
-                    .getExternalStorageDirectory().toString()
-                    + "/"+filename;
-            File f = new File(path);  //
-            videoUri = Uri.fromFile(f);
-            if(f.exists()){
-                loadVRVideo();
-            }
-            else{
-                userWantDownloadVideoDialog();
+            vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
+            try {
+                URL url = new URL(vrView.getUrl());
+                fileName = FilenameUtils.getName(url.getPath());
+                enableStoragePermission();
+                String path = Environment
+                        .getExternalStorageDirectory().toString()
+                        + "/"+fileName;
+                File f = new File(path);  //
+                videoUri = Uri.fromFile(f);
+                if(f.exists()){
+                    loadVRVideo();
+                }
+                else{
+                    userWantDownloadVideoDialog();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
@@ -164,10 +176,9 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
             if(view != null){
                 videoWidgetView.resumeRendering();
                 enableStoragePermission();
-                String filename = "myvideo.mp4";
                 String path = Environment
                         .getExternalStorageDirectory().toString()
-                        + "/"+filename;
+                        + "/"+fileName;
                 File f = new File(path);
                 videoUri = Uri.fromFile(f);
                 if(f.exists()){
@@ -233,8 +244,6 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
 
             seekBar = (SeekBar) view.findViewById(R.id.seek_bar);
             seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-
-
 
             // Bind input and output objects for the view.
             videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
@@ -477,7 +486,7 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
                 // Output stream
                 OutputStream output = new FileOutputStream(Environment
                         .getExternalStorageDirectory().toString()
-                        + "/myvideo.mp4");
+                        + "/"+fileName);
 
                 byte data[] = new byte[1024];
 

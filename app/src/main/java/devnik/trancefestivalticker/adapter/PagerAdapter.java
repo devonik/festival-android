@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import java.util.List;
+
 import devnik.trancefestivalticker.activity.FestivalDetailFragment;
 import devnik.trancefestivalticker.activity.MapFragmentDialog;
 import devnik.trancefestivalticker.activity.VRPanoView;
@@ -12,6 +14,7 @@ import devnik.trancefestivalticker.activity.VRVideoView;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
+import devnik.trancefestivalticker.model.FestivalVrView;
 
 /**
  * Created by nik on 09.03.2018.
@@ -22,13 +25,17 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     private Festival festival;
     private FestivalDetail festivalDetail;
     private FestivalTicketPhase actualFestivalTicketPhase;
+    private FestivalVrView photoVrView;
+    private FestivalVrView videoVrView;
 
-    public PagerAdapter(FragmentManager fm, int numTabs, Festival festival, FestivalDetail festivalDetail, FestivalTicketPhase actualFestivalTicketPhase) {
+    public PagerAdapter(FragmentManager fm, int numTabs, Festival festival, FestivalDetail festivalDetail, FestivalVrView photoVrView, FestivalVrView videoVrView, FestivalTicketPhase actualFestivalTicketPhase) {
         super(fm);
         this.numTabs = numTabs;
         this.festival = festival;
         this.festivalDetail = festivalDetail;
         this.actualFestivalTicketPhase = actualFestivalTicketPhase;
+        this.photoVrView = photoVrView;
+        this.videoVrView = videoVrView;
     }
 
     @Override
@@ -49,11 +56,16 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 return tab2;
             case 2:
                 VRPanoView tab3 = new VRPanoView();
-                tab3.setArguments(festivalBundle);
+                Bundle photoVrBundle = new Bundle();
+                photoVrBundle.putSerializable("photoVrView", photoVrView);
+
+                tab3.setArguments(photoVrBundle);
                 return tab3;
             case 3:
                 VRVideoView tab4 = new VRVideoView();
-                tab4.setArguments(festivalBundle);
+                Bundle videoVrBundle = new Bundle();
+                videoVrBundle.putSerializable("videoVrView", videoVrView);
+                tab4.setArguments(videoVrBundle);
                 return tab4;
             default:
                 return null;

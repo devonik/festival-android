@@ -34,6 +34,8 @@ import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
 import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
+import devnik.trancefestivalticker.model.FestivalVrView;
+import devnik.trancefestivalticker.model.FestivalVrViewDao;
 import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.MusicGenreFestivals;
@@ -65,6 +67,7 @@ public class SyncAllData {
     private MusicGenreFestivalsDao musicGenreFestivalsDao;
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
     private WhatsNewDao whatsNewDao;
+    private FestivalVrViewDao festivalVrViewDao;
 
     public SyncAllData(DaoSession daoSession, Context context){
         this.daoSession = daoSession;
@@ -84,6 +87,7 @@ public class SyncAllData {
 
         festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
         whatsNewDao = daoSession.getWhatsNewDao();
+        festivalVrViewDao = daoSession.getFestivalVrViewDao();
 
         loadFestivals();
         loadFestivalDetails();
@@ -95,7 +99,9 @@ public class SyncAllData {
 
         //TicketPhase
         loadFestivalTicketPhases();
+
         loadWhatsNew();
+        loadVrViews();
 
     }
     //***********************************Festivals****************************************//
@@ -326,6 +332,36 @@ public class SyncAllData {
                 for (int i = 0; i < whatsNews.length; i++) {
                     WhatsNew whatsNew = whatsNews[i];
                     this.whatsNewDao.insert(whatsNew);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**************************************VrView****************************************************/
+    public void loadVrViews(){
+        try {
+            String url = "https://festivalticker.herokuapp.com/api/v1/vrView";
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            FestivalVrView[] vrViews = restTemplate.getForObject(url, FestivalVrView[].class);
+            if(vrViews.length>0){
+                updateSQLiteVrViews(vrViews);
+            }
+
+        } catch (Exception e) {
+            Log.e("loadVrViews()", e.getMessage(), e);
+        }
+    }
+    private void updateSQLiteVrViews(FestivalVrView[] vrViews){
+        try{
+            //If no of array element is not zero
+            if(vrViews.length != 0){
+                festivalVrViewDao.deleteAll();
+                // Loop through each array element, get JSON object which has festival and username
+                for (int i = 0; i < vrViews.length; i++) {
+                    FestivalVrView vrView = vrViews[i];
+                    this.festivalVrViewDao.insert(vrView);
                 }
             }
         }catch (Exception e){
