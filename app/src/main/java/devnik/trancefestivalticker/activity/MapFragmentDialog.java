@@ -149,9 +149,6 @@ public class MapFragmentDialog extends DialogFragment  implements
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
-        // Get the current location of the device and set the position of the map.
-        enableMyLocation();
-
 
 
         if(festivalLocation!=null){
@@ -196,6 +193,16 @@ public class MapFragmentDialog extends DialogFragment  implements
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if(rootView!=null) {
+                // Get the current location of the device and set the position of the map.
+                enableMyLocation();
+            }
+        }
+    }
     private void getDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare

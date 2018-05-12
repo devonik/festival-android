@@ -1,5 +1,6 @@
 package devnik.trancefestivalticker.activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -43,8 +44,7 @@ import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.model.FestivalVrView;
 
-public class VRPanoView extends Fragment
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class VRPanoView extends DialogFragment implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String TAG = VRPanoView.class.getSimpleName();
     /** Actual panorama widget. **/
     private VrPanoramaView panoWidgetView;
@@ -61,7 +61,7 @@ public class VRPanoView extends Fragment
     private ProgressDialog pDialog;
     private boolean tabIsVisible = false;
     //Permission
-    private int REQUEST_STORAGE = 1;
+    private int REQUEST_STORAGE = 2;
     private boolean mPermissionDenied = false;
 
     /** Tracks the file to be loaded across the lifetime of this app. **/
@@ -70,6 +70,7 @@ public class VRPanoView extends Fragment
     private static String file_url = "https://niklas-grieger.de/files/360panorma/atWorkMono.jpg";
     private FestivalVrView vrView;
     private String fileName;
+    private String cachePath;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,33 +78,19 @@ public class VRPanoView extends Fragment
 
         view = inflater.inflate(R.layout.fragment_vr_pano_view, container, false);
 
-        // Make the source link clickable.
-        //TextView sourceText = (TextView) view.findViewById(R.id.source);
-        //sourceText.setText(Html.fromHtml(getString(R.string.source)));
-        //sourceText.setMovementMethod(LinkMovementMethod.getInstance());
         vrView = (FestivalVrView) getArguments().getSerializable("photoVrView");
-        try {
-            URL url = new URL(vrView.getUrl());
-            fileName = FilenameUtils.getName(url.getPath());
 
-            //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
-            if(tabIsVisible) {
-                enableStoragePermission();
-                String path = Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName;
-                File f = new File(path);  //
-                if(f.exists()){
-                    loadVRPano(path);
-                }else{
-                    downloadVRPano();
-                }
+        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+        // otherwise use internal cache dir
+        cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                !Environment.isExternalStorageRemovable() ? getActivity().getExternalCacheDir().getPath() :
+                getActivity().getCacheDir().getPath();
 
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if(tabIsVisible) {
+            //Falls die nötige Berechtigung noch nicht vorhanden ist, wird erneut gefragt
+            enableStoragePermission();
+
         }
-
 
         panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
 
@@ -136,9 +123,9 @@ public class VRPanoView extends Fragment
         }
 
         if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            // Enable the external storage write layer if the permission has been granted.
-            enableStoragePermission();
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            // Enable the my location layer if the permission has been granted.
+            downloadVRPano();
         } else {
             // Display the missing permission error dialog when the fragments resume.
             mPermissionDenied = true;
@@ -148,14 +135,33 @@ public class VRPanoView extends Fragment
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
+            // Permission to access the write external storage is missing.
             PermissionUtils.requestPermission(getActivity(), REQUEST_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE, true);
-        } //else if (mMap != null) {
-        // Access to the location has been granted to the app.
-        //mMap.setMyLocationEnabled(true);
 
-        //}
+        } else{
+            // Access to the external storage has been granted to the app.
+            try {
+                URL url = new URL(vrView.getUrl());
+                fileName = FilenameUtils.getName(url.getPath());
+
+                //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
+                // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+                // otherwise use internal cache dir
+
+                String path = cachePath + "/"+fileName;
+                File f = new File(path);  //
+                if(f.exists()){
+                    loadVRPano(path);
+                }else{
+                    downloadVRPano();
+                }
+
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -164,15 +170,6 @@ public class VRPanoView extends Fragment
             tabIsVisible = true;
             if(view != null){
                 enableStoragePermission();
-                String path = Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName;
-                File f = new File(path);  //
-                if(f.exists()){
-                    loadVRPano(path);
-                }else{
-                    downloadVRPano();
-                }
             }
 
         }else{
@@ -269,9 +266,7 @@ public class VRPanoView extends Fragment
                         8192);
 
                 // Output stream
-                OutputStream output = new FileOutputStream(Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName);
+                OutputStream output = new FileOutputStream(cachePath + "/"+fileName);
 
                 byte data[] = new byte[1024];
 
@@ -317,9 +312,7 @@ public class VRPanoView extends Fragment
             // dismiss the dialog after the file was downloaded
             //dismissDialog(progress_bar_type);
             pDialog.hide();
-            String path = Environment
-                    .getExternalStorageDirectory().toString()
-                    + "/"+fileName;
+            String path = cachePath + "/"+fileName;
             loadVRPano(path);
         }
 

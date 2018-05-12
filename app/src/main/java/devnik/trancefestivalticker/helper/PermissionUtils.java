@@ -60,7 +60,8 @@ public abstract class PermissionUtils {
     public static class PermissionDeniedDialog extends DialogFragment {
 
         private static final String ARGUMENT_FINISH_ACTIVITY = "finish";
-
+        private static final Integer REQUEST_LOCATION_CODE = 1;
+        private static final Integer REQUEST_STORAGE_CODE = 2;
         private boolean mFinishActivity = false;
 
         /**
@@ -81,7 +82,7 @@ public abstract class PermissionUtils {
             mFinishActivity = getArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.location_permission_denied)
+                    .setMessage(R.string.permission_required_toast)
                     .setPositiveButton(android.R.string.ok, null)
                     .create();
         }
@@ -108,6 +109,8 @@ public abstract class PermissionUtils {
     public static class RationaleDialog extends DialogFragment {
 
         private static final String ARGUMENT_PERMISSION_REQUEST_CODE = "requestCode";
+        private static final Integer REQUEST_LOCATION_CODE = 1;
+        private static final Integer REQUEST_STORAGE_CODE = 2;
 
         private static final String ARGUMENT_FINISH_ACTIVITY = "finish";
 
@@ -140,14 +143,25 @@ public abstract class PermissionUtils {
             final int requestCode = arguments.getInt(ARGUMENT_PERMISSION_REQUEST_CODE);
             mFinishActivity = arguments.getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
+            Integer messageId = R.string.permission_required_toast;
+            String permission = "";
+            if(requestCode == REQUEST_LOCATION_CODE){
+                messageId = R.string.location_permission_denied;
+                permission = Manifest.permission.ACCESS_FINE_LOCATION;
+            }
+            if(requestCode == REQUEST_STORAGE_CODE){
+                messageId = R.string.storage_permission_denied;
+                permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+            }
+            final String permissionFinal = permission;
             return new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.permission_rationale_location)
+                    .setMessage(messageId)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // After click on Ok, request the permission.
                             ActivityCompat.requestPermissions(getActivity(),
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    new String[]{permissionFinal},
                                     requestCode);
                             // Do not finish the Activity while requesting permission.
                             mFinishActivity = false;
@@ -165,7 +179,6 @@ public abstract class PermissionUtils {
                         R.string.permission_required_toast,
                         Toast.LENGTH_SHORT)
                         .show();
-                getActivity().finish();
             }
         }
     }

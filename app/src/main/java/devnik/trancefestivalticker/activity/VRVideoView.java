@@ -31,6 +31,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener;
 import com.google.vr.sdk.widgets.pano.VrPanoramaView;
 import com.google.vr.sdk.widgets.pano.VrPanoramaView.Options;
@@ -55,7 +56,8 @@ import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.FestivalVrView;
 
-public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPermissionsResultCallback
+
+public class VRVideoView extends Fragment
         //implements GetBitmapFromURLAsync.GetBitmapFromURLCompleted
         {
     private static final String TAG = VRVideoView.class.getSimpleName();
@@ -130,22 +132,37 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
 
     private FestivalVrView vrView;
     private String fileName;
-    @Override
+
+    //Disk Lru Cache
+    private DiskLruCache mDiskLruCache;
+    private final Object mDiskCacheLock = new Object();
+    private boolean mDiskCacheStarting = true;
+    private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private static final String DISK_CACHE_SUBDIR = "thumbnails";
+
+    private String cachePath;
+            @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_vr_video_view, container, false);
+        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+        // otherwise use internal cache dir
+        cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                !Environment.isExternalStorageRemovable() ? getActivity().getExternalCacheDir().getPath() :
+                getActivity().getCacheDir().getPath();
 
+        enableStoragePermission();
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
         if(tabIsVisible) {
             vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
             try {
                 URL url = new URL(vrView.getUrl());
                 fileName = FilenameUtils.getName(url.getPath());
-                enableStoragePermission();
-                String path = Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName;
+                //Only for testing
+                String path = "/storage/19B0-BFBC/DCIM/Gear 360/fahradtest.mp4";
+
+                /*String path = cachePath + "/"+fileName;*/
                 File f = new File(path);  //
                 videoUri = Uri.fromFile(f);
                 if(f.exists()){
@@ -172,13 +189,13 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
+
             tabIsVisible = true;
             if(view != null){
                 videoWidgetView.resumeRendering();
-                enableStoragePermission();
-                String path = Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName;
+                //Only for testing
+                String path = "/storage/19B0-BFBC/DCIM/Gear 360/fahradtest.MP4";
+                /*String path = cachePath + "/"+fileName;*/
                 File f = new File(path);
                 videoUri = Uri.fromFile(f);
                 if(f.exists()){
@@ -209,22 +226,6 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
         Log.e("VRVIDEO","onDestroyView");
         //videoWidgetView.pauseRendering();
         //videoWidgetView.shutdown();
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode != REQUEST_STORAGE) {
-            return;
-        }
-
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            // Enable the external storage write layer if the permission has been granted.
-            enableStoragePermission();
-        } else {
-            // Display the missing permission error dialog when the fragments resume.
-            mPermissionDenied = true;
-        }
     }
     private void enableStoragePermission() {
 
@@ -279,6 +280,7 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
         }
     }
     private void userWantDownloadVideoDialog(){
+
         AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("Video Download");
         TextView creditTextView = new TextView(getActivity());
@@ -419,11 +421,53 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
             Toast.makeText(
                     VRVideoView.this.getActivity(), "Error loading video: " + errorMessage, Toast.LENGTH_LONG)
                     .show();
-            //Neuer Versuch
-            //new DownloadFileFromURL().execute(file_url);
+            //Datei Fehlerhaft
+            fileBrokenNeedReDownload();
             Log.e(TAG, "Error loading video: " + errorMessage);
         }
+        private void fileBrokenNeedReDownload(){
+                AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
+                builderDialogBuilder.setTitle("Video Download");
+                TextView creditTextView = new TextView(getActivity());
+                creditTextView.setPadding(15,15,15,15);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+                }else{
+                    creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed),null, new UITagHandler()));
+                }
+                //Important to make the hrefs clickable
+                //creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
+                builderDialogBuilder.setView(creditTextView);
+                // Set up the buttons
+                builderDialogBuilder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        pDialog = new ProgressDialog(getActivity());
+                        pDialog.setMessage("Video wird geladen... Bitte warten");
+                        pDialog.setIndeterminate(false);
+                        pDialog.setMax(100);
+                        pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                        pDialog.setCancelable(false);
+                        pDialog.show();
+                        new DownloadFileFromURL().execute(file_url);
+                    }
+                });
+                //TODO Später button -> go back
+        /*builderDialogBuilder.setNegativeButton("Später", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                Integer test = fm.getBackStackEntryCount();
+
+            }
+        });*/
+                builderDialogBuilder.create();
+                builderDialogBuilder.show();
+
+        }
         @Override
         public void onClick() {
             togglePause();
@@ -484,9 +528,7 @@ public class VRVideoView extends Fragment implements ActivityCompat.OnRequestPer
                         8192);
 
                 // Output stream
-                OutputStream output = new FileOutputStream(Environment
-                        .getExternalStorageDirectory().toString()
-                        + "/"+fileName);
+                OutputStream output = new FileOutputStream(cachePath + "/"+fileName);
 
                 byte data[] = new byte[1024];
 
