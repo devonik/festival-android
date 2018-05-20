@@ -143,10 +143,9 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         });
 
         //Check Festival is over
-        Date start = festival.getDatum_start();
-        //Date end = festival.getDatum_end();
+        Date end = festival.getDatum_end();
         Date today = new Date();
-        if(today.after(start)){
+        if(today.after(end)){
             //Festival is expired
             itemHolder.festivalOverBadgeIcon.setVisibility(View.VISIBLE);
         }

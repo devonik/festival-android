@@ -67,7 +67,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
     /** Tracks the file to be loaded across the lifetime of this app. **/
     private Uri photoUri;
     // File url to download
-    private static String file_url = "https://niklas-grieger.de/files/360panorma/atWorkMono.jpg";
+    private static String file_url = "https://niklas-grieger.de/files/360panorma/PsyExp2018_MainFloor1.jpg";
     private FestivalVrView vrView;
     private String fileName;
     private String cachePath;
@@ -187,7 +187,6 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
         new DownloadFileFromURL().execute(vrView.getUrl());
     }
     public void loadVRPano(String path){
-        //TODO Image Caching
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);

@@ -88,9 +88,7 @@ public class VRVideoView extends Fragment
     /** Tracks the file to be loaded across the lifetime of this app. **/
     private Uri videoUri;
 
-    /** Configuration information for the video. **/
-    private Options videoOptions = new Options();
-
+private AlertDialog errorLoadingDialog;
     //private VideoLoaderTask backgroundVideoLoaderTask;
 
     /**
@@ -113,11 +111,7 @@ public class VRVideoView extends Fragment
      * {@link VrVideoView#pauseVideo()} after loading the video.
      */
     private boolean isPaused = false;
-    boolean _areLecturesLoaded = false;
     private boolean tabIsVisible = false;
-
-    private boolean userWantDownloadVideo = false;
-    private boolean videoExistLocal = false;
 
     //Video Download
     //Permission
@@ -125,20 +119,8 @@ public class VRVideoView extends Fragment
     private boolean mPermissionDenied = false;
     // Progress Dialog
     private ProgressDialog pDialog;
-    public static final int progress_bar_type = 0;
-
-    // File url to download
-    private static String file_url = "https://niklas-grieger.de/files/360video/test.mp4";
-
     private FestivalVrView vrView;
     private String fileName;
-
-    //Disk Lru Cache
-    private DiskLruCache mDiskLruCache;
-    private final Object mDiskCacheLock = new Object();
-    private boolean mDiskCacheStarting = true;
-    private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-    private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
     private String cachePath;
             @Override
@@ -146,6 +128,7 @@ public class VRVideoView extends Fragment
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_vr_video_view, container, false);
+        vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
         cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
@@ -155,14 +138,14 @@ public class VRVideoView extends Fragment
         enableStoragePermission();
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
         if(tabIsVisible) {
-            vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
+
             try {
                 URL url = new URL(vrView.getUrl());
                 fileName = FilenameUtils.getName(url.getPath());
                 //Only for testing
-                String path = "/storage/19B0-BFBC/DCIM/Gear 360/fahradtest.mp4";
+                //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.mp4";
 
-                /*String path = cachePath + "/"+fileName;*/
+                String path = cachePath + "/"+fileName;
                 File f = new File(path);  //
                 videoUri = Uri.fromFile(f);
                 if(f.exists()){
@@ -194,8 +177,8 @@ public class VRVideoView extends Fragment
             if(view != null){
                 videoWidgetView.resumeRendering();
                 //Only for testing
-                String path = "/storage/19B0-BFBC/DCIM/Gear 360/fahradtest.MP4";
-                /*String path = cachePath + "/"+fileName;*/
+                //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
+                String path = cachePath + "/"+fileName;
                 File f = new File(path);
                 videoUri = Uri.fromFile(f);
                 if(f.exists()){
@@ -268,15 +251,16 @@ public class VRVideoView extends Fragment
             // An error here is normally due to being unable to locate the file.
             loadVideoStatus = LOAD_VIDEO_STATUS_ERROR;
             // Since this is a background thread, we need to switch to the main thread to show a toast.
-            videoWidgetView.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast
-                            .makeText(VRVideoView.this.getActivity(), "Error opening file. ", Toast.LENGTH_LONG)
-                            .show();
-                }
-            });
-            Log.e(TAG, "Could not open video: " + e);
+            //videoWidgetView.post(new Runnable() {
+             //   @Override
+              //  public void run() {
+              //      Toast
+              //              .makeText(VRVideoView.this.getActivity(), "Error opening file. ", Toast.LENGTH_LONG)
+               //             .show();
+              //  }
+           // });
+           // Log.e(TAG, "Could not open video: " + e);
+            fileBrokenNeedReDownload();
         }
     }
     private void userWantDownloadVideoDialog(){
@@ -306,7 +290,7 @@ public class VRVideoView extends Fragment
                 pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 pDialog.setCancelable(false);
                 pDialog.show();
-                new DownloadFileFromURL().execute(file_url);
+                new DownloadFileFromURL().execute(vrView.getUrl());
             }
         });
         //TODO Später button -> go back
@@ -376,7 +360,51 @@ public class VRVideoView extends Fragment
         status.append(" seconds.");
         statusText.setText(status.toString());
     }
+    public void fileBrokenNeedReDownload() {
+        if (errorLoadingDialog == null) {
+            AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
+            builderDialogBuilder.setTitle("Video Download");
+            TextView creditTextView = new TextView(getActivity());
+            creditTextView.setPadding(15, 15, 15, 15);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed), Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
+            } else {
+                creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed), null, new UITagHandler()));
+            }
+            //Important to make the hrefs clickable
+            //creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
+            builderDialogBuilder.setView(creditTextView);
+            // Set up the buttons
+            builderDialogBuilder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    pDialog = new ProgressDialog(getActivity());
+                    pDialog.setMessage("Video wird geladen... Bitte warten");
+                    pDialog.setIndeterminate(false);
+                    pDialog.setMax(100);
+                    pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    pDialog.setCancelable(false);
+                    pDialog.show();
+                    new DownloadFileFromURL().execute(vrView.getUrl());
+                }
+            });
+            //TODO Später button -> go back
+/*builderDialogBuilder.setNegativeButton("Später", new DialogInterface.OnClickListener() {
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        Integer test = fm.getBackStackEntryCount();
+
+    }
+});*/
+            errorLoadingDialog = builderDialogBuilder.create();
+            errorLoadingDialog.show();
+
+        }
+    }
     /**
      * When the user manipulates the seek bar, update the video position.
      */
@@ -418,56 +446,14 @@ public class VRVideoView extends Fragment
         public void onLoadError(String errorMessage) {
             // An error here is normally due to being unable to decode the video format.
             loadVideoStatus = LOAD_VIDEO_STATUS_ERROR;
-            Toast.makeText(
-                    VRVideoView.this.getActivity(), "Error loading video: " + errorMessage, Toast.LENGTH_LONG)
-                    .show();
+            //Toast.makeText(
+            //        VRVideoView.this.getActivity(), "Error loading video: " + errorMessage, Toast.LENGTH_LONG)
+            //        .show();
             //Datei Fehlerhaft
             fileBrokenNeedReDownload();
-            Log.e(TAG, "Error loading video: " + errorMessage);
+            //Log.e(TAG, "Error loading video: " + errorMessage);
         }
-        private void fileBrokenNeedReDownload(){
-                AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
-                builderDialogBuilder.setTitle("Video Download");
-                TextView creditTextView = new TextView(getActivity());
-                creditTextView.setPadding(15,15,15,15);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
-                }else{
-                    creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_download_failed),null, new UITagHandler()));
-                }
-                //Important to make the hrefs clickable
-                //creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
-                builderDialogBuilder.setView(creditTextView);
-                // Set up the buttons
-                builderDialogBuilder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        pDialog = new ProgressDialog(getActivity());
-                        pDialog.setMessage("Video wird geladen... Bitte warten");
-                        pDialog.setIndeterminate(false);
-                        pDialog.setMax(100);
-                        pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                        pDialog.setCancelable(false);
-                        pDialog.show();
-                        new DownloadFileFromURL().execute(file_url);
-                    }
-                });
-                //TODO Später button -> go back
-        /*builderDialogBuilder.setNegativeButton("Später", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                Integer test = fm.getBackStackEntryCount();
-
-            }
-        });*/
-                builderDialogBuilder.create();
-                builderDialogBuilder.show();
-
-        }
         @Override
         public void onClick() {
             togglePause();

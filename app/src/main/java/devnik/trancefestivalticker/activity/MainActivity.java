@@ -263,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             }
         }
     }
-    //TODO Sobald das Event z.b am 31.05 ist wird es nicht mitgenommen
     public List getFestivalsByMonth(Festival festival){
         Date lastDayOfMonth = getLastDateOfMonth(festival.getDatum_start());
         Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
