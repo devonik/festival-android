@@ -3,8 +3,10 @@
     <string name="actualYear">2018</string>
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to draw the \'my location\' feature, which shows your current location on the map.</string>
-    <string name="location_permission_denied">The route function requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'\'.</string>
-    <string name="permission_required_toast">Location permission is required to find the route to the Festival.</string>
+    <string name="location_permission_denied">Um die Routen funktion der App zu nutzen zu können, muss die Berechtigung auf Ihren aktuellen Standort gesetz sein. Bitte versuchen Sie erneut die Berechtigung zu setzten.\nWenn die Berechtigung abgelehnt wurde, kann diese jederzeit in den System Einstellungen &gt; Apps &gt; \'\' geändert werden.</string>
+    <string name="storage_permission_denied">Die VR Elemente benötigen die Berechtigung auf die SD Karte zu schreiben. Bitte versuchen Sie erneut die Berechtigung zu setzen.\nWenn die Berechtigung abgelehnt wurde, kann diese jederzeit in den System Einstellungen &gt; Apps &gt; \'\' geändert werden.</string>
+    <string name="permission_required_toast">Ohne  die nötige Berechtigung, ist die folgende Funktion nicht benutzbar. Bitte ändern Sie dies in den Einstellungen der App.</string>
+
     <string name="devnik.trancefestivalticker.preference_map_car_route" />
     <string name="devnik.trancefestivalticker.preference_need_tour_guide" />
     <string name="devnik.trancefestivalticker.preference_last_sync" />
@@ -37,4 +39,30 @@
                                          <p>2. Ich lege Ihnen einen Account an und Sie pflegen die Informationen selbständig über ein Web Formular</p>
                                          <br>
                                          <p>Bei sonstigen fragen können Sie mich natürlich auch gerne über die eMail Adresse "trancefestivalticker@gmail.com" kontaktieren.</p>]]></string>
+    <string name="vr_video_ask_download">
+        <![CDATA[<p>Es wird empfohlen, dass folgende Video herunterzuladen. Unter anderem aus folgenden Gründen:</p>
+                 <br>
+                 <ul>
+                    <li>Das Video ist in zukunft offline abrufbar</li>
+                    <li>Bessere Peformance</li>
+                 </ul>
+                 <br>
+                 <p>Außerdem wird empfohlen, falls möglich, vor dem download WLAN zu aktivieren, damit das mobile Datenvolumen geschont wird</p>]]>
+    </string>
+    <string name="vr_video_download_failed">
+        <![CDATA[<p>Das Video ist fehlerhaft. Dies kann mehrere Gründe haben:</p>
+                 <br>
+                 <ul>
+                    <li>Du hast den Download frühzeitig abgebrochen</li>
+                    <li>Deine Internet Verbindung war nicht stabil genug</li>
+                 </ul>
+                 <br>
+                 <p>Starte den Download erneut. Und nochmal der Hinweis: Aktiviere, falls möglich, vor dem download das WLAN, damit das mobile Datenvolumen geschont wird</p>]]>
+    </string>
+
+    <string name="rating_title">Was hälst du von der App ?</string>
+    <string name="rating_message">Wenn dir die App gefällt, nimm dir bitte kurz Zeit und bewerte die App. Es dauert keine Minute. Danke für dein Support!</string>
+    <string name="rating_button_yes">Bewerte</string>
+    <string name="rating_button_no">Nein</string>
+    <string name="rating_button_cancel">Später</string>
 </resources>

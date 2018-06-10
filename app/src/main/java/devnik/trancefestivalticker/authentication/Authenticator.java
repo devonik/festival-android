@@ -19,7 +19,7 @@ import android.os.Bundle;
 //@TODO Nur für Dummy Account
 public class Authenticator extends AbstractAccountAuthenticator {
     // Simple constructor
-    public Authenticator(Context context) {
+    Authenticator(Context context) {
         super(context);
     }
     // Editing properties is not supported

@@ -68,3 +68,5 @@ fastlane/readme.md
 
 
 app/build\.gradle
+
+*.mp4

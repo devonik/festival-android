@@ -105,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_marginEnd="10dp"
-                    android:text="title not found"
+                    android:text="VVK Ausverkauft!"
                     android:textColor="@android:color/background_light"
                     android:textStyle="bold|italic" />
 
@@ -117,7 +117,7 @@
                     android:layout_marginEnd="10dp"
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_euro_symbol_white_24dp"
-                    android:text="price not found"
+                    android:text="Evtl. Abendkasse"
                     android:textColor="@android:color/background_light" />
 
                 <TextView

@@ -33,7 +33,7 @@ public class FirebaseMsgService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            String remoteMessageMethod = remoteMessage.getData().get(KEY_SYNC_REQUEST).toString();
+            String remoteMessageMethod = remoteMessage.getData().get(KEY_SYNC_REQUEST);
             //!!!!!!!!!!!!!!!!!! Trigger Sync ONLY if the Application is not in background / closed!!!!!!!!!!!!!!!!!
             if (remoteMessageMethod.equals("sync")) {
                 Bundle settingsBundle = new Bundle();

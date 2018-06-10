@@ -41,9 +41,9 @@ import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.model.DirectionsResult;
 
 import java.util.List;
+import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -89,26 +89,39 @@ public class MapFragmentDialog extends DialogFragment  implements
     private Festival festival;
     private FestivalDetail festivalDetail;
     private LatLng festivalLocation;
-
+    private View rootView;
     public MapFragmentDialog() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
+        //if (rootView == null) {
+            rootView = inflater.inflate(R.layout.fragment_festival_map, container, false);
+            /*ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null)
+                parent.removeView(rootView);*/
+        //}
+        /*try {
+
+
+
+        } catch (InflateException e) {
+            //map is already there, just return view as it is
+            return rootView;
+        }*/
         showRoute = rootView.findViewById(R.id.showRoute);
         showFestival = rootView.findViewById(R.id.showFestival);
-        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
 
 
         festival = (Festival) getArguments().getSerializable("festival");
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
 
+        assert festivalDetail != null;
         if(festivalDetail.getGeoLatitude() != null && festivalDetail.getGeoLongitude() != null) {
             festivalLocation = new LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
         }else{
@@ -118,11 +131,15 @@ public class MapFragmentDialog extends DialogFragment  implements
         MapFragment mapFragment = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
         mapFragment.getMapAsync(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-    //Register Custom Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(getActivity()));
         return rootView;
     }
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        MapFragment f = (MapFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.fragment_view_map);
+        if (f != null)
+            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
+    }
     /**
      * Manipulates the map when it's available.
      * This callback is triggered when the map is ready to be used.
@@ -132,9 +149,6 @@ public class MapFragmentDialog extends DialogFragment  implements
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
-        // Get the current location of the device and set the position of the map.
-        enableMyLocation();
-
 
 
         if(festivalLocation!=null){
@@ -156,7 +170,7 @@ public class MapFragmentDialog extends DialogFragment  implements
 
         String preferenceEncodedCarPath = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), "");
 
-        if(preferenceEncodedCarPath != ""){
+        if(!preferenceEncodedCarPath.equals("")){
             List<LatLng> list = PolyUtil.decode(preferenceEncodedCarPath);
             LatLng latLng = list.get(list.size()-1);
             carPolyline = mMap.addPolyline(new PolylineOptions()
@@ -179,6 +193,16 @@ public class MapFragmentDialog extends DialogFragment  implements
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if(rootView!=null) {
+                // Get the current location of the device and set the position of the map.
+                enableMyLocation();
+            }
+        }
+    }
     private void getDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
@@ -189,7 +213,7 @@ public class MapFragmentDialog extends DialogFragment  implements
             if (!mPermissionDenied) {
 
                 Task<Location> locationResult = mFusedLocationClient.getLastLocation();
-                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
+                locationResult.addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful()) {
@@ -223,7 +247,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     private void enableMyLocation() {
 
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(getActivity(), LOCATION_PERMISSION_REQUEST_CODE,

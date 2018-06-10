@@ -104,7 +104,7 @@ public class UITagHandler implements Html.TagHandler {
          * @param text
          * @param indentation
          */
-        public final void closeItem(final Editable text, final int indentation)
+        final void closeItem(final Editable text, final int indentation)
         {
             if (text.length() > 0 && text.charAt(text.length() - 1) != '\n')
             {
@@ -180,7 +180,7 @@ public class UITagHandler implements Html.TagHandler {
         /**
          * Creates a new {@code <ul>} with start index of 1.
          */
-        public Ol()
+        Ol()
         {
             this(1); // default start index
         }
@@ -190,7 +190,7 @@ public class UITagHandler implements Html.TagHandler {
          *
          * @param startIdx
          */
-        public Ol(final int startIdx)
+        Ol(final int startIdx)
         {
             this.nextIdx = startIdx;
         }
