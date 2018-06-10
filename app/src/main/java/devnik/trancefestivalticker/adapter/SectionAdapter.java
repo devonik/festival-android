@@ -26,6 +26,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
 import org.greenrobot.greendao.query.Query;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,16 +60,10 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     private Context mContext;
     private ArrayList<Festival> festivals;
     private ArrayList<Festival> filteredFestivalList;
-    private FestivalDetailDao festivalDetailDao;
-    private Query<FestivalDetail> festivalDetailQuery;
-    private FestivalDao festivalDao;
-    private DaoSession daoSession;
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
-    private List<FestivalTicketPhase> festivalTicketPhases;
     private CustomDate customDate;
-    public FragmentManager fragmentManager;
 
-    public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals, FragmentManager fragmentManager) {
+    public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals) {
 
         // call constructor with layout resources for this Section header and items
         super(new SectionParameters.Builder(R.layout.gallery_thumbnail)
@@ -77,11 +73,9 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         this.customDate = customDate;
         this.festivals = festivals;
-        this.fragmentManager = fragmentManager;
         this.filteredFestivalList = new ArrayList<>(festivals);
-        daoSession = ((App)context).getDaoSession();
+        DaoSession daoSession = ((App) context).getDaoSession();
         festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
-        festivalDao = daoSession.getFestivalDao();
     }
 
     @Override
@@ -133,10 +127,17 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
             @Override
             public boolean onLongClick(View view) {
                 StringBuilder output = new StringBuilder();
-                output.append(festival.getName()+": "+DateFormat.format("dd.MM",festival.getDatum_start()));
+                output.append(festival.getName())
+                        .append(": ")
+                        .append(DateFormat.format("dd.MM", festival.getDatum_start()));
+
                 if(actualFestivalTicketPhase != null){
-                    output.append(", "+actualFestivalTicketPhase.getPrice()+" €");
+                    output.append(", ")
+                            .append(actualFestivalTicketPhase.getPrice())
+                            .append(" €");
                 }
+                output.append(" ")
+                        .append(festivalStatus(festival));
                 Toast.makeText(mContext, output, Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -150,6 +151,35 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
             itemHolder.festivalOverBadgeIcon.setVisibility(View.VISIBLE);
         }
 
+    }
+    private String festivalStatus(Festival festival){
+        Date start = festival.getDatum_start();
+        Date end = festival.getDatum_end();
+        Date today = new Date();
+
+        if(today.after(start) && today.before(end)){
+            //Festival is now!
+            return "( Läuft gerade! )";
+        }
+        else if(today.before(start)){
+            Integer daysTillStart = calcDaysTillStart(start);
+            //Festival start is comming
+            if(daysTillStart > 1){
+                return "( Noch "+calcDaysTillStart(start)+" Tage )";
+            }
+            else if(daysTillStart == 1){
+                return "( Morgen ist es soweit !! )";
+            }
+
+        }else if(today.after(start)){
+            //Festival is expired
+            return "( Abgelaufen! )";
+        }
+        return "";
+    }
+    private int calcDaysTillStart(Date startDate){
+        Date today = new Date();
+        return Days.daysBetween(new LocalDate(today.getTime()), new LocalDate(startDate.getTime())).getDays();
     }
     @Override
     public boolean onLongClick(View view) {
@@ -181,7 +211,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                     if(!filteredFestivalList.contains(festival)) {
                         for (MusicGenre musicGenre : festival.getMusicGenres()) {
 
-                            if (musicGenre.getName() == filterGenre) {
+                            if (musicGenre.getName().equals(filterGenre)) {
                                 filteredFestivalList.add(festival);
                             }
                         }
@@ -196,9 +226,9 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         public ImageView thumbnail;
         public TextView title, subtitle;
         public Festival festival;
-        public FloatingActionButton festivalOverBadgeIcon;
+        FloatingActionButton festivalOverBadgeIcon;
 
-        public MyItemViewHolder(View itemView) {
+        MyItemViewHolder(View itemView) {
             super(itemView);
             thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             festivalOverBadgeIcon = itemView.findViewById(R.id.festival_done);
@@ -218,50 +248,5 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
             monthHeader = (TextView) view.findViewById(R.id.monthHeader);
         }
     }
-    public interface ClickListener {
-        void onClick(View view, int position);
 
-        void onLongClick(View view, int position);
-    }
-    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-        private GestureDetector gestureDetector;
-        private SectionAdapter.ClickListener clickListener;
-
-        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final SectionAdapter.ClickListener clickListener) {
-            this.clickListener = clickListener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null && clickListener != null) {
-                        clickListener.onLongClick(child, recyclerView.getChildPosition(child));
-                    }
-                }
-            });
-        }
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildAdapterPosition(child));
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-        }
-    }
 }

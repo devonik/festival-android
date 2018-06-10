@@ -11,10 +11,13 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
+
+import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
 
@@ -77,6 +80,7 @@ public abstract class PermissionUtils {
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             mFinishActivity = getArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
@@ -137,9 +141,11 @@ public abstract class PermissionUtils {
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle arguments = getArguments();
+            assert arguments != null;
             final int requestCode = arguments.getInt(ARGUMENT_PERMISSION_REQUEST_CODE);
             mFinishActivity = arguments.getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
@@ -160,7 +166,7 @@ public abstract class PermissionUtils {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // After click on Ok, request the permission.
-                            ActivityCompat.requestPermissions(getActivity(),
+                            ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()),
                                     new String[]{permissionFinal},
                                     requestCode);
                             // Do not finish the Activity while requesting permission.

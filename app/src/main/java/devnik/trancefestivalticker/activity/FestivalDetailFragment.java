@@ -2,6 +2,7 @@ package devnik.trancefestivalticker.activity;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -28,6 +29,7 @@ import org.joda.time.LocalDate;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -48,24 +50,17 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private FestivalDetail festivalDetail;
     private FestivalTicketPhase actualFestivalTicketPhase;
 
-    private FestivalDetailImagesDao festivalDetailImagesDao;
-    private Query<FestivalDetailImages> festivalDetailImagesQuery;
     private List<FestivalDetailImages> festivalDetailImages;
 
     private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price, ticketPhaseTitle;
-    private View view;
     private SliderLayout imageSlider;
 
 
-    public static FestivalDetailFragment newInstance() {
-        FestivalDetailFragment f = new FestivalDetailFragment();
-        return f;
-    }
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
         lblTitle = (TextView) view.findViewById(R.id.title);
         lblDate = (TextView) view.findViewById(R.id.dateString);
         homepage_url = (TextView) view.findViewById(R.id.homepage_url);
@@ -78,16 +73,16 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         //Scale slider
 
 
-
+        assert getArguments() != null;
         festival = (Festival) getArguments().getSerializable("festival");
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
         actualFestivalTicketPhase = (FestivalTicketPhase) getArguments().getSerializable("actualFestivalTicketPhase");
 
-        DaoSession daoSession = ((App)getActivity().getApplication()).getDaoSession();
+        DaoSession daoSession = ((App) Objects.requireNonNull(getActivity()).getApplication()).getDaoSession();
         //Nur wenn das Festival eingetragende Details hat
         if(festivalDetail!=null) {
-            festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
-            festivalDetailImagesQuery = festivalDetailImagesDao.queryBuilder().where(FestivalDetailImagesDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id())).build();
+            FestivalDetailImagesDao festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
+            Query<FestivalDetailImages> festivalDetailImagesQuery = festivalDetailImagesDao.queryBuilder().where(FestivalDetailImagesDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id())).build();
             festivalDetailImages = festivalDetailImagesQuery.list();
 
             initImageSlider();

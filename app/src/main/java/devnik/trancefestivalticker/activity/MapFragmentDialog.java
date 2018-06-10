@@ -14,7 +14,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,9 +41,9 @@ import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.model.DirectionsResult;
 
 import java.util.List;
+import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.helper.CustomExceptionHandler;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -96,7 +95,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
@@ -116,12 +115,13 @@ public class MapFragmentDialog extends DialogFragment  implements
         }*/
         showRoute = rootView.findViewById(R.id.showRoute);
         showFestival = rootView.findViewById(R.id.showFestival);
-        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
 
 
         festival = (Festival) getArguments().getSerializable("festival");
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
 
+        assert festivalDetail != null;
         if(festivalDetail.getGeoLatitude() != null && festivalDetail.getGeoLongitude() != null) {
             festivalLocation = new LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
         }else{
@@ -136,7 +136,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        MapFragment f = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment_view_map);
+        MapFragment f = (MapFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.fragment_view_map);
         if (f != null)
             getActivity().getFragmentManager().beginTransaction().remove(f).commit();
     }
@@ -170,7 +170,7 @@ public class MapFragmentDialog extends DialogFragment  implements
 
         String preferenceEncodedCarPath = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), "");
 
-        if(preferenceEncodedCarPath != ""){
+        if(!preferenceEncodedCarPath.equals("")){
             List<LatLng> list = PolyUtil.decode(preferenceEncodedCarPath);
             LatLng latLng = list.get(list.size()-1);
             carPolyline = mMap.addPolyline(new PolylineOptions()
@@ -213,7 +213,7 @@ public class MapFragmentDialog extends DialogFragment  implements
             if (!mPermissionDenied) {
 
                 Task<Location> locationResult = mFusedLocationClient.getLastLocation();
-                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
+                locationResult.addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful()) {
@@ -247,7 +247,7 @@ public class MapFragmentDialog extends DialogFragment  implements
     private void enableMyLocation() {
 
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(getActivity(), LOCATION_PERMISSION_REQUEST_CODE,

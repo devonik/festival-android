@@ -59,4 +59,10 @@
                  <br>
                  <p>Starte den Download erneut. Und nochmal der Hinweis: Aktiviere, falls möglich, vor dem download das WLAN, damit das mobile Datenvolumen geschont wird</p>]]>
     </string>
+
+    <string name="rating_title">Was hälst du von der App ?</string>
+    <string name="rating_message">Wenn dir die App gefällt, nimm dir bitte kurz Zeit und bewerte die App. Es dauert keine Minute. Danke für dein Support!</string>
+    <string name="rating_button_yes">Bewerte</string>
+    <string name="rating_button_no">Nein</string>
+    <string name="rating_button_cancel">Später</string>
 </resources>

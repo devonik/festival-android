@@ -46,8 +46,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 import devnik.trancefestivalticker.Manifest;
 import devnik.trancefestivalticker.R;
@@ -113,10 +115,7 @@ private AlertDialog errorLoadingDialog;
     private boolean isPaused = false;
     private boolean tabIsVisible = false;
 
-    //Video Download
-    //Permission
-    private int REQUEST_STORAGE = 1;
-    private boolean mPermissionDenied = false;
+            private boolean mPermissionDenied = false;
     // Progress Dialog
     private ProgressDialog pDialog;
     private FestivalVrView vrView;
@@ -124,16 +123,17 @@ private AlertDialog errorLoadingDialog;
 
     private String cachePath;
             @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_vr_video_view, container, false);
-        vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
+                assert getArguments() != null;
+                vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
         cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !Environment.isExternalStorageRemovable() ? getActivity().getExternalCacheDir().getPath() :
-                getActivity().getCacheDir().getPath();
+                !Environment.isExternalStorageRemovable() ? Objects.requireNonNull(Objects.requireNonNull(getActivity()).getExternalCacheDir()).getPath() :
+                Objects.requireNonNull(getActivity()).getCacheDir().getPath();
 
         enableStoragePermission();
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
@@ -176,18 +176,25 @@ private AlertDialog errorLoadingDialog;
             tabIsVisible = true;
             if(view != null){
                 videoWidgetView.resumeRendering();
-                //Only for testing
-                //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
-                String path = cachePath + "/"+fileName;
-                File f = new File(path);
-                videoUri = Uri.fromFile(f);
-                if(f.exists()){
-                    loadVRVideo();
-                }
-                else{
-                    userWantDownloadVideoDialog();
-                }
+                URL url = null;
+                try {
+                    url = new URL(vrView.getUrl());
+                    fileName = FilenameUtils.getName(url.getPath());
 
+                    //Only for testing
+                    //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
+                    String path = cachePath + "/"+fileName;
+                    File f = new File(path);
+                    videoUri = Uri.fromFile(f);
+                    if(f.exists()){
+                        loadVRVideo();
+                    }
+                    else{
+                        userWantDownloadVideoDialog();
+                    }
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
         }else{
             //Is unselected
@@ -212,9 +219,10 @@ private AlertDialog errorLoadingDialog;
     }
     private void enableStoragePermission() {
 
-        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
+            int REQUEST_STORAGE = 1;
             PermissionUtils.requestPermission(getActivity(), REQUEST_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE, true);
         } //else if (mMap != null) {
@@ -269,6 +277,7 @@ private AlertDialog errorLoadingDialog;
         builderDialogBuilder.setTitle("Video Download");
         TextView creditTextView = new TextView(getActivity());
         creditTextView.setPadding(15,15,15,15);
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             creditTextView.setText(Html.fromHtml(getString(R.string.vr_video_ask_download), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
         }else{
@@ -293,6 +302,7 @@ private AlertDialog errorLoadingDialog;
                 new DownloadFileFromURL().execute(vrView.getUrl());
             }
         });
+        //TODO Dismiss dialog before exiting the Activity, otherwise it occurs an exeption
         //TODO Später button -> go back
         /*builderDialogBuilder.setNegativeButton("Später", new DialogInterface.OnClickListener() {
             @Override
@@ -352,13 +362,12 @@ private AlertDialog errorLoadingDialog;
     }
 
     private void updateStatusText() {
-        StringBuilder status = new StringBuilder();
-        status.append(isPaused ? "Paused: " : "Playing: ");
-        status.append(String.format("%.2f", videoWidgetView.getCurrentPosition() / 1000f));
-        status.append(" / ");
-        status.append(videoWidgetView.getDuration() / 1000f);
-        status.append(" seconds.");
-        statusText.setText(status.toString());
+        String status = (isPaused ? "Paused: " : "Playing: ") +
+                String.format("%.2f", videoWidgetView.getCurrentPosition() / 1000f) +
+                " / " +
+                videoWidgetView.getDuration() / 1000f +
+                " seconds.";
+        statusText.setText(status);
     }
     public void fileBrokenNeedReDownload() {
         if (errorLoadingDialog == null) {
@@ -482,7 +491,7 @@ private AlertDialog errorLoadingDialog;
     /**
      * Background Async Task to download file
      * */
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    private class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
         /**
          * Before starting background thread Show Progress Bar Dialog

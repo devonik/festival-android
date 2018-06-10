@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
@@ -54,7 +55,6 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
      * the panorama is fully loaded.
      */
     public boolean loadImageSuccessful;
-    private Options panoOptions = new Options();
     private View view;
     boolean _areLecturesLoaded = false;
     // Progress Dialog
@@ -64,27 +64,24 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
     private int REQUEST_STORAGE = 2;
     private boolean mPermissionDenied = false;
 
-    /** Tracks the file to be loaded across the lifetime of this app. **/
-    private Uri photoUri;
-    // File url to download
-    private static String file_url = "https://niklas-grieger.de/files/360panorma/PsyExp2018_MainFloor1.jpg";
     private FestivalVrView vrView;
     private String fileName;
     private String cachePath;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
         view = inflater.inflate(R.layout.fragment_vr_pano_view, container, false);
 
+        assert getArguments() != null;
         vrView = (FestivalVrView) getArguments().getSerializable("photoVrView");
 
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
         cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !Environment.isExternalStorageRemovable() ? getActivity().getExternalCacheDir().getPath() :
-                getActivity().getCacheDir().getPath();
+                !Environment.isExternalStorageRemovable() ? Objects.requireNonNull(Objects.requireNonNull(getActivity()).getExternalCacheDir()).getPath() :
+                Objects.requireNonNull(getActivity()).getCacheDir().getPath();
 
         if(tabIsVisible) {
             //Falls die nötige Berechtigung noch nicht vorhanden ist, wird erneut gefragt
@@ -92,7 +89,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
 
         }
 
-        panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
+        panoWidgetView = view.findViewById(R.id.pano_view);
 
         return view;
     }
@@ -133,7 +130,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
     }
     private void enableStoragePermission() {
 
-        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the write external storage is missing.
             PermissionUtils.requestPermission(getActivity(), REQUEST_STORAGE,
@@ -191,11 +188,11 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 
-        panoWidgetView = (VrPanoramaView) view.findViewById(R.id.pano_view);
+        panoWidgetView = view.findViewById(R.id.pano_view);
         panoWidgetView.setEventListener(new ActivityEventListener());
-        panoOptions = new Options();
+        Options panoOptions = new Options();
         panoOptions.inputType = Options.TYPE_MONO;
-        panoWidgetView.loadImageFromBitmap(bitmap,panoOptions);
+        panoWidgetView.loadImageFromBitmap(bitmap, panoOptions);
     }
     /*@Override
     public void onGetBitmapFromURLCompleted(Bitmap bitmap){
@@ -233,7 +230,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
     /**
      * Background Async Task to download file
      * */
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    private class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
         /**
          * Before starting background thread Show Progress Bar Dialog

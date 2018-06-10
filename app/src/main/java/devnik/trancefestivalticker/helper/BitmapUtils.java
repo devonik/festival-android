@@ -31,8 +31,8 @@ public class BitmapUtils {
         return bitmap;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                         int reqWidth, int reqHeight) {
+    private static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+                                                          int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -47,7 +47,7 @@ public class BitmapUtils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-    public static int calculateInSampleSize(
+    private static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -70,7 +70,7 @@ public class BitmapUtils {
         return inSampleSize;
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    private static Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap = null;
 
         if (drawable instanceof BitmapDrawable) {

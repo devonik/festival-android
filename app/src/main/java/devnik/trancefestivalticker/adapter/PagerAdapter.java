@@ -21,7 +21,7 @@ import devnik.trancefestivalticker.model.FestivalVrView;
  */
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
-    int numTabs;
+    private int numTabs;
     private Festival festival;
     private FestivalDetail festivalDetail;
     private FestivalTicketPhase actualFestivalTicketPhase;
