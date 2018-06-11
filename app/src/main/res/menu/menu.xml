@@ -16,8 +16,11 @@
             android:id="@+id/menu_credits"
             android:title="Sonstiges"/>
         <item
-            android:id="@+id/organizer"
+            android:id="@+id/menu_organizer"
             android:title="Sind sie ein Veranstalter?"/>
+        <item
+            android:id="@+id/menu_faq"
+            android:title="FAQ"/>
     </group>
 
 </menu>

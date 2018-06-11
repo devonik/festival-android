@@ -194,6 +194,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
         HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
 
+        headerHolder.yearHeader.setText(customDate.getYear());
         headerHolder.monthHeader.setText(customDate.getMonth());
 
     }
@@ -238,13 +239,13 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     }
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-        //private final TextView yearHeader;
+        private final TextView yearHeader;
         private final TextView monthHeader;
 
 
         HeaderViewHolder(View view) {
             super(view);
-            //yearHeader = (TextView) view.findViewById(R.id.yearHeader);
+            yearHeader = (TextView) view.findViewById(R.id.yearHeader);
             monthHeader = (TextView) view.findViewById(R.id.monthHeader);
         }
     }

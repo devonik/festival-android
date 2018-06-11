@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:padding="8dp"
-        android:text="@string/actualYear"
+        android:text=""
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFF"

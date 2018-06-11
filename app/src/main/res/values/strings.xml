@@ -39,6 +39,19 @@
                                          <p>2. Ich lege Ihnen einen Account an und Sie pflegen die Informationen selbständig über ein Web Formular</p>
                                          <br>
                                          <p>Bei sonstigen fragen können Sie mich natürlich auch gerne über die eMail Adresse "trancefestivalticker@gmail.com" kontaktieren.</p>]]></string>
+    <string name="faq_text"><![CDATA[<p>Hast du ein Problem mit der App oder hast eine Frage? Dann findest du hier eventuell eine Antwort!<p>
+                                         <br>
+                                         <p>1. Problem: Ich kriege bei dem 360° Grad Video / Bild nur ein Schwarz angezeigt.</p>
+                                         <p>Mögliche Gründe:</p>
+                                         <br>
+                                            <ul>
+                                                <li> Diese funktion ist noch sehr unausgereift, deshalb kann es sein das dein Handy die Funktion aktuell nicht unterstützt. </li>
+                                                <li> Deine Android Version ist zu niedrig. Tipp: Führe regelmäßig Softwareupdates durch.
+                                                     Bsp: Beim Samsung S7 Edge kannst du unter "Einstellungen->Software Update" checken ob du die aktuellste Version besitzt.</li>
+                                            </ul>
+                                         <br>
+                                         <br>
+                                         <p>Bei sonstigen fragen oder auch fehlermeldungen kannst du mich natürlich auch gerne über die eMail Adresse "trancefestivalticker@gmail.com" kontaktieren.</p>]]></string>
     <string name="vr_video_ask_download">
         <![CDATA[<p>Es wird empfohlen, dass folgende Video herunterzuladen. Unter anderem aus folgenden Gründen:</p>
                  <br>

@@ -357,9 +357,11 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             case R.id.menu_credits:
                 showCredits();
                 return true;
-            case R.id.organizer:
+            case R.id.menu_organizer:
                 showOrganizerDialog();
                 return true;
+            case R.id.menu_faq:
+                showFAQDialog();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -481,6 +483,31 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }catch(Exception ex){
             Log.e("Fehler im Tourguide:", "Folgender Fehler: "+ex);
         }
+    }
+    public void showFAQDialog(){
+        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("FAQ - Häufig gestellte Fragen");
+        TextView creditTextView = new TextView(this);
+        creditTextView.setPadding(15,15,15,15);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            creditTextView.setText(Html.fromHtml(getString(R.string.faq_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+        }else{
+            creditTextView.setText(Html.fromHtml(getString(R.string.faq_text),null, new UITagHandler()));
+        }
+        //Important to make the hrefs clickable
+        //creditTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+
+        builderDialogBuilder.setView(creditTextView);
+        // Set up the buttons
+        builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
     public void showOrganizerDialog(){
         builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
