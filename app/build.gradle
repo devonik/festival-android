@@ -1,0 +1,99 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'FestivaltickerKey'
+            keyPassword 'ANDRO!Dniki2694'
+            storeFile file('F:/AndroidApps/keystores/android.jks')
+            storePassword 'ANDRO!Dniki2694'
+        }
+    }
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "devnik.trancefestivalticker"
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionCode 15
+        versionName "1.2 Release VR - Header Year Fix"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true //important
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+    }
+}
+apply plugin: 'org.greenrobot.greendao' // apply plugin
+apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.firebase-perf'
+
+greendao {
+    schemaVersion 9
+}
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    //Google Services
+    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:17.0.0'
+    implementation 'com.google.firebase:firebase-ads:15.0.1'
+    //VR
+    // VR PANORAMA
+    implementation 'com.google.vr:sdk-panowidget:1.150.0'
+    //VR VIDEO
+    implementation 'com.google.vr:sdk-videowidget:1.150.0'
+
+
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
+    implementation 'com.google.firebase:firebase-perf:16.0.0'
+    implementation 'com.google.maps:google-maps-services:0.2.6'
+    implementation 'com.google.maps.android:android-maps-utils:0.4.4'
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+    implementation 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.2.0'
+    // RecyclerView
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    //Sync
+    implementation 'com.loopj.android:android-async-http:1.4.9'
+    //google-gson
+    implementation 'com.google.code.gson:gson:2.8.2'
+    //Spring rest
+    implementation 'org.springframework.android:spring-android-rest-template:2.0.0.M3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
+    //object mapping
+
+    implementation 'org.greenrobot:greendao:3.2.2'
+    // add library
+    // volley
+    implementation 'com.android.volley:volley:1.0.0'
+    //Image Slider -- https://github.com/daimajia/AndroidImageSlider
+    implementation 'com.squareup.picasso:picasso:2.3.2'
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation 'com.daimajia.slider:library:1.1.5@aar'
+
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+
+    //Showcase libary showing at user 1st time
+    implementation ('com.github.worker8:tourguide:1.0.19-SNAPSHOT@aar') {
+        transitive=true
+    }
+
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    //Rating app
+    implementation 'io.github.kobakei:ratethisapp:1.2.0'
+}
+//Wichtig: als letztes laden
+apply plugin: 'com.google.gms.google-services'
