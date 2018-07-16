@@ -149,6 +149,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         if(today.after(end)){
             //Festival is expired
             itemHolder.festivalOverBadgeIcon.setVisibility(View.VISIBLE);
+        }else{
+            itemHolder.festivalOverBadgeIcon.setVisibility(View.GONE);
         }
 
     }
@@ -171,7 +173,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 return "( Morgen ist es soweit !! )";
             }
 
-        }else if(today.after(start)){
+        }else if(today.after(end)){
             //Festival is expired
             return "( Abgelaufen! )";
         }

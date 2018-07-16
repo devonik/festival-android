@@ -10,9 +10,10 @@
     android:weightSum="1.0">
 
     <LinearLayout
+        android:id="@+id/linear_layout_slider"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_weight="0.4"
         android:orientation="vertical">
 
         <com.daimajia.slider.library.SliderLayout
@@ -47,7 +48,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.5">
+        android:layout_weight="0.6">
 
         <ScrollView
             android:id="@+id/scrollView"

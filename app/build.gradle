@@ -14,8 +14,8 @@ android {
         applicationId "devnik.trancefestivalticker"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 15
-        versionName "1.2 Release VR - Header Year Fix"
+        versionCode 18
+        versionName "1.2 Release VR - Whats New Menu Item + Fix Tour Guide"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }
@@ -38,16 +38,16 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     //Google Services
-    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-messaging:17.0.0'
-    implementation 'com.google.firebase:firebase-ads:15.0.1'
+    //implementation 'com.google.firebase:firebase-ads:15.0.1'
     //VR
     // VR PANORAMA
     implementation 'com.google.vr:sdk-panowidget:1.150.0'
@@ -55,7 +55,7 @@ dependencies {
     implementation 'com.google.vr:sdk-videowidget:1.150.0'
 
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.4'
     implementation 'com.google.firebase:firebase-perf:16.0.0'
     implementation 'com.google.maps:google-maps-services:0.2.6'
     implementation 'com.google.maps.android:android-maps-utils:0.4.4'

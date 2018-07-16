@@ -10,6 +10,8 @@
     <string name="devnik.trancefestivalticker.preference_map_car_route" />
     <string name="devnik.trancefestivalticker.preference_need_tour_guide" />
     <string name="devnik.trancefestivalticker.preference_last_sync" />
+    <string name="devnik.trancefestivalticker.preference_whats_new_done" />
+
     <string name="devnik.trancefestivalticker.account_name" />
     <string name="sync_account_type">devnik.trancefestivalticker</string>
 

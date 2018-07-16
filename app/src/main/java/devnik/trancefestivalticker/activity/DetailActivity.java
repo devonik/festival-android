@@ -88,6 +88,8 @@ public class DetailActivity extends AppCompatActivity{
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+
+
     }
     public void enablePermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)

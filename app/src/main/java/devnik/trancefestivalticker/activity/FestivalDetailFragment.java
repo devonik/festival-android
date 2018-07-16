@@ -13,7 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,8 +57,9 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private List<FestivalDetailImages> festivalDetailImages;
 
     private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price, ticketPhaseTitle;
+    private ScrollView scrollView;
     private SliderLayout imageSlider;
-
+    private LinearLayout linearLayoutSlider;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -70,8 +75,8 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         description = (TextView) view.findViewById(R.id.description);
 
         imageSlider = (SliderLayout) view.findViewById(R.id.slider);
-        //Scale slider
-
+        scrollView = (ScrollView) view.findViewById(R.id.scrollView);
+        linearLayoutSlider = (LinearLayout) view.findViewById(R.id.linear_layout_slider);
 
         assert getArguments() != null;
         festival = (Festival) getArguments().getSerializable("festival");
@@ -89,6 +94,28 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             loadData();
         }
+
+        //Try to scale image slider down if the scroll view is taken
+        /*scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            boolean isShow = true;
+            @Override
+            public void onScrollChanged() {
+                int scrollY = scrollView.getScrollY();
+                int scrollX = scrollView.getScrollX();
+                Log.e("OnScrollChange", "scrollY: "+scrollY+ "...scrollX"+scrollX);
+                if(scrollY>=40){
+                    isShow = true;
+                    Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.scale_down);
+                    linearLayoutSlider.startAnimation(animation);
+                    linearLayoutSlider.setVisibility(View.GONE);
+                }else if(isShow){
+                    Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.scale_up);
+                    linearLayoutSlider.startAnimation(animation);
+                    linearLayoutSlider.setVisibility(View.VISIBLE);
+                    isShow = false;
+                }
+            }
+        });*/
         return view;
     }
     public String festivalStatus(){

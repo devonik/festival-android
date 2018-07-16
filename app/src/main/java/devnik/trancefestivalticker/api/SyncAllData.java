@@ -289,6 +289,12 @@ public class SyncAllData {
                 updateSQLiteWhatsNew(whatsNews);
             }
 
+            //Whats New Popup should pop up
+            //Shared Preference
+            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+            sharedPrefEditor.putString(context.getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
+            sharedPrefEditor.apply();
+
         } catch (Exception e) {
             Log.e("loadWhatsNew()", e.getMessage(), e);
         }

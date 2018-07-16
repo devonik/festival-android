@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private SharedPreferences sharedPref;
     private String preferenceUserNeedGuiding;
 
+    //Whats New
+    private String getPreferenceWhatsNewDone;
+
     public ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
 
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 
         preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
+        getPreferenceWhatsNewDone = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
         isAppRunning = true;
         /* setup enter and exit animation */
         //For Touring
@@ -143,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         updateFestivalThumbnailView();
 
 
-        if(whatsNews.size() >0){
+        if(whatsNews.size() >0 && getPreferenceWhatsNewDone.equals("no")){
             //Wenn Whats new einträge vorhanden sind
             initWhatsNewDialog();
         }
@@ -164,28 +169,35 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public void initWhatsNewDialog(){
         HashMap<String, List<String>> hashMap = new HashMap<String, List<String>>();
         StringBuilder stringBuilder = new StringBuilder();
-        for(WhatsNew item : whatsNews){
-            stringBuilder.append(item.getContent());
-            stringBuilder.append("\n\n");
+        if(whatsNews.size() == 0){
+            stringBuilder.append("Es sind keine Informationen vorhanden!");
+        }else{
+            for(WhatsNew item : whatsNews){
+                stringBuilder.append(item.getContent());
+                stringBuilder.append("\n\n");
+            }
         }
 
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(MainActivity.this);
-        }
-        builder.setTitle("News")
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("News")
                 .setMessage("Letzte Änderungen:\n\n "+stringBuilder)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        whatsNewDao.deleteAll();
-                        dialog.cancel();
 
+                        if (getPreferenceWhatsNewDone.equals("no")) {
+                            //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
+                            //Shared Preference
+                            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                            sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "yes");
+                            sharedPrefEditor.apply();
+                        }
+                        dialog.cancel();
                     }
                 })
-                .setIcon(R.drawable.no_internet)
-                .show();
+                .setIcon(R.drawable.news);
+
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
     }
     @Override
     protected void onResume()
@@ -296,10 +308,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(sectionAdapter);
 
-        //Initialize Progress Dialog properties
-        ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Transfering Data from Remote MySQL DB and Syncing SQLite. Please wait...");
-        pDialog.setCancelable(false);
 
         setSupportActionBar(toolbar);
 
@@ -331,8 +339,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 Toast.makeText(this,"Festivals konnten nicht geladen werden. Hast du Netz?",Toast.LENGTH_SHORT).show();
             }
 
-                //}
-            //});
         }
 
         return true;
@@ -362,6 +368,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 return true;
             case R.id.menu_faq:
                 showFAQDialog();
+                return true;
+            case R.id.whats_new:
+                initWhatsNewDialog();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -411,7 +421,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             RecyclerView.ViewHolder firstFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(1);
             View firstFestivalView = firstFestivalViewHolder.itemView;
 
-
             ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
                     .setToolTip(new ToolTip()
                             .setTitle("Langer Touch")
@@ -421,19 +430,32 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     .setOverlay(overlay)
                     .playLater(firstFestivalView);
 
-
-            RecyclerView.ViewHolder secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(2);
+            Integer secondFestivalPosition = 2;
+            RecyclerView.ViewHolder secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(secondFestivalPosition);
             View secondFestivalView = secondFestivalViewHolder.itemView;
 
-            ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
-                    .setToolTip(new ToolTip()
-                            .setTitle("Normaler Touch")
-                            .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
-                            .setGravity(Gravity.TOP | Gravity.START)
-                    )
-                    .setOverlay(overlay)
-                    .playLater(secondFestivalView);
+                ChainTourGuide tourGuide3 = ChainTourGuide.init(this)
+                        .setToolTip(new ToolTip()
+                                .setTitle("Normaler Touch")
+                                .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
+                                .setGravity(Gravity.TOP | Gravity.START)
+                        )
+                        .setOverlay(overlay)
+                        .playLater(secondFestivalView);
+            // View Type 6 = Header, 2 = Item
+            if(secondFestivalViewHolder.getItemViewType() == 6){
+                secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(secondFestivalPosition+1);
+                secondFestivalView = secondFestivalViewHolder.itemView;
 
+                tourGuide3 = ChainTourGuide.init(this)
+                        .setToolTip(new ToolTip()
+                                .setTitle("Normaler Touch")
+                                .setDescription("Wenn du ein Element kurz berührst öffnet sich eine Detail Ansicht. Dort findest du weitere Infos und Features zum Festival")
+                                .setGravity(Gravity.TOP | Gravity.END)
+                        )
+                        .setOverlay(overlay)
+                        .playLater(secondFestivalView);
+            }
             ChainTourGuide tourGuide4 = ChainTourGuide.init(this)
                     .setToolTip(new ToolTip()
                             .setTitle("Hilfe")
@@ -485,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
     }
     public void showFAQDialog(){
-        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("FAQ - Häufig gestellte Fragen");
         TextView creditTextView = new TextView(this);
         creditTextView.setPadding(15,15,15,15);
@@ -505,12 +527,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
-        });
+        }).setIcon(R.drawable.faq);
+
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }
     public void showOrganizerDialog(){
-        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("Ihre Präsenzmöglichkeiten");
         TextView creditTextView = new TextView(this);
         creditTextView.setPadding(15,15,15,15);
@@ -530,14 +553,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
-        });
+        }).setIcon(R.drawable.organizer);
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }
     private void showPolicy(){
 
-        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
-        builderDialogBuilder.setTitle("Impressum");
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
         WebView wv = new WebView(this);
         wv.loadUrl(getString(R.string.policy_url));
@@ -556,17 +578,19 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         builderDialogBuilder.setView(wv);
         // Set up the buttons
         builderDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(R.drawable.paragraph);
+
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }
     private void showCredits(){
 
-        builderDialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("Sonstiges");
         TextView creditTextView = new TextView(this);
         creditTextView.setPadding(15,15,15,15);
@@ -586,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
-        });
+        }).setIcon(R.drawable.credits);
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }

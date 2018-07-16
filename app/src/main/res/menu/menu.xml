@@ -21,6 +21,9 @@
         <item
             android:id="@+id/menu_faq"
             android:title="FAQ"/>
+        <item
+            android:id="@+id/whats_new"
+            android:title="Letzte Änderungen"/>
     </group>
 
 </menu>
