@@ -14,8 +14,8 @@ android {
         applicationId "devnik.trancefestivalticker"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 19
-        versionName "1.2 Release VR - Shared Preferences Fix"
+        versionCode 20
+        versionName "1.2 Release VR - VR Video/Photo Tab fix"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }

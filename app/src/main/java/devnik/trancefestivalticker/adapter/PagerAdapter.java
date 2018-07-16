@@ -55,18 +55,30 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 tab2.setArguments(festivalBundle);
                 return tab2;
             case 2:
-                VRPanoView tab3 = new VRPanoView();
-                Bundle photoVrBundle = new Bundle();
-                photoVrBundle.putSerializable("photoVrView", photoVrView);
+                if(photoVrView != null) {
+                    VRPanoView tab3 = new VRPanoView();
+                    Bundle photoVrBundle = new Bundle();
+                    photoVrBundle.putSerializable("photoVrView", photoVrView);
 
-                tab3.setArguments(photoVrBundle);
-                return tab3;
+                    tab3.setArguments(photoVrBundle);
+                    return tab3;
+                }else if(videoVrView != null) {
+                    VRVideoView tab4 = new VRVideoView();
+                    Bundle videoVrBundle = new Bundle();
+                    videoVrBundle.putSerializable("videoVrView", videoVrView);
+                    tab4.setArguments(videoVrBundle);
+                    return tab4;
+                }
+                return null;
             case 3:
-                VRVideoView tab4 = new VRVideoView();
-                Bundle videoVrBundle = new Bundle();
-                videoVrBundle.putSerializable("videoVrView", videoVrView);
-                tab4.setArguments(videoVrBundle);
-                return tab4;
+                if(videoVrView != null) {
+                    VRVideoView tab4 = new VRVideoView();
+                    Bundle videoVrBundle = new Bundle();
+                    videoVrBundle.putSerializable("videoVrView", videoVrView);
+                    tab4.setArguments(videoVrBundle);
+                    return tab4;
+                }
+                return null;
             default:
                 return null;
         }
