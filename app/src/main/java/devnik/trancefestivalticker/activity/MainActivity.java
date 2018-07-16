@@ -45,6 +45,8 @@ import devnik.trancefestivalticker.adapter.IFilterableSection;
 import devnik.trancefestivalticker.adapter.SectionAdapter;
 import devnik.trancefestivalticker.helper.MultiSelectionSpinner;
 import devnik.trancefestivalticker.helper.UITagHandler;
+import devnik.trancefestivalticker.model.AppInfo;
+import devnik.trancefestivalticker.model.AppInfoDao;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -57,6 +59,7 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
+import devnik.trancefestivalticker.sync.SyncAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import tourguide.tourguide.ChainTourGuide;
@@ -80,7 +83,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //Tour Guide
     private SharedPreferences sharedPref;
     private String preferenceUserNeedGuiding;
-
+    //Last Sync
+    private String preferenceLastSync;
     //Whats New
     private String getPreferenceWhatsNewDone;
 
@@ -89,13 +93,22 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     private AlertDialog.Builder builderDialogBuilder;
 
+    //App Meta Data in DB
+    private AppInfoDao appInfoDao;
+    private AppInfo appInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DaoSession daoSession = ((App) this.getApplication()).getDaoSession();
+
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        appInfoDao = daoSession.getAppInfoDao();
+        appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).build().unique();
 
         preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
         getPreferenceWhatsNewDone = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
+        preferenceLastSync = appInfo.getLastSync();//sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_last_sync), "Noch nicht gesynct");
         isAppRunning = true;
         /* setup enter and exit animation */
         //For Touring
@@ -107,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         exitAnimation.setDuration(600);
         exitAnimation.setFillAfter(true);
 
-        DaoSession daoSession = ((App) this.getApplication()).getDaoSession();
+
 
         setContentView(R.layout.activity_main);
 
@@ -148,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         updateFestivalThumbnailView();
 
 
-        if(whatsNews.size() >0 && getPreferenceWhatsNewDone.equals("no")){
+        if(whatsNews.size() > 0 && appInfo.getWhatsNewDone().equals("no")){
             //Wenn Whats new einträge vorhanden sind
             initWhatsNewDialog();
         }
@@ -166,39 +179,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         // If the condition is satisfied, "Rate this app" dialog will be shown
         RateThisApp.showRateDialogIfNeeded(this);
     }
-    public void initWhatsNewDialog(){
-        HashMap<String, List<String>> hashMap = new HashMap<String, List<String>>();
-        StringBuilder stringBuilder = new StringBuilder();
-        if(whatsNews.size() == 0){
-            stringBuilder.append("Es sind keine Informationen vorhanden!");
-        }else{
-            for(WhatsNew item : whatsNews){
-                stringBuilder.append(item.getContent());
-                stringBuilder.append("\n\n");
-            }
-        }
 
-        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-        builderDialogBuilder.setTitle("News")
-                .setMessage("Letzte Änderungen:\n\n "+stringBuilder)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        if (getPreferenceWhatsNewDone.equals("no")) {
-                            //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
-                            //Shared Preference
-                            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
-                            sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "yes");
-                            sharedPrefEditor.apply();
-                        }
-                        dialog.cancel();
-                    }
-                })
-                .setIcon(R.drawable.news);
-
-        builderDialogBuilder.create();
-        builderDialogBuilder.show();
-    }
     @Override
     protected void onResume()
     {
@@ -332,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
         MenuItem menuItemShowGuide = menu.findItem(R.id.action_show_tour_guide);
-        if(preferenceUserNeedGuiding.equals("yes")) {
+        if(appInfo.getFinishedTourGuide().equals("no")) {
             if(festivals.size()>0){
                 runOverlay_TourGuide();
             }else{
@@ -378,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
     private void runOverlay_TourGuide(){
         try {
+
             //Scroll to top
             recyclerView.smoothScrollToPosition(0);
             Overlay overlay = new Overlay()
@@ -472,12 +454,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                             .setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if (preferenceUserNeedGuiding.equals("yes")) {
+                                    if (appInfo.getFinishedTourGuide().equals("no")) {
                                         //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
                                         //Shared Preference
-                                        SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                                        /*SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
                                         sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "no");
-                                        sharedPrefEditor.apply();
+                                        sharedPrefEditor.apply();*/
+                                        appInfo.setFinishedTourGuide("yes");
+                                        appInfoDao.update(appInfo);
                                     }
                                     mTourGuideHandler.next();
                                 }
@@ -611,6 +595,45 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 dialog.dismiss();
             }
         }).setIcon(R.drawable.credits);
+        builderDialogBuilder.create();
+        builderDialogBuilder.show();
+    }
+    public void initWhatsNewDialog(){
+        StringBuilder stringBuilder = new StringBuilder();
+        if(whatsNews.size() == 0){
+            stringBuilder.append("Es sind keine Informationen vorhanden!");
+        }else{
+            for(WhatsNew item : whatsNews){
+                stringBuilder.append(item.getContent())
+                             .append("\n\n");
+            }
+        }
+        TextView textView = new TextView(this);
+        textView.setText("Letzte Sync: "+preferenceLastSync);
+        textView.setTextSize(12);
+        textView.setGravity(Gravity.END);
+
+        builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+        builderDialogBuilder.setTitle("News")
+                .setMessage("Letzte Änderungen:\n\n "+stringBuilder)
+                .setView(textView)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if (appInfo.getWhatsNewDone().equals("no")) {
+                            //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
+                            //Shared Preference
+                            /*SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                            sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "yes");
+                            sharedPrefEditor.apply();*/
+                            appInfo.setWhatsNewDone("yes");
+                            appInfoDao.update(appInfo);
+                        }
+                        dialog.cancel();
+                    }
+                })
+                .setIcon(R.drawable.news);
+
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }

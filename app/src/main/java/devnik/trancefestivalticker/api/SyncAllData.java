@@ -11,8 +11,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.model.AppInfo;
+import devnik.trancefestivalticker.model.AppInfoDao;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
@@ -49,6 +52,7 @@ public class SyncAllData {
     private FestivalTicketPhaseDao festivalTicketPhaseDao;
     private WhatsNewDao whatsNewDao;
     private FestivalVrViewDao festivalVrViewDao;
+    private AppInfoDao appInfoDao;
 
     public SyncAllData(DaoSession daoSession, Context context){
         this.context = context;
@@ -64,6 +68,7 @@ public class SyncAllData {
         festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
         whatsNewDao = daoSession.getWhatsNewDao();
         festivalVrViewDao = daoSession.getFestivalVrViewDao();
+        appInfoDao = daoSession.getAppInfoDao();
 
         loadFestivals();
         loadFestivalDetails();
@@ -274,13 +279,15 @@ public class SyncAllData {
     /**************************************WhatsNew****************************************************/
     private void loadWhatsNew(){
         try {
+            AppInfo appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).unique();
+            String preferenceLastOnline = appInfo.getLastSync();
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-            String preferenceLastOnline = sharedPref.getString(context.getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss", new Date()).toString());
-            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
             String url = "https://festivalticker.herokuapp.com/api/v1/whatsNewBetweenDates?start="+
-                    DateFormat.format("dd.MM.yyyy HH:mm:ss",format.parse(preferenceLastOnline))+
+                    preferenceLastOnline+
                     "&end="+
-                    DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date());
+                    simpleDateFormat.format(new Date());
             Log.e("loadWhatsNewURL",url);
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -291,9 +298,14 @@ public class SyncAllData {
 
             //Whats New Popup should pop up
             //Shared Preference
-            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+            /*SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
             sharedPrefEditor.putString(context.getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
-            sharedPrefEditor.apply();
+            sharedPrefEditor.apply();*/
+            if(appInfo.getWhatsNewDone().equals("yes")){
+                appInfo.setWhatsNewDone("no");
+                appInfoDao.update(appInfo);
+            }
+
 
         } catch (Exception e) {
             Log.e("loadWhatsNew()", e.getMessage(), e);

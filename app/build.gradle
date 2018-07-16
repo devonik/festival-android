@@ -14,8 +14,8 @@ android {
         applicationId "devnik.trancefestivalticker"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 18
-        versionName "1.2 Release VR - Whats New Menu Item + Fix Tour Guide"
+        versionCode 19
+        versionName "1.2 Release VR - Shared Preferences Fix"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }
@@ -32,7 +32,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 greendao {
-    schemaVersion 9
+    schemaVersion 10
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')

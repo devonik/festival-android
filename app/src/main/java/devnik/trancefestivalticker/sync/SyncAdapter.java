@@ -24,12 +24,16 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.security.ProviderInstaller;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.activity.SplashActivity;
 import devnik.trancefestivalticker.api.SyncAllData;
+import devnik.trancefestivalticker.model.AppInfo;
+import devnik.trancefestivalticker.model.AppInfoDao;
 import devnik.trancefestivalticker.model.DaoSession;
 
 /**
@@ -111,10 +115,25 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         DaoSession daoSession = ((App) getContext()).getDaoSession();
         try{
             new SyncAllData(daoSession, getContext());
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            AppInfoDao appInfoDao = daoSession.getAppInfoDao();
+            AppInfo appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).build().unique();
+            if(appInfo == null){
+                //User is new - new Meta Info needed
+                Log.e("new App","test");
+                appInfo = new AppInfo();
+                appInfo.setId(1L);
+            }
+            SimpleDateFormat readDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            readDate.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+            appInfo.setLastSync(readDate.format(new Date()));
+            Log.e("App is getting sync",readDate.format(new Date()));
+            appInfoDao.insertOrReplace(appInfo);
+            /*SharedPreferences sharedPref = getContext().getSharedPreferences(
+                    getContext().getPackageName() + "_preferences",
+                    Context.MODE_MULTI_PROCESS);
             SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
             sharedPrefEditor.putString(getContext().getString(R.string.devnik_trancefestivalticker_preference_last_sync), DateFormat.format("dd.MM.yyyy HH:mm:ss",new Date()).toString());
-            sharedPrefEditor.apply();
+            sharedPrefEditor.apply();*/
         }catch(Exception e){
             Log.e("SyncAdapter", "Cant get Data: "+e);
         }
