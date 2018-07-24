@@ -372,7 +372,7 @@ private AlertDialog errorLoadingDialog;
     public void fileBrokenNeedReDownload() {
         if (errorLoadingDialog == null) {
             AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
-            builderDialogBuilder.setTitle("Video Download");
+            builderDialogBuilder.setTitle("Video Fehlerhaft. Oops!");
             TextView creditTextView = new TextView(getActivity());
             creditTextView.setPadding(15, 15, 15, 15);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
