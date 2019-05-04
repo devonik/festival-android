@@ -280,8 +280,15 @@ public class SyncAllData {
     private void loadWhatsNew(){
         try {
             AppInfo appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).unique();
+            if(appInfo == null){
+                AppInfo newAppInfo = new AppInfo();
+                newAppInfo.setFinishedTourGuide("no");
+                newAppInfo.setWhatsNewDone("no");
+                appInfoDao.insert(newAppInfo);
+                appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).unique();
+            }
+
             String preferenceLastOnline = appInfo.getLastSync();
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
             String url = "https://festivalticker.herokuapp.com/api/v1/whatsNewBetweenDates?start="+

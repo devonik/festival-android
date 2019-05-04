@@ -1,6 +1,8 @@
-package devnik.trancefestivalticker.activity;
+package devnik.trancefestivalticker.activity.detail;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -10,6 +12,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import org.greenrobot.greendao.query.Query;
+
+import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -21,6 +25,8 @@ import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
 import devnik.trancefestivalticker.model.FestivalVrView;
 import devnik.trancefestivalticker.model.FestivalVrViewDao;
+import devnik.trancefestivalticker.model.UserTickets;
+import devnik.trancefestivalticker.model.UserTicketsDao;
 
 
 /**
@@ -29,11 +35,13 @@ import devnik.trancefestivalticker.model.FestivalVrViewDao;
 
 public class DetailActivity extends AppCompatActivity{
     private ViewPager viewPager;
+    private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         enablePermissions();
 
-        DaoSession daoSession1 = ((App) getApplication()).getDaoSession();
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        DaoSession daoSession = ((App) getApplication()).getDaoSession();
         Bundle extras = getIntent().getExtras();
 
         assert extras != null;
@@ -44,12 +52,11 @@ public class DetailActivity extends AppCompatActivity{
         setContentView(R.layout.activity_detail);
 
 
-        FestivalDetailDao festivalDetailDao = daoSession1.getFestivalDetailDao();
+        FestivalDetailDao festivalDetailDao = daoSession.getFestivalDetailDao();
         assert festival != null;
         Query<FestivalDetail> festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
         FestivalDetail festivalDetail = festivalDetailQuery.unique();
 
-        DaoSession daoSession = ((App)this.getApplication()).getDaoSession();
         FestivalVrViewDao festivalVrViewDao = daoSession.getFestivalVrViewDao();
         FestivalVrView photoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
         FestivalVrView videoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
@@ -63,6 +70,17 @@ public class DetailActivity extends AppCompatActivity{
         if(videoVrView != null) {
             tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
         }
+
+        //Look for existing festival tickets
+        UserTicketsDao userTicketsDao = daoSession.getUserTicketsDao();
+        Long ticketCount = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).count();
+
+        if(ticketCount > 0){
+            tabLayout.addTab(tabLayout.newTab().setText("Tickets"));
+        }else{
+            tabLayout.addTab(tabLayout.newTab().setText("Import Tickets"));
+        }
+
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final PagerAdapter adapter = new PagerAdapter

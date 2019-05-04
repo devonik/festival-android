@@ -5,12 +5,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import java.util.List;
-
-import devnik.trancefestivalticker.activity.FestivalDetailFragment;
-import devnik.trancefestivalticker.activity.MapFragmentDialog;
-import devnik.trancefestivalticker.activity.VRPanoView;
-import devnik.trancefestivalticker.activity.VRVideoView;
+import devnik.trancefestivalticker.activity.detail.FestivalDetailFragment;
+import devnik.trancefestivalticker.activity.detail.MapFragmentDialog;
+import devnik.trancefestivalticker.activity.detail.TicketFragmentDialog;
+import devnik.trancefestivalticker.activity.detail.VRPanoView;
+import devnik.trancefestivalticker.activity.detail.VRVideoView;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
@@ -68,15 +67,25 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                     videoVrBundle.putSerializable("videoVrView", videoVrView);
                     tab4.setArguments(videoVrBundle);
                     return tab4;
+                }else{
+                    TicketFragmentDialog tab5 = new TicketFragmentDialog();
+                    tab5.setArguments(festivalBundle);
+                    return tab5;
                 }
-                return null;
             case 3:
-                if(videoVrView != null) {
+                if(photoVrView != null && videoVrView != null) {
                     VRVideoView tab4 = new VRVideoView();
                     Bundle videoVrBundle = new Bundle();
                     videoVrBundle.putSerializable("videoVrView", videoVrView);
                     tab4.setArguments(videoVrBundle);
                     return tab4;
+                }
+                return null;
+            case 4:
+                if(photoVrView != null && videoVrView != null) {
+                    TicketFragmentDialog tab5 = new TicketFragmentDialog();
+                    tab5.setArguments(festivalBundle);
+                    return tab5;
                 }
                 return null;
             default:

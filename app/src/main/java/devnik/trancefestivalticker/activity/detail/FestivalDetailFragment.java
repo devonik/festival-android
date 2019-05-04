@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity;
+package devnik.trancefestivalticker.activity.detail;
 
 import android.os.Build;
 import android.os.Bundle;

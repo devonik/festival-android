@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity;
+package devnik.trancefestivalticker.activity.detail;
 
 
 import android.Manifest;
@@ -32,6 +32,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
@@ -182,7 +184,7 @@ public class MapFragmentDialog extends DialogFragment  implements
         showRoute.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                 getDeviceLocation();
+                getRouteToFestival();
             }
         });
     }
@@ -211,33 +213,23 @@ public class MapFragmentDialog extends DialogFragment  implements
 
         try {
             if (!mPermissionDenied) {
-
-                Task<Location> locationResult = mFusedLocationClient.getLastLocation();
-                locationResult.addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            if(mLastKnownLocation == null){
-                                Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
-                            }else{
-                                if(carPolyline!=null){
-                                    //Wenn es eine gecachte Polyline gibt
-                                    carPolyline.remove();
+                mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(Objects.requireNonNull(getActivity()), new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                // Got last known location. In some rare situations, this can be null.
+                                if (location != null) {
+                                    mLastKnownLocation = location;
+                                    // Logic to handle location object
+                                    if(carPolyline!=null){
+                                        //Wenn es eine gecachte Polyline gibt
+                                        carPolyline.remove();
+                                    }
+                                }else{
+                                    Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
                                 }
-                                getDirections();
                             }
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(festivalLocation, DEFAULT_ZOOM));
-                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                        }
-
-                    }
-                });
+                        });
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
@@ -262,12 +254,19 @@ public class MapFragmentDialog extends DialogFragment  implements
     public boolean onMyLocationButtonClick() {
         if(mLastKnownLocation==null) {
             getDeviceLocation();
+            moveCameraToCurrentLocation();
         }
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
     }
-
+    private void moveCameraToCurrentLocation(){
+        if(mLastKnownLocation!=null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(mLastKnownLocation.getLatitude(),
+                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+        }
+    }
     @Override
     public void onMyLocationClick(@NonNull Location location) {
 
@@ -290,47 +289,48 @@ public class MapFragmentDialog extends DialogFragment  implements
         }
     }
 
-    private void getDirections(){
+    private void getRouteToFestival(){
+        if(mLastKnownLocation == null){
+            getDeviceLocation();
+        }else {
+            GeoApiContext context = new GeoApiContext.Builder()
+                    .apiKey("AIzaSyAIQW5j7KSy--4ITxKDQTfWMc-pis_iyPs")
+                    .build();
+            com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
+            DirectionsApiRequest req = DirectionsApi.newRequest(context)
+                    .origin(origin)
+                    .destination(destination)
+                    .language("de");
+            // Synchronous
+            try {
+                DirectionsResult result = req.await();
+                // Handle successful request.
+                for (int i = 0; i < result.routes.length; i++) {
+                    String distance = result.routes[i].legs[i].distance.toString();
+                    String time = result.routes[i].legs[i].duration.toString();
+                    IconGenerator iconFactory = new IconGenerator(getActivity());
+                    iconFactory.setRotation(90);
+                    iconFactory.setContentRotation(-90);
+                    iconFactory.setStyle(IconGenerator.STYLE_BLUE);
+                    addIcon(iconFactory, "Das Ziel ist " + distance + " von dir entfernt\n und dauert ca. " + time + " mit dem Auto", new LatLng(result.routes[i].legs[i].startLocation.lat, result.routes[i].legs[i].startLocation.lng));
+                }
+                String encodedPath = result.routes[0].overviewPolyline.getEncodedPath();
+                List<LatLng> list = PolyUtil.decode(encodedPath);
+                mMap.addPolyline(new PolylineOptions()
+                        .addAll(list)
+                        .color(Color.RED)
+                        .geodesic(true)
+                );
+                moveCameraToCurrentLocation();
 
-        GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey("AIzaSyAIQW5j7KSy--4ITxKDQTfWMc-pis_iyPs")
-                .build();
-        com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(),festivalDetail.getGeoLongitude());
-        DirectionsApiRequest req = DirectionsApi.newRequest(context)
-                .origin(origin)
-                .destination(destination)
-                .language("de");
-        // Synchronous
-        try {
-            DirectionsResult result = req.await();
-            // Handle successful request.
-            for(int i = 0; i<result.routes.length;i++){
-                String distance = result.routes[i].legs[i].distance.toString();
-                String time = result.routes[i].legs[i].duration.toString();
-                IconGenerator iconFactory = new IconGenerator(getActivity());
-                iconFactory.setRotation(90);
-                iconFactory.setContentRotation(-90);
-                iconFactory.setStyle(IconGenerator.STYLE_BLUE);
-                addIcon(iconFactory, "Das Ziel ist "+distance+" von dir entfernt\n und dauert ca. "+time+" mit dem Auto", new LatLng(result.routes[i].legs[i].startLocation.lat, result.routes[i].legs[i].startLocation.lng));
+                //Shared Preference
+                SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), encodedPath);
+                sharedPrefEditor.apply();
+            } catch (Exception e) {
+                // Handle error
             }
-            String encodedPath = result.routes[0].overviewPolyline.getEncodedPath();
-            List<LatLng> list = PolyUtil.decode(encodedPath);
-            mMap.addPolyline(new PolylineOptions()
-                    .addAll(list)
-                    .color(Color.RED)
-                    .geodesic(true)
-                    );
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(mLastKnownLocation.getLatitude(),
-                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-
-            //Shared Preference
-            SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
-            sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_map_car_route), encodedPath);
-            sharedPrefEditor.apply();
-        } catch (Exception e) {
-            // Handle error
         }
 
     }

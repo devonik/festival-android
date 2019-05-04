@@ -1,27 +1,21 @@
-package devnik.trancefestivalticker.activity;
+package devnik.trancefestivalticker.activity.detail;
 
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener;
@@ -41,7 +35,6 @@ import java.net.URLConnection;
 import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.model.FestivalVrView;
 

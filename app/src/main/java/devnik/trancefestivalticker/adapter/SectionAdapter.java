@@ -2,17 +2,10 @@ package devnik.trancefestivalticker.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,12 +13,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 
-import org.greenrobot.greendao.query.Query;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -35,14 +24,10 @@ import java.util.List;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.activity.DetailActivity;
-import devnik.trancefestivalticker.helper.BitmapUtils;
+import devnik.trancefestivalticker.activity.detail.DetailActivity;
 import devnik.trancefestivalticker.model.CustomDate;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
-import devnik.trancefestivalticker.model.FestivalDao;
-import devnik.trancefestivalticker.model.FestivalDetail;
-import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
 import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
 import devnik.trancefestivalticker.model.MusicGenre;
@@ -50,7 +35,6 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 
 /**
  * Created by nik on 21.02.2018.

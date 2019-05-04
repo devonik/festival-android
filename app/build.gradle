@@ -32,7 +32,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 greendao {
-    schemaVersion 10
+    schemaVersion 11
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')

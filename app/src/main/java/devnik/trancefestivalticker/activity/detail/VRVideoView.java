@@ -1,40 +1,26 @@
-package devnik.trancefestivalticker.activity;
+package devnik.trancefestivalticker.activity.detail;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.disklrucache.DiskLruCache;
-import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener;
-import com.google.vr.sdk.widgets.pano.VrPanoramaView;
-import com.google.vr.sdk.widgets.pano.VrPanoramaView.Options;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -51,9 +37,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
-import devnik.trancefestivalticker.Manifest;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.helper.GetBitmapFromURLAsync;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.FestivalVrView;
