@@ -18,6 +18,19 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floating_btn_remove_tickets"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/outline_indeterminate_check_box_black_24"
+        android:tint="#43C6AC"
+        app:backgroundTint="#191654"
+        android:layout_margin="16dp"
+        android:visibility="gone"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_btn_add_ticket"
         android:layout_width="wrap_content"
@@ -27,6 +40,8 @@
         android:src="@drawable/baseline_add_circle_outline_black_24"
         android:tint="#43C6AC"
         app:backgroundTint="#191654"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:visibility="gone"/>
+
 
 </RelativeLayout>

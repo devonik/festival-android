@@ -13,6 +13,7 @@ import com.shockwave.pdfium.PdfiumCore;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.util.Objects;
 
 public class PDFUtils {
     //PdfiumAndroid (https://github.com/barteksc/PdfiumAndroid)
@@ -31,7 +32,10 @@ public class PDFUtils {
             pdfiumCore.renderPageBitmap(pdfDocument, bmp, pageNumber, 0, 0, width, height);
 
             pdfiumCore.closeDocument(pdfDocument); // important!
-            String folderToSave = Environment.getExternalStorageDirectory() + "/PDF";
+            String folderToSave = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                    !Environment.isExternalStorageRemovable() ? Objects.requireNonNull(context.getExternalCacheDir()).getPath() :
+                    context.getCacheDir().getPath();
+            folderToSave += "/pdfThumbs";
             return BitmapUtils.saveThumbnail(bmp, FilenameUtils.getBaseName(pdfUri.getPath()), new File(folderToSave));
         } catch(Exception e) {
             //todo with exception

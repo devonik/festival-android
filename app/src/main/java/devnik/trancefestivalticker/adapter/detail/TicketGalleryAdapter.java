@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.net.URI;
+import java.util.EventListener;
 import java.util.List;
 
 import devnik.trancefestivalticker.R;
@@ -25,17 +26,19 @@ import devnik.trancefestivalticker.activity.detail.TicketDetailActivity;
 import devnik.trancefestivalticker.helper.PDFUtils;
 import devnik.trancefestivalticker.model.UserTickets;
 
-public class TicketGalleryAdapter extends RecyclerView.Adapter<TicketGalleryAdapter.ViewHolder>  {
+public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter.ViewHolder>  {
     private List<UserTickets> userTickets;
     private Context context;
 
-    private EventListener ticketGalleryAdapterListener;
+    private ClickListener ticketGalleryAdapterListener;
 
-    public interface EventListener {
+    public interface ClickListener {
         void onTicketRemoveByIndex(Integer index);
+        void onTicketItemClicked(int position);
+        boolean onTicketItemLongClicked(int position);
     }
 
-    public TicketGalleryAdapter(Context context, List<UserTickets> userTickets, EventListener ticketGalleryAdapterListener) {
+    public TicketGalleryAdapter(Context context, List<UserTickets> userTickets, ClickListener ticketGalleryAdapterListener) {
         this.context = context;
         this.userTickets = userTickets;
         this.ticketGalleryAdapterListener = ticketGalleryAdapterListener;
@@ -68,32 +71,47 @@ public class TicketGalleryAdapter extends RecyclerView.Adapter<TicketGalleryAdap
 
         //Do something
         try {
-            if(userTicket.getTicketType().equals("application/pdf")){
-                String thumbPath = PDFUtils.generateImageFromPdf(ticketUri,context);
+            if (userTicket.getTicketType().equals("application/pdf")) {
+                String thumbPath = PDFUtils.generateImageFromPdf(ticketUri, context);
                 Glide.with(context).load(thumbPath).into(viewHolder.img);
-            }else{
+            } else {
                 Glide.with(context).load(ticketUri).into(viewHolder.img);
             }
-
-            //Add Listener to remove ticket
-            viewHolder.btnRemoveTicket.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Integer adapterPosition = viewHolder.getAdapterPosition();
-                    ticketGalleryAdapterListener.onTicketRemoveByIndex(adapterPosition);
-                }
-            });
-            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent= new Intent(context,TicketDetailActivity.class);
-                    intent.putExtra("user_ticket",new Gson().toJson(userTicket));
-                    context.startActivity(intent);
-                }
-            });
         }catch(Exception ex){
             Log.e("Loading Ticket:","Can not load ticket. Exception: "+ex.getMessage());
         }
+
+        //Add Listener to remove ticket
+        viewHolder.btnRemoveTicket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Integer adapterPosition = viewHolder.getAdapterPosition();
+                ticketGalleryAdapterListener.onTicketRemoveByIndex(adapterPosition);
+            }
+        });
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isSelected(viewHolder.getAdapterPosition())) {
+                    Intent intent = new Intent(context, TicketDetailActivity.class);
+                    intent.putExtra("user_ticket", new Gson().toJson(userTicket));
+                    context.startActivity(intent);
+                }
+
+                ticketGalleryAdapterListener.onTicketItemClicked(viewHolder.getAdapterPosition());
+            }
+        });
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v) {
+                Log.d("On long click Ticket", "ticket long-clicked at position " + viewHolder.getAdapterPosition());
+                ticketGalleryAdapterListener.onTicketItemLongClicked(viewHolder.getAdapterPosition());
+                return true;
+            }
+        });
+
+        // Highlight the item if it's selected
+        viewHolder.selectedOverlay.setVisibility(isSelected(i) ? View.VISIBLE : View.INVISIBLE);
 
     }
 
@@ -106,11 +124,13 @@ public class TicketGalleryAdapter extends RecyclerView.Adapter<TicketGalleryAdap
 
         ImageView img;
         FloatingActionButton btnRemoveTicket;
+        View selectedOverlay;
 
         ViewHolder(View view) {
             super(view);
             img = view.findViewById(R.id.ticket_thumbnail);
             btnRemoveTicket = view.findViewById(R.id.floating_btn_remove_ticket);
+            selectedOverlay = view.findViewById(R.id.selected_overlay);
         }
     }
 }

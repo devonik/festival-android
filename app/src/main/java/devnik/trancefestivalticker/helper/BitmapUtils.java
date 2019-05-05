@@ -77,9 +77,11 @@ public class BitmapUtils {
             if(!folder.exists())
                 folder.mkdirs();
             File file = new File(folder, fileName+"-thumb.png");
-            out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-
+            if(!file.exists()){
+                //Only if the file does not exist already
+                out = new FileOutputStream(file);
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            }
             //Return uri
             return file.getPath();
         } catch (Exception e) {

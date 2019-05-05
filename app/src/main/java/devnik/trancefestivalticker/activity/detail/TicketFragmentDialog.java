@@ -22,11 +22,16 @@ import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -53,10 +58,15 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 
 import static io.fabric.sdk.android.Fabric.TAG;
 
-public class TicketFragmentDialog extends DialogFragment implements TicketGalleryAdapter.EventListener {
+public class TicketFragmentDialog extends DialogFragment implements TicketGalleryAdapter.ClickListener {
+    private View rootView;
+    private FloatingActionButton fabAdd;
+    private  FloatingActionButton fabRemove;
+
     private ImageView ticketImg;
     private RecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
+
 
     private static final int READ_REQUEST_CODE = 42;
     private boolean tabIsVisible = false;
@@ -67,7 +77,7 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
+        rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
         if(tabIsVisible) {
 
 
@@ -81,9 +91,11 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
             ticketImg = rootView.findViewById(R.id.ticket_thumbnail);
             recyclerView = (RecyclerView) rootView.findViewById(R.id.ticket_fragment_recycler_view);
             gridLayoutManager = new GridLayoutManager(getContext(), 2);
+
             recyclerView.setLayoutManager(gridLayoutManager);
 
             ticketGalleryAdapter = new TicketGalleryAdapter(getContext(), userTickets, this);
+
             recyclerView.setAdapter(ticketGalleryAdapter);
 
             for(UserTickets ticket : userTickets){
@@ -101,13 +113,19 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
             } else {
 
                 //Add Listener to add ticket
-                FloatingActionButton fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
+                fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
                 fabAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         performFileSearch();
                     }
                 });
+
+                fabRemove = rootView.findViewById(R.id.floating_btn_remove_tickets);
+
+                //Init State
+                fabAdd.setVisibility(View.VISIBLE);
+                fabRemove.setVisibility(View.GONE);
             }
         }
         return rootView;
@@ -138,6 +156,35 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
         if(userTickets.size() == 0){
             //If this was the last ticket and no ticket is there - call file search
             performFileSearch();
+        }
+    }
+    public void onTicketItemClicked(int position){
+        toggleSelection(position);
+    }
+    public boolean onTicketItemLongClicked(int position){
+        toggleSelection(position);
+        return true;
+    }
+    /**
+     * Toggle the selection state of an item.
+     *
+     * If the item was the last one in the selection and is unselected, the selection is stopped.
+     * Note that the selection must already be started (actionMode must not be null).
+     *
+     * @param position Position of the item to toggle the selection state
+     */
+    private void toggleSelection(int position) {
+        ticketGalleryAdapter.toggleSelection(position);
+        int count = ticketGalleryAdapter.getSelectedItemCount();
+
+        Toast.makeText(getContext(),"Toggle Selection", Toast.LENGTH_SHORT).show();
+        if (count > 0) {
+
+            fabAdd.setVisibility(View.GONE);
+            fabRemove.setVisibility(View.VISIBLE);
+        } else {
+            fabAdd.setVisibility(View.VISIBLE);
+            fabRemove.setVisibility(View.GONE);
         }
     }
     /**

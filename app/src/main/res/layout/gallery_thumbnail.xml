@@ -26,4 +26,5 @@
         app:layout_anchor="@+id/thumbnail"
         android:visibility="gone"/>
 
+
 </devnik.trancefestivalticker.helper.SquareLayout>
