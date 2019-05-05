@@ -294,7 +294,7 @@ public class MapFragmentDialog extends DialogFragment  implements
             getDeviceLocation();
         }else {
             GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyAIQW5j7KSy--4ITxKDQTfWMc-pis_iyPs")
+                    .apiKey(getString(R.string.google_maps_key))
                     .build();
             com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
             com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());

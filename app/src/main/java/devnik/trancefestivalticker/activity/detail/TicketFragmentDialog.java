@@ -9,11 +9,18 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.provider.DocumentFile;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +30,12 @@ import android.widget.ImageView;
 
 import com.google.gson.Gson;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,7 +43,9 @@ import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.activity.detail.dto.TicketDto;
+import devnik.trancefestivalticker.activity.MainActivity;
+import devnik.trancefestivalticker.adapter.detail.TicketGalleryAdapter;
+import devnik.trancefestivalticker.helper.BitmapUtils;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.UserTickets;
@@ -41,20 +53,23 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 
 import static io.fabric.sdk.android.Fabric.TAG;
 
-public class TicketFragmentDialog extends DialogFragment {
-    private View rootView;
+public class TicketFragmentDialog extends DialogFragment implements TicketGalleryAdapter.EventListener {
     private ImageView ticketImg;
+    private RecyclerView recyclerView;
+    private GridLayoutManager gridLayoutManager;
+
     private static final int READ_REQUEST_CODE = 42;
     private boolean tabIsVisible = false;
     private Festival festival;
     private UserTicketsDao userTicketsDao;
-
+    private List<UserTickets> userTickets;
+    private TicketGalleryAdapter ticketGalleryAdapter;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
         if(tabIsVisible) {
-            ticketImg = rootView.findViewById(R.id.imageView);
+
 
             assert getArguments() != null;
             festival = (Festival) getArguments().getSerializable("festival");
@@ -62,20 +77,37 @@ public class TicketFragmentDialog extends DialogFragment {
             DaoSession daoSession = ((App) Objects.requireNonNull(getActivity()).getApplication()).getDaoSession();
 
             userTicketsDao = daoSession.getUserTicketsDao();
-            List<UserTickets> userTickets = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).list();
+            userTickets = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).list();
+            ticketImg = rootView.findViewById(R.id.ticket_thumbnail);
+            recyclerView = (RecyclerView) rootView.findViewById(R.id.ticket_fragment_recycler_view);
+            gridLayoutManager = new GridLayoutManager(getContext(), 2);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+            ticketGalleryAdapter = new TicketGalleryAdapter(getContext(), userTickets, this);
+            recyclerView.setAdapter(ticketGalleryAdapter);
+
+            for(UserTickets ticket : userTickets){
+                //Check file exist
+                DocumentFile file = DocumentFile.fromSingleUri(getContext(),Uri.parse(ticket.getTicketUri()));
+
+                if(file == null || !file.exists()){
+                    userTickets.remove(ticket);
+                    userTicketsDao.delete(ticket);
+                }
+            }
 
             if (userTickets.size() == 0) {
                 performFileSearch();
             } else {
-                Log.e("Ticket URI", "Ticket URI: " + userTickets.get(0).getTicketUri());
-                Log.e("Ticket Type", "Ticket Type: " + userTickets.get(0).getTicketType());
-                try {
 
-
-                    this.ticketImg.setImageBitmap(getBitmapFromUri(Uri.parse(userTickets.get(0).getTicketUri())));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //Add Listener to add ticket
+                FloatingActionButton fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
+                fabAdd.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        performFileSearch();
+                    }
+                });
             }
         }
         return rootView;
@@ -85,6 +117,29 @@ public class TicketFragmentDialog extends DialogFragment {
         super.setUserVisibleHint(isVisibleToUser);
         tabIsVisible = isVisibleToUser;
     }
+    //Floating Ticket Remove Event
+    public void onTicketRemoveByIndex(Integer index){
+        UserTickets userTicket = userTickets.get(index);
+        userTickets.remove(userTicket);
+        ticketGalleryAdapter.notifyDataSetChanged();
+        Log.e("Remove Ticket","Want to remove ticket at index: "+index);
+
+        //Persist the remove and remove it from the database
+        userTicketsDao.delete(userTicket);
+
+        if(userTicket.getTicketType().equals("application/pdf")) {
+            //Delete thumnail if it was an pdf
+            String pdfFolder = Environment.getExternalStorageDirectory() + "/PDF";
+            Boolean deleteThumbnail =
+                    BitmapUtils.deleteThumbnail(
+                            new File(pdfFolder),
+                            FilenameUtils.getBaseName(Uri.parse(userTicket.getTicketUri()).getPath()) + "-thumb.png");
+        }
+        if(userTickets.size() == 0){
+            //If this was the last ticket and no ticket is there - call file search
+            performFileSearch();
+        }
+    }
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
@@ -92,7 +147,7 @@ public class TicketFragmentDialog extends DialogFragment {
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
         // Filter to only show results that can be "opened", such as a
         // file (as opposed to a list of contacts or timezones)
@@ -124,12 +179,12 @@ public class TicketFragmentDialog extends DialogFragment {
             Uri uri = null;
             if (resultData != null) {
                 uri = resultData.getData();
-                Log.e(TAG, "Uri: " + uri.toString());
-
                 UserTickets userTicket = new UserTickets();
                 userTicket.setFestivalId(festival.getFestival_id());
+                assert uri != null;
                 userTicket.setTicketUri(uri.toString());
-                userTicket.setTicketType(getMimeType(uri));
+
+                userTicket.setTicketType(BitmapUtils.getMimeType(uri, getContext()));
                 userTicketsDao.save(userTicket);
 
                 final int takeFlags = resultData.getFlags()
@@ -142,79 +197,11 @@ public class TicketFragmentDialog extends DialogFragment {
                 catch (SecurityException e){
                     e.printStackTrace();
                 }
-                try {
-                    this.ticketImg.setImageBitmap(getBitmapFromUri(uri));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                userTickets.add(userTicket);
+                ticketGalleryAdapter.notifyDataSetChanged();
+
             }
         }
     }
-    public String getMimeType(Uri uri) {
-        String mimeType = null;
-        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-            ContentResolver cr = Objects.requireNonNull(getContext()).getContentResolver();
-            mimeType = cr.getType(uri);
-        } else {
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-                    .toString());
-            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase());
-        }
-        return mimeType;
-    }
-    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-
-        ParcelFileDescriptor parcelFileDescriptor =
-                Objects.requireNonNull(getActivity()).getContentResolver().openFileDescriptor(uri, "r");
-        assert parcelFileDescriptor != null;
-        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-        parcelFileDescriptor.close();
-        return image;
-    }
-
-    public void dumpImageMetaData(Uri uri) {
-
-        // The query, since it only applies to a single document, will only return
-        // one row. There's no need to filter, sort, or select fields, since we want
-        // all fields for one document.
-        Cursor cursor = Objects.requireNonNull(getActivity()).getContentResolver()
-                .query(uri, null, null, null, null, null);
-
-        try {
-            // moveToFirst() returns false if the cursor has 0 rows.  Very handy for
-            // "if there's anything to look at, look at it" conditionals.
-            if (cursor != null && cursor.moveToFirst()) {
-                // Note it's called "Display Name".  This is
-                // provider-specific, and might not necessarily be the file name.
-                String displayName = cursor.getString(
-                        cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                Log.i(TAG, "Display Name: " + displayName);
-
-                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                // If the size is unknown, the value stored is null.  But since an
-                // int can't be null in Java, the behavior is implementation-specific,
-                // which is just a fancy term for "unpredictable".  So as
-                // a rule, check if it's null before assigning to an int.  This will
-                // happen often:  The storage API allows for remote files, whose
-                // size might not be locally known.
-                String size = null;
-                if (!cursor.isNull(sizeIndex)) {
-                    // Technically the column stores an int, but cursor.getString()
-                    // will do the conversion automatically.
-                    size = cursor.getString(sizeIndex);
-                } else {
-                    size = "Unknown";
-                }
-                Log.i(TAG, "Size: " + size);
-            }
-        } finally {
-            assert cursor != null;
-            cursor.close();
-        }
-    }
-
-
-
 }

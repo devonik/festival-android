@@ -6,8 +6,10 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 @Entity
-public class UserTickets {
+public class UserTickets{
     @Id
     private Long id;
     private Long festivalId;

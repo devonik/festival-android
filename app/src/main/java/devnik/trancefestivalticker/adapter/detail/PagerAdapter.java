@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.adapter;
+package devnik.trancefestivalticker.adapter.detail;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

@@ -99,11 +99,11 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
             itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                intent.putExtra("festival", festival);
-                intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("festival", festival);
+                    intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(intent);
                 }
             });
 

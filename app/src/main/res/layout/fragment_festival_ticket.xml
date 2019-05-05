@@ -4,11 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ticketFragmentContainer">
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="228dp"
-        android:layout_height="320dp"
-        android:layout_centerInParent="true"
-        app:srcCompat="@android:drawable/sym_def_app_icon" />
+    android:id="@+id/ticket_fragment_container">
+    <android.support.v7.widget.RecyclerView
+        android:background="@drawable/gradient_color"
+        android:id="@+id/ticket_fragment_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floating_btn_add_ticket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/baseline_add_circle_outline_black_24"
+        android:tint="#43C6AC"
+        app:backgroundTint="#191654"
+        android:layout_margin="16dp" />
+
 </RelativeLayout>

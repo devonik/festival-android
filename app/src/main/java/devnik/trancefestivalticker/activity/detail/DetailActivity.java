@@ -13,11 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.greenrobot.greendao.query.Query;
 
-import java.util.Objects;
-
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.adapter.PagerAdapter;
+import devnik.trancefestivalticker.adapter.detail.PagerAdapter;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -25,7 +23,6 @@ import devnik.trancefestivalticker.model.FestivalDetailDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
 import devnik.trancefestivalticker.model.FestivalVrView;
 import devnik.trancefestivalticker.model.FestivalVrViewDao;
-import devnik.trancefestivalticker.model.UserTickets;
 import devnik.trancefestivalticker.model.UserTicketsDao;
 
 

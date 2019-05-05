@@ -165,7 +165,6 @@ private AlertDialog errorLoadingDialog;
                     url = new URL(vrView.getUrl());
                     fileName = FilenameUtils.getName(url.getPath());
 
-                    //Only for testing
                     //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
                     String path = cachePath + "/"+fileName;
                     File f = new File(path);
