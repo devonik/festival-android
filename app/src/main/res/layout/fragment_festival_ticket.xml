@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/outline_indeterminate_check_box_black_24"
+        android:src="@drawable/baseline_delete_black_24"
         android:tint="#43C6AC"
         app:backgroundTint="#191654"
         android:layout_margin="16dp"

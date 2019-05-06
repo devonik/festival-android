@@ -82,17 +82,20 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
         }
 
         //Add Listener to remove ticket
-        viewHolder.btnRemoveTicket.setOnClickListener(new View.OnClickListener() {
+        /*viewHolder.btnRemoveTicket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Integer adapterPosition = viewHolder.getAdapterPosition();
                 ticketGalleryAdapterListener.onTicketRemoveByIndex(adapterPosition);
             }
-        });
+        });*/
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isSelected(viewHolder.getAdapterPosition())) {
+                //ticketGalleryAdapter.isSelected(position) is true when the item is selected by long press
+                //ticketGalleryAdapter.getSelectedItemCount() is over 0 when there are any items selected by long press
+                //Only start detail activity if both are true
+                if(!isSelected(viewHolder.getAdapterPosition()) && getSelectedItemCount() == 0) {
                     Intent intent = new Intent(context, TicketDetailActivity.class);
                     intent.putExtra("user_ticket", new Gson().toJson(userTicket));
                     context.startActivity(intent);
@@ -123,13 +126,13 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
     class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView img;
-        FloatingActionButton btnRemoveTicket;
+        //FloatingActionButton btnRemoveTicket;
         View selectedOverlay;
 
         ViewHolder(View view) {
             super(view);
             img = view.findViewById(R.id.ticket_thumbnail);
-            btnRemoveTicket = view.findViewById(R.id.floating_btn_remove_ticket);
+            //btnRemoveTicket = view.findViewById(R.id.floating_btn_remove_ticket);
             selectedOverlay = view.findViewById(R.id.selected_overlay);
         }
     }

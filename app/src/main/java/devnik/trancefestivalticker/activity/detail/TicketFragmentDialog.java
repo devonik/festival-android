@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -98,6 +99,27 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
 
             recyclerView.setAdapter(ticketGalleryAdapter);
 
+            //Add Listener to add ticket
+            fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
+            fabAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    performFileSearch();
+                }
+            });
+
+            fabRemove = rootView.findViewById(R.id.floating_btn_remove_tickets);
+            fabRemove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    removeTickets();
+                }
+            });
+
+            //Init State
+            fabAdd.setVisibility(View.VISIBLE);
+            fabRemove.setVisibility(View.GONE);
+
             for(UserTickets ticket : userTickets){
                 //Check file exist
                 DocumentFile file = DocumentFile.fromSingleUri(getContext(),Uri.parse(ticket.getTicketUri()));
@@ -110,22 +132,6 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
 
             if (userTickets.size() == 0) {
                 performFileSearch();
-            } else {
-
-                //Add Listener to add ticket
-                fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
-                fabAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        performFileSearch();
-                    }
-                });
-
-                fabRemove = rootView.findViewById(R.id.floating_btn_remove_tickets);
-
-                //Init State
-                fabAdd.setVisibility(View.VISIBLE);
-                fabRemove.setVisibility(View.GONE);
             }
         }
         return rootView;
@@ -159,7 +165,13 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
         }
     }
     public void onTicketItemClicked(int position){
-        toggleSelection(position);
+        //ticketGalleryAdapter.isSelected(position) is true when the item is selected by long press
+        //ticketGalleryAdapter.getSelectedItemCount() is over 0 when there are any items selected by long press
+        //Only toggle selection if one of this ist true
+        if(ticketGalleryAdapter.isSelected(position) || ticketGalleryAdapter.getSelectedItemCount() > 0){
+            toggleSelection(position);
+        }
+
     }
     public boolean onTicketItemLongClicked(int position){
         toggleSelection(position);
@@ -209,6 +221,49 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
         startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
+    /**
+     * this remove button is shown when there are selected tickets by long press
+     * this function is called when this button is clicked
+     */
+    public void removeTickets(){
+        List<Integer> selectedIndexes = ticketGalleryAdapter.getSelectedItems();
+        //We need a copy here cuz when we remove it by index it will get a new index
+        List<UserTickets> selectedUserTickets = new ArrayList<UserTickets>();
+        for(Integer index : selectedIndexes){
+            //Get the selected user ticket, delete it from view and database and refresh the adapter
+            //-1 because the item will be removed and the list sort the list after calling remove()
+            UserTickets userTicket = userTickets.get(index);
+            selectedUserTickets.add(userTicket);
+            //Toggle Selection cuz we want to
+            //1. Deselect all removed tickets
+            //2. Hide delete button
+            //3. Show add button
+            toggleSelection(index);
+        }
+        removeTicketsByList(selectedUserTickets);
+    }
+    public void removeTicketsByList(List<UserTickets> userTickets){
+        for (UserTickets userTicket : userTickets){
+            this.userTickets.remove(userTicket);
+            //Persist the remove and remove it from the database
+            userTicketsDao.delete(userTicket);
+
+            if(userTicket.getTicketType().equals("application/pdf")) {
+                //Delete thumnail if it was an pdf
+                String pdfFolder = Environment.getExternalStorageDirectory() + "/PDF";
+                Boolean deleteThumbnail =
+                        BitmapUtils.deleteThumbnail(
+                                new File(pdfFolder),
+                                FilenameUtils.getBaseName(Uri.parse(userTicket.getTicketUri()).getPath()) + "-thumb.png");
+            }
+        }
+        ticketGalleryAdapter.notifyDataSetChanged();
+        if(this.userTickets.size() == 0){
+            //If there is no item anymore, peform search
+            performFileSearch();
+        }
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode,
