@@ -1,23 +1,29 @@
 package devnik.trancefestivalticker.activity.detail;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +40,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -58,11 +69,17 @@ import devnik.trancefestivalticker.model.UserTickets;
 import devnik.trancefestivalticker.model.UserTicketsDao;
 
 import static io.fabric.sdk.android.Fabric.TAG;
-
-public class TicketFragmentDialog extends DialogFragment implements TicketGalleryAdapter.ClickListener {
+import com.wangjie.rapidfloatingactionbutton.util.RFABShape;
+import com.wangjie.rapidfloatingactionbutton.util.RFABTextUtil;
+public class TicketFragmentDialog extends DialogFragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,
+        TicketGalleryAdapter.ClickListener {
     private View rootView;
-    private FloatingActionButton fabAdd;
     private  FloatingActionButton fabRemove;
+
+    //FloatingActionMenu
+    private RapidFloatingActionLayout rfaLayout;
+    private RapidFloatingActionButton rfaButton;
+    private RapidFloatingActionHelper rfabHelper;
 
     private ImageView ticketImg;
     private RecyclerView recyclerView;
@@ -75,6 +92,13 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
     private UserTicketsDao userTicketsDao;
     private List<UserTickets> userTickets;
     private TicketGalleryAdapter ticketGalleryAdapter;
+
+    private static final int CAMERA_REQUEST = 1888;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private File photoFile;
+    private Uri photoURI;
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -88,6 +112,7 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
             DaoSession daoSession = ((App) Objects.requireNonNull(getActivity()).getApplication()).getDaoSession();
 
             userTicketsDao = daoSession.getUserTicketsDao();
+
             userTickets = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).list();
             ticketImg = rootView.findViewById(R.id.ticket_thumbnail);
             recyclerView = (RecyclerView) rootView.findViewById(R.id.ticket_fragment_recycler_view);
@@ -99,15 +124,6 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
 
             recyclerView.setAdapter(ticketGalleryAdapter);
 
-            //Add Listener to add ticket
-            fabAdd = rootView.findViewById(R.id.floating_btn_add_ticket);
-            fabAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    performFileSearch();
-                }
-            });
-
             fabRemove = rootView.findViewById(R.id.floating_btn_remove_tickets);
             fabRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -116,8 +132,7 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
                 }
             });
 
-            //Init State
-            fabAdd.setVisibility(View.VISIBLE);
+            //Init state
             fabRemove.setVisibility(View.GONE);
 
             for(UserTickets ticket : userTickets){
@@ -129,17 +144,123 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
                     userTicketsDao.delete(ticket);
                 }
             }
-
-            if (userTickets.size() == 0) {
-                performFileSearch();
-            }
         }
+
+        //Setting FloatinActionButton Menu
+        rfaLayout = (RapidFloatingActionLayout) rootView.findViewById(R.id.rfad_ticket_options_layout);
+        rfaButton = (RapidFloatingActionButton) rootView.findViewById(R.id.rfaf_add_ticket_options);
+
+        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        List<RFACLabelItem> items = new ArrayList<>();
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel("Suche")
+                .setResId(R.drawable.baseline_image_search_black_24)
+                .setIconNormalColor(0xff43c6ac)
+                .setIconPressedColor(0xff0d5302)
+                .setLabelColor(0xff43c6ac)
+                .setWrapper(0)
+        );
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel("Kamera")
+                .setResId(R.drawable.baseline_photo_camera_black_24)
+                .setIconNormalColor(0xff191654)
+                .setIconPressedColor(0xff283593)
+                .setLabelColor(0xff283593)
+                .setWrapper(1)
+        );
+        rfaContent
+                .setItems(items)
+        ;
+
+        rfabHelper = new RapidFloatingActionHelper(
+                getContext(),
+                rfaLayout,
+                rfaButton,
+                rfaContent
+        ).build();
         return rootView;
     }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         tabIsVisible = isVisibleToUser;
+    }
+    @Override
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        switch (position){
+            case TicketRfabEnum.RFAB_PEFORM_SEARCH:
+                performFileSearch();
+                break;
+            case TicketRfabEnum.RFAB_TAKE_PHOTO:
+                onOpenCamera();
+                break;
+
+
+        }
+        rfabHelper.toggleContent();
+    }
+
+    @Override
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+        switch (position){
+            case TicketRfabEnum.RFAB_PEFORM_SEARCH:
+                performFileSearch();
+                break;
+            case TicketRfabEnum.RFAB_TAKE_PHOTO:
+                onOpenCamera();
+                break;
+
+
+        }
+        rfabHelper.toggleContent();
+    }
+    private void onOpenCamera(){
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        }
+        else
+        {
+            Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                // Create the File where the photo should go
+                try {
+                    photoFile = BitmapUtils.createTicketImageFile(getContext(), festival);
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    Log.e("Create photo file","Can not create temp file for taking photo. Exception:"+ex.getMessage());
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    photoURI = FileProvider.getUriForFile(getContext(),
+                            "devnik.trancefestivalticker.fileprovider",
+                            photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+                }
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(getContext(), "camera permission granted", Toast.LENGTH_LONG).show();
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            }
+            else
+            {
+                Toast.makeText(getContext(), "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
     }
     //Floating Ticket Remove Event
     public void onTicketRemoveByIndex(Integer index){
@@ -158,10 +279,6 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
                     BitmapUtils.deleteThumbnail(
                             new File(pdfFolder),
                             FilenameUtils.getBaseName(Uri.parse(userTicket.getTicketUri()).getPath()) + "-thumb.png");
-        }
-        if(userTickets.size() == 0){
-            //If this was the last ticket and no ticket is there - call file search
-            performFileSearch();
         }
     }
     public void onTicketItemClicked(int position){
@@ -189,13 +306,9 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
         ticketGalleryAdapter.toggleSelection(position);
         int count = ticketGalleryAdapter.getSelectedItemCount();
 
-        Toast.makeText(getContext(),"Toggle Selection", Toast.LENGTH_SHORT).show();
         if (count > 0) {
-
-            fabAdd.setVisibility(View.GONE);
             fabRemove.setVisibility(View.VISIBLE);
         } else {
-            fabAdd.setVisibility(View.VISIBLE);
             fabRemove.setVisibility(View.GONE);
         }
     }
@@ -260,10 +373,6 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
             }
         }
         ticketGalleryAdapter.notifyDataSetChanged();
-        if(this.userTickets.size() == 0){
-            //If there is no item anymore, peform search
-            performFileSearch();
-        }
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode,
@@ -295,15 +404,31 @@ public class TicketFragmentDialog extends DialogFragment implements TicketGaller
 
                 try {
                     Objects.requireNonNull(getActivity()).getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                    userTickets.add(userTicket);
+                    ticketGalleryAdapter.notifyDataSetChanged();
                 }
                 catch (SecurityException e){
                     e.printStackTrace();
                 }
 
-                userTickets.add(userTicket);
-                ticketGalleryAdapter.notifyDataSetChanged();
+
 
             }
         }
+        //Open Camera Action
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK)
+        {
+            //Add UserTicket
+            UserTickets userTicket = new UserTickets();
+            userTicket.setFestivalId(festival.getFestival_id());
+            userTicket.setTicketUri(photoURI.toString());
+            userTicket.setTicketType(BitmapUtils.getMimeType(photoURI, getContext()));
+            userTicketsDao.insert(userTicket);
+
+            userTickets.add(userTicket);
+            ticketGalleryAdapter.notifyDataSetChanged();
+
+        }
     }
+
 }

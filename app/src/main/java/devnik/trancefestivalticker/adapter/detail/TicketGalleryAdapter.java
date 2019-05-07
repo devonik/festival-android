@@ -62,12 +62,16 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
         final UserTickets userTicket = userTickets.get(i);
         String ticketUriString = userTicket.getTicketUri();
         Uri ticketUri = Uri.parse(ticketUriString);
-        Intent intent = ((Activity) context).getIntent();
-        final int takeFlags = intent.getFlags()
-                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        // Check for the freshest data.
-        context.getContentResolver().takePersistableUriPermission(ticketUri, takeFlags);
+        try {
+            Intent intent = ((Activity) context).getIntent();
+            final int takeFlags = intent.getFlags()
+                    & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // Check for the freshest data.
+            context.getContentResolver().takePersistableUriPermission(ticketUri, takeFlags);
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
 
         //Do something
         try {

@@ -5,12 +5,15 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ticket_fragment_container">
+
+
     <android.support.v7.widget.RecyclerView
-        android:background="@drawable/gradient_color"
         android:id="@+id/ticket_fragment_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/gradient_color"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -18,30 +21,41 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+    <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
+        xmlns:rfal="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/rfad_ticket_options_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        rfal:rfal_frame_color="#ffffff"
+        rfal:rfal_frame_alpha="0.7"
+        >
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floating_btn_remove_tickets"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/baseline_delete_black_24"
-        android:tint="#43C6AC"
-        app:backgroundTint="#191654"
-        android:layout_margin="16dp"
-        android:visibility="gone"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floating_btn_add_ticket"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/baseline_add_circle_outline_black_24"
-        android:tint="#43C6AC"
-        app:backgroundTint="#191654"
-        android:layout_margin="16dp"
-        android:visibility="gone"/>
-
+        <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
+            xmlns:rfab="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/rfaf_add_ticket_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="15dp"
+            rfab:rfab_size="normal"
+            rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
+            rfab:rfab_color_normal="#43C6AC"
+            rfab:rfab_color_pressed="#191654"
+            />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floating_btn_remove_tickets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/rfaf_add_ticket_options"
+            android:layout_alignBottom="@+id/rfaf_add_ticket_options"
+            android:layout_toStartOf="@+id/rfaf_add_ticket_options"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/baseline_delete_black_24"
+            android:tint="#ffffff"
+            android:visibility="gone"
+            app:backgroundTint="#43C6AC" />
+    </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 
 </RelativeLayout>

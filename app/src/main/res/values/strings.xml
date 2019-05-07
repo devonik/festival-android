@@ -13,6 +13,7 @@
     <string name="devnik.trancefestivalticker.preference_whats_new_done" />
 
     <string name="devnik.trancefestivalticker.account_name" />
+
     <string name="sync_account_type">devnik.trancefestivalticker</string>
 
     <string name="content_authority">devnik.trancefestivalticker.provider</string>

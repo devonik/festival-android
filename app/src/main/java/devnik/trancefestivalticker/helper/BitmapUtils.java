@@ -5,6 +5,7 @@ package devnik.trancefestivalticker.helper;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,7 +14,9 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
@@ -24,7 +27,13 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
+
+import devnik.trancefestivalticker.activity.MainActivity;
+import devnik.trancefestivalticker.model.Festival;
 
 import static io.fabric.sdk.android.Fabric.TAG;
 
@@ -99,6 +108,10 @@ public class BitmapUtils {
 
     public static Boolean deleteThumbnail(File folder, String file_name){
         File file = new File(folder, file_name);
+        return file.delete();
+    }
+    public static Boolean deleteImageByUri(URI uri){
+        File file = new File(uri);
         return file.delete();
     }
 
@@ -200,5 +213,36 @@ public class BitmapUtils {
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bitmap;
+    }
+    public static File createTicketImageFile(Context context, Festival festival) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "ticket_"+festival.getName().toLowerCase();
+        String storageString = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/tickets";
+        File storageDir = new File(storageString);
+        if(!storageDir.exists())
+            storageDir.mkdirs();
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        galleryAddPic(context);
+        return image;
+    }
+    private static void galleryAddPic(Context context)
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            File f = new File("file://"+ Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp");
+            Uri contentUri = Uri.fromFile(f);
+            mediaScanIntent.setData(contentUri);
+            context.sendBroadcast(mediaScanIntent);
+        }
+        else
+        {
+            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp")));
+        }
     }
 }
