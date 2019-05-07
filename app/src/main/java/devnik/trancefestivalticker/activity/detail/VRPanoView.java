@@ -72,9 +72,13 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
 
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
-        cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+        /*cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
                 !Environment.isExternalStorageRemovable() ? Objects.requireNonNull(Objects.requireNonNull(getActivity()).getExternalCacheDir()).getPath() :
-                Objects.requireNonNull(getActivity()).getCacheDir().getPath();
+                Objects.requireNonNull(getActivity()).getCacheDir().getPath();*/
+        cachePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/360/photos";
+        File folderToSave = new File(cachePath);
+        if(!folderToSave.exists())
+            folderToSave.mkdirs();
 
         if(tabIsVisible) {
             //Falls die nötige Berechtigung noch nicht vorhanden ist, wird erneut gefragt

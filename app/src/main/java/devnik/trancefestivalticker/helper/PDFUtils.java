@@ -32,11 +32,12 @@ public class PDFUtils {
             pdfiumCore.renderPageBitmap(pdfDocument, bmp, pageNumber, 0, 0, width, height);
 
             pdfiumCore.closeDocument(pdfDocument); // important!
-            String folderToSave = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                    !Environment.isExternalStorageRemovable() ? Objects.requireNonNull(context.getExternalCacheDir()).getPath() :
-                    context.getCacheDir().getPath();
-            folderToSave += "/pdfThumbs";
-            return BitmapUtils.saveThumbnail(bmp, FilenameUtils.getBaseName(pdfUri.getPath()), new File(folderToSave));
+            String pathToFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/tickets/pdfThumbs";
+            File folderToSave = new File(pathToFolder);
+            if(!folderToSave.exists())
+                folderToSave.mkdirs();
+
+            return BitmapUtils.saveThumbnail(bmp, FilenameUtils.getBaseName(pdfUri.getPath()), folderToSave);
         } catch(Exception e) {
             //todo with exception
         }
