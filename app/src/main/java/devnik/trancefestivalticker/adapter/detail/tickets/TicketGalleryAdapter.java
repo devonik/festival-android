@@ -15,6 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -70,14 +73,27 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
         }catch (SecurityException e){
             e.printStackTrace();
         }
+        RequestOptions glideOptions = new RequestOptions()
+                .placeholder(R.drawable.progress_animation)
+                .error(R.drawable.no_internet)
+                .priority(Priority.HIGH)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                ;
 
         //Do something
         try {
             if (userTicket.getTicketType().equals("application/pdf")) {
                 String thumbPath = PDFUtils.generateImageFromPdf(ticketUri, context);
-                Glide.with(context).load(thumbPath).into(viewHolder.img);
+                Glide.with(context)
+                        .load(thumbPath)
+                        .apply(glideOptions)
+                        .into(viewHolder.img);
             } else {
-                Glide.with(context).load(ticketUri).into(viewHolder.img);
+                Glide.with(context)
+                        .load(ticketUri)
+                        .apply(glideOptions)
+                        .into(viewHolder.img);
             }
         }catch(Exception ex){
             Log.e("Loading Ticket:","Can not load ticket. Exception: "+ex.getMessage());
