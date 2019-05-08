@@ -64,7 +64,9 @@
                     <li>Bessere Peformance</li>
                  </ul>
                  <br>
-                 <p>Außerdem wird empfohlen, falls möglich, vor dem download WLAN zu aktivieren, damit das mobile Datenvolumen geschont wird</p>]]>
+                 <p>Außerdem wird empfohlen, falls möglich, vor dem download WLAN zu aktivieren, damit das mobile Datenvolumen geschont wird</p>
+                 <br>
+                 <p>Alternativ kann das Video auch gestreamt werden. Die Geschwindigkeit hängt von der Internetverbindung ab</p>]]>
     </string>
     <string name="vr_video_download_failed">
         <![CDATA[<p>Das Video ist fehlerhaft. Dies kann mehrere Gründe haben:</p>
@@ -72,10 +74,12 @@
                  <ul>
                     <li>Du hast den Download frühzeitig abgebrochen</li>
                     <li>Deine Internet Verbindung war nicht stabil genug</li>
-                    <li>Dein Handy unterstützt das Format (360°) des Videos nicht.
+                    <li>Dein Handy unterstützt das Format (360°) des Videos nicht.</li>
                  </ul>
                  <br>
-                 <p>Starte den Download erneut. Und nochmal der Hinweis: Aktiviere, falls möglich, vor dem download das WLAN, damit das mobile Datenvolumen geschont wird</p>]]>
+                 <p>Starte den Download erneut. Und nochmal der Hinweis: Aktiviere, falls möglich, vor dem download das WLAN, damit das mobile Datenvolumen geschont wird</p>
+                 <p>Alternativ kann das Video auch gestreamt werden. Die Geschwindigkeit hängt von der Internetverbindung ab</a>
+        ]]>
     </string>
 
     <string name="rating_title">Was hälst du von der App ?</string>
@@ -83,4 +87,11 @@
     <string name="rating_button_yes">Bewerte</string>
     <string name="rating_button_no">Nein</string>
     <string name="rating_button_cancel">Später</string>
+
+    <!--VR VIDEO-->
+    <string name="enter_vr_label">Enter VR mode</string>
+    <string name="exit_vr_label">Exit VR mode</string>
+    <string name="pause_label">Pause video</string>
+    <string name="permission_warning">This app will not run without permission to read from storage. Click to enable permission.</string>
+    <string name="play_label">Play video</string>
 </resources>

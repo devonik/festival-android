@@ -69,6 +69,7 @@ dependencies {
     implementation 'com.google.vr:sdk-videowidget:1.150.0'
     //ExoPlayer - Video player
     implementation 'com.google.android.exoplayer:exoplayer:2.10.0'
+    implementation 'com.google.android.exoplayer:extension-gvr:2.9.0'
 
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'

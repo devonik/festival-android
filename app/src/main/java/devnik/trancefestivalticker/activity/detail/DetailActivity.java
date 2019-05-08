@@ -5,18 +5,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.greendao.query.Query;
 
+import java.util.Objects;
+
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.activity.detail.vr.IActivityListeners;
 import devnik.trancefestivalticker.adapter.detail.PagerAdapter;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
@@ -35,6 +40,7 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 public class DetailActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private SharedPreferences sharedPref;
+    private TabLayout tabLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         enablePermissions();
@@ -60,7 +66,7 @@ public class DetailActivity extends AppCompatActivity {
         FestivalVrView photoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
         FestivalVrView videoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
         if(photoVrView != null) {
@@ -73,7 +79,7 @@ public class DetailActivity extends AppCompatActivity {
         //Look for existing festival tickets
         UserTicketsDao userTicketsDao = daoSession.getUserTicketsDao();
         Long ticketCount = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).count();
-
+        tabLayout.getSelectedTabPosition();
         if(ticketCount > 0){
             tabLayout.addTab(tabLayout.newTab().setText("Tickets"));
         }else{
@@ -144,5 +150,36 @@ public class DetailActivity extends AppCompatActivity {
                 // sees the explanation, try again to request the permission.
             }
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // Avoid accidental volume key presses while the phone is in the VR headset.
+        int currentTab = tabLayout.getSelectedTabPosition();
+        if(Objects.requireNonNull(tabLayout.getTabAt(currentTab)).getText() == "360 Video"){
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
+                    || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        int currentTab = tabLayout.getSelectedTabPosition();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + viewPager.getCurrentItem());
+        if(Objects.requireNonNull(tabLayout.getTabAt(currentTab)).getText() == "360 Video"){
+            if(currentFragment instanceof IActivityListeners) {
+                ((IActivityListeners) currentFragment).onWindowFocusChanged(hasFocus);
+                ((IActivityListeners) currentFragment).onBackPressed();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

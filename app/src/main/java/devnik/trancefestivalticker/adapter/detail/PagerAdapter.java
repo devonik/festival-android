@@ -9,8 +9,9 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import devnik.trancefestivalticker.activity.detail.FestivalDetailFragment;
 import devnik.trancefestivalticker.activity.detail.maps.MapFragmentDialog;
 import devnik.trancefestivalticker.activity.detail.tickets.TicketFragmentDialog;
-import devnik.trancefestivalticker.activity.detail.vr.VRPanoView;
-import devnik.trancefestivalticker.activity.detail.vr.VRVideoView;
+import devnik.trancefestivalticker.activity.detail.vr.photo.VRPanoView;
+import devnik.trancefestivalticker.activity.detail.vr.video.VRVideoView;
+import devnik.trancefestivalticker.activity.detail.vr.video.exo.VRVideoViewExo;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
@@ -65,6 +66,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                     return tab3;
                 }else if(videoVrView != null) {
                     VRVideoView tab4 = new VRVideoView();
+                    //VRVideoViewExo tab4 = new VRVideoViewExo();
                     Bundle videoVrBundle = new Bundle();
                     videoVrBundle.putSerializable("videoVrView", videoVrView);
                     tab4.setArguments(videoVrBundle);
@@ -77,6 +79,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
             case 3:
                 if(photoVrView != null && videoVrView != null) {
                     VRVideoView tab4 = new VRVideoView();
+                    //VRVideoViewExo tab4 = new VRVideoViewExo();
                     Bundle videoVrBundle = new Bundle();
                     videoVrBundle.putSerializable("videoVrView", videoVrView);
                     tab4.setArguments(videoVrBundle);

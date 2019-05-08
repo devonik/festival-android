@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity.detail.vr;
+package devnik.trancefestivalticker.activity.detail.vr.video;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
@@ -66,9 +69,12 @@ public class VRVideoView extends Fragment
      * only be accessed on the UI thread. In a real app, this variable would be code that performs
      * some UI actions when the video is fully loaded.
      */
-    public static final int LOAD_VIDEO_STATUS_UNKNOWN = 0;
-    public static final int LOAD_VIDEO_STATUS_SUCCESS = 1;
-    public static final int LOAD_VIDEO_STATUS_ERROR = 2;
+    private static final int LOAD_VIDEO_STATUS_UNKNOWN = 0;
+    private static final int LOAD_VIDEO_STATUS_SUCCESS = 1;
+    private static final int LOAD_VIDEO_STATUS_ERROR = 2;
+    private ExoPlayer exoPlayer;
+    private SurfaceView surfaceView;
+
 
     private int loadVideoStatus = LOAD_VIDEO_STATUS_UNKNOWN;
 
@@ -81,7 +87,7 @@ private AlertDialog errorLoadingDialog;
     /**
      * The video view and its custom UI elements.
      */
-    protected VrVideoView videoWidgetView;
+    private VrVideoView videoWidgetView;
 
     /**
      * Seeking UI & progress indicator. The seekBar's progress value represents milliseconds in the
@@ -104,6 +110,7 @@ private AlertDialog errorLoadingDialog;
     // Progress Dialog
     private ProgressDialog pDialog;
     private FestivalVrView vrView;
+    private Uri videoServerUri;
     private String fileName;
 
     private String cachePath;
@@ -128,36 +135,23 @@ private AlertDialog errorLoadingDialog;
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
         if(tabIsVisible) {
 
-            try {
-                URL url = new URL(vrView.getUrl());
-                fileName = FilenameUtils.getName(url.getPath());
-                //Only for testing
-                //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.mp4";
+            videoServerUri = Uri.parse(vrView.getUrl());
+            fileName = FilenameUtils.getName(videoServerUri.getPath());
+            //Only for testing
+            //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.mp4";
 
-                String path = cachePath + "/"+fileName;
-                File f = new File(path);  //
-                videoUri = Uri.fromFile(f);
-                if(f.exists()){
-                    loadVRVideo();
-                }
-                else{
-                    userWantDownloadVideoDialog();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            String path = cachePath + "/"+fileName;
+            File f = new File(path);  //
+            videoUri = Uri.fromFile(f);
+            if(f.exists()){
+                loadVRVideo();
+            }
+            else{
+                showDialog();
             }
         }
         videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
-        String vidAddress = "https://niklas-grieger.de/files/360video/Circus2018_MainFloor_Short.mp4";
-        Uri vidUri = Uri.parse(vidAddress);
-        VrVideoView.Options options = new VrVideoView.Options();
-        options.inputType = VrVideoView.Options.TYPE_MONO;
-                try {
-                    videoWidgetView.loadVideo(vidUri, options);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                statusText = (TextView) view.findViewById(R.id.status_text);
+        statusText = (TextView) view.findViewById(R.id.status_text);
 
         return view;
     }
@@ -174,23 +168,18 @@ private AlertDialog errorLoadingDialog;
             tabIsVisible = true;
             if(view != null){
                 videoWidgetView.resumeRendering();
-                URL url = null;
-                try {
-                    url = new URL(vrView.getUrl());
-                    fileName = FilenameUtils.getName(url.getPath());
+                videoServerUri = Uri.parse(vrView.getUrl());
+                fileName = FilenameUtils.getName(videoServerUri.getPath());
 
-                    //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
-                    String path = cachePath + "/"+fileName;
-                    File f = new File(path);
-                    videoUri = Uri.fromFile(f);
-                    if(f.exists()){
-                        loadVRVideo();
-                    }
-                    else{
-                        userWantDownloadVideoDialog();
-                    }
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                //String path = "/storage/19B0-BFBC/DCIM/Gear 360/PsyExp2018_MainFloor2.MP4";
+                String path = cachePath + "/"+fileName;
+                File f = new File(path);
+                videoUri = Uri.fromFile(f);
+                if(f.exists()){
+                    loadVRVideo();
+                }
+                else{
+                    showDialog();
                 }
             }
         }else{
@@ -250,7 +239,6 @@ private AlertDialog errorLoadingDialog;
             VrVideoView.Options options = new VrVideoView.Options();
             options.inputType = VrVideoView.Options.TYPE_MONO;
 
-
             videoWidgetView.loadVideo(videoUri, options);
         } catch (IOException e) {
             // An error here is normally due to being unable to locate the file.
@@ -265,13 +253,13 @@ private AlertDialog errorLoadingDialog;
               //  }
            // });
            // Log.e(TAG, "Could not open video: " + e);
-            fileBrokenNeedReDownload();
+            showFileBrokenDialog();
         }
     }
-    private void userWantDownloadVideoDialog(){
+    private void showDialog(){
 
         AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
-        builderDialogBuilder.setTitle("Video Download");
+        builderDialogBuilder.setTitle("Video Download / Streaming");
         TextView creditTextView = new TextView(getActivity());
         creditTextView.setPadding(15,15,15,15);
 
@@ -289,14 +277,14 @@ private AlertDialog errorLoadingDialog;
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                pDialog = new ProgressDialog(getActivity());
-                pDialog.setMessage("Video wird geladen... Bitte warten");
-                pDialog.setIndeterminate(false);
-                pDialog.setMax(100);
-                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                pDialog.setCancelable(false);
-                pDialog.show();
-                new DownloadFileFromURL().execute(vrView.getUrl());
+                startDownload();
+            }
+        });
+        builderDialogBuilder.setNeutralButton("Stream", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startStreaming();
             }
         });
         //TODO Dismiss dialog before exiting the Activity, otherwise it occurs an exeption
@@ -366,7 +354,7 @@ private AlertDialog errorLoadingDialog;
                 " seconds.";
         statusText.setText(status);
     }
-    public void fileBrokenNeedReDownload() {
+    public void showFileBrokenDialog() {
         if (errorLoadingDialog == null) {
             AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
             builderDialogBuilder.setTitle("Video Fehlerhaft. Oops!");
@@ -386,16 +374,15 @@ private AlertDialog errorLoadingDialog;
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    pDialog = new ProgressDialog(getActivity());
-                    pDialog.setMessage("Video wird geladen... Bitte warten");
-                    pDialog.setIndeterminate(false);
-                    pDialog.setMax(100);
-                    pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    pDialog.setCancelable(false);
-                    pDialog.show();
-                    new DownloadFileFromURL().execute(vrView.getUrl());
+                    startDownload();
                 }
             });
+            builderDialogBuilder.setNeutralButton( "Stream", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                    startStreaming();
+                }});
             //TODO Später button -> go back
 /*builderDialogBuilder.setNegativeButton("Später", new DialogInterface.OnClickListener() {
     @Override
@@ -410,6 +397,27 @@ private AlertDialog errorLoadingDialog;
             errorLoadingDialog.show();
 
         }
+    }
+    private void startStreaming(){
+        VrVideoView.Options options = new VrVideoView.Options();
+        options.inputType = VrVideoView.Options.TYPE_MONO;
+
+
+        try {
+            videoWidgetView.loadVideo(videoServerUri, options);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void startDownload(){
+        pDialog = new ProgressDialog(getActivity());
+        pDialog.setMessage("Video wird geladen... Bitte warten");
+        pDialog.setIndeterminate(false);
+        pDialog.setMax(100);
+        pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        pDialog.setCancelable(false);
+        pDialog.show();
+        new DownloadFileFromURL().execute(vrView.getUrl());
     }
     /**
      * When the user manipulates the seek bar, update the video position.
@@ -452,12 +460,8 @@ private AlertDialog errorLoadingDialog;
         public void onLoadError(String errorMessage) {
             // An error here is normally due to being unable to decode the video format.
             loadVideoStatus = LOAD_VIDEO_STATUS_ERROR;
-            //Toast.makeText(
-            //        VRVideoView.this.getActivity(), "Error loading video: " + errorMessage, Toast.LENGTH_LONG)
-            //        .show();
             //Datei Fehlerhaft
-            fileBrokenNeedReDownload();
-            //Log.e(TAG, "Error loading video: " + errorMessage);
+            showFileBrokenDialog();
         }
 
         @Override
