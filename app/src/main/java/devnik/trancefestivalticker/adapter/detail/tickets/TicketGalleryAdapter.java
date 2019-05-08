@@ -78,7 +78,8 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
                 .error(R.drawable.no_internet)
                 .priority(Priority.HIGH)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
+                .fitCenter()
+
                 ;
 
         //Do something
