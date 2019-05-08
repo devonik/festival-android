@@ -140,9 +140,9 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
         items.add(new RFACLabelItem<Integer>()
                 .setLabel("Kamera")
                 .setResId(R.drawable.baseline_photo_camera_black_24)
-                .setIconNormalColor(0xff191654)
+                .setIconNormalColor(0xff189191)
                 .setIconPressedColor(0xff283593)
-                .setLabelColor(0xff283593)
+                .setLabelColor(0xff189191)
                 .setWrapper(1)
         );
         rfaContent
