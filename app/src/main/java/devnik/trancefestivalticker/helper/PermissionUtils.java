@@ -11,11 +11,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import java.util.Objects;
 
@@ -46,7 +47,7 @@ public abstract class PermissionUtils {
      * Checks if the result contains a {@link PackageManager#PERMISSION_GRANTED} result for a
      * permission from a runtime permissions request.
      *
-     * @see android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
+     *
      */
     public static boolean isPermissionGranted(String[] grantPermissions, int[] grantResults,
                                               String permission) {
@@ -83,6 +84,7 @@ public abstract class PermissionUtils {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            assert getArguments() != null;
             mFinishActivity = getArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(getActivity())
@@ -92,12 +94,12 @@ public abstract class PermissionUtils {
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog) {
+        public void onDismiss(@NonNull DialogInterface dialog) {
             super.onDismiss(dialog);
             if (mFinishActivity) {
                 Toast.makeText(getActivity(), R.string.permission_required_toast,
                         Toast.LENGTH_SHORT).show();
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
             }
         }
     }
@@ -107,7 +109,6 @@ public abstract class PermissionUtils {
      * permission.
      * <p>
      * The activity should implement
-     * {@link android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}
      * to handle permit or denial of this permission request.
      */
     public static class RationaleDialog extends DialogFragment {
@@ -128,11 +129,10 @@ public abstract class PermissionUtils {
          *
          * @param requestCode    Id of the request that is used to request the permission. It is
          *                       returned to the
-         *                       {@link android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}.
          * @param finishActivity Whether the calling Activity should be finished if the dialog is
          *                       cancelled.
          */
-        public static RationaleDialog newInstance(int requestCode, boolean finishActivity) {
+        static RationaleDialog newInstance(int requestCode, boolean finishActivity) {
             Bundle arguments = new Bundle();
             arguments.putInt(ARGUMENT_PERMISSION_REQUEST_CODE, requestCode);
             arguments.putBoolean(ARGUMENT_FINISH_ACTIVITY, finishActivity);
@@ -149,7 +149,7 @@ public abstract class PermissionUtils {
             final int requestCode = arguments.getInt(ARGUMENT_PERMISSION_REQUEST_CODE);
             mFinishActivity = arguments.getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
-            Integer messageId = R.string.permission_required_toast;
+            int messageId = R.string.permission_required_toast;
             String permission = "";
             if(requestCode == REQUEST_LOCATION_CODE){
                 messageId = R.string.location_permission_denied;
@@ -178,7 +178,7 @@ public abstract class PermissionUtils {
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog) {
+        public void onDismiss(@NonNull DialogInterface dialog) {
             super.onDismiss(dialog);
             if (mFinishActivity) {
                 Toast.makeText(getActivity(),

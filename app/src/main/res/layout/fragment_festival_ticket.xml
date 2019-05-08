@@ -7,7 +7,7 @@
     android:id="@+id/ticket_fragment_container">
 
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ticket_fragment_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -44,7 +44,7 @@
             rfab:rfab_color_normal="#43C6AC"
             rfab:rfab_color_pressed="#191654"
             />
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floating_btn_remove_tickets"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -2,10 +2,11 @@ package devnik.trancefestivalticker.activity.detail.tickets;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -16,7 +17,6 @@ import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.google.gson.Gson;
 
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.UserTickets;
 
 public class TicketDetailActivity extends AppCompatActivity {

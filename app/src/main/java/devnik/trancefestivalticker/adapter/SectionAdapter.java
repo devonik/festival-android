@@ -2,18 +2,19 @@ package devnik.trancefestivalticker.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -34,7 +35,6 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by nik on 21.02.2018.
@@ -148,7 +148,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
             return "( Läuft gerade! )";
         }
         else if(today.before(start)){
-            Integer daysTillStart = calcDaysTillStart(start);
+            int daysTillStart = calcDaysTillStart(start);
             //Festival start is comming
             if(daysTillStart > 1){
                 return "( Noch "+calcDaysTillStart(start)+" Tage )";

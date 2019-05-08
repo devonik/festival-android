@@ -4,10 +4,11 @@ import android.R;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
+
+import androidx.appcompat.widget.AppCompatSpinner;
 
 import java.util.Arrays;
 import java.util.LinkedList;

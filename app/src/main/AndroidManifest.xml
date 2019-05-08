@@ -53,7 +53,7 @@
             android:label="@string/app_name" />
         <activity android:name=".activity.detail.tickets.TicketDetailActivity" />
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="devnik.trancefestivalticker.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -86,12 +86,8 @@
                 android:resource="@xml/syncadapter" />
         </service>
         <!-- Firebase Service -->
-        <service android:name=".firebase.FirebaseIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
-        <service android:name=".firebase.FirebaseMsgService">
+        <service android:name=".firebase.FirebaseMsgService"
+                 android:stopWithTask="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

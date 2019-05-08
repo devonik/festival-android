@@ -1,9 +1,10 @@
 package devnik.trancefestivalticker.adapter.detail;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import devnik.trancefestivalticker.activity.detail.FestivalDetailFragment;
 import devnik.trancefestivalticker.activity.detail.maps.MapFragmentDialog;
@@ -51,6 +52,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 return tab1;
             case 1:
                 MapFragmentDialog tab2 = new MapFragmentDialog();
+
                 tab2.setArguments(festivalBundle);
                 return tab2;
             case 2:

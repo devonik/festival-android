@@ -2,8 +2,6 @@ package devnik.trancefestivalticker.activity.detail;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
@@ -20,6 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
 import com.daimajia.slider.library.SliderLayout;
@@ -44,6 +45,7 @@ import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalDetailImages;
 import devnik.trancefestivalticker.model.FestivalDetailImagesDao;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;
+
 
 /**
  * Created by nik on 07.03.2018.
@@ -202,7 +204,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(android.support.v4.app.DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        setStyle(STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
 
     //For ImageSlider

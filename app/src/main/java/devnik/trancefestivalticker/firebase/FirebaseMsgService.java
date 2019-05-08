@@ -28,6 +28,10 @@ public class FirebaseMsgService extends FirebaseMessagingService {
     public static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
     @Override
+    public void onNewToken(String s) {
+        Log.e("NEW_TOKEN", s);
+    }
+    @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
 
@@ -35,6 +39,7 @@ public class FirebaseMsgService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             String remoteMessageMethod = remoteMessage.getData().get(KEY_SYNC_REQUEST);
             //!!!!!!!!!!!!!!!!!! Trigger Sync ONLY if the Application is not in background / closed!!!!!!!!!!!!!!!!!
+            assert remoteMessageMethod != null;
             if (remoteMessageMethod.equals("sync")) {
                 Bundle settingsBundle = new Bundle();
                 settingsBundle.putBoolean(

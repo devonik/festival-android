@@ -4,7 +4,8 @@ import android.accounts.Account;
 import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.support.multidex.MultiDex;
+
+import androidx.multidex.MultiDex;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;

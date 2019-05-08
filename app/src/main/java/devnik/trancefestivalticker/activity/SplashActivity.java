@@ -9,29 +9,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SyncStatusObserver;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import org.greenrobot.greendao.annotation.Id;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.List;
 import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.api.SyncTicketPhases;
 import devnik.trancefestivalticker.model.DaoSession;
-import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDao;
 
 import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;

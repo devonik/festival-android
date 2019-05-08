@@ -1,7 +1,8 @@
 package devnik.trancefestivalticker.adapter.detail.tickets;
 
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;

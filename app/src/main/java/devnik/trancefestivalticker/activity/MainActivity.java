@@ -1,19 +1,12 @@
 package devnik.trancefestivalticker.activity;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
@@ -29,6 +22,13 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.kobakei.ratethisapp.RateThisApp;
 
 import org.greenrobot.greendao.query.Query;
@@ -36,7 +36,6 @@ import org.greenrobot.greendao.query.Query;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import devnik.trancefestivalticker.App;
@@ -59,7 +58,6 @@ import devnik.trancefestivalticker.model.MusicGenre;
 import devnik.trancefestivalticker.model.MusicGenreDao;
 import devnik.trancefestivalticker.model.WhatsNew;
 import devnik.trancefestivalticker.model.WhatsNewDao;
-import devnik.trancefestivalticker.sync.SyncAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import tourguide.tourguide.ChainTourGuide;
@@ -72,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private List<WhatsNew> whatsNews;
     private FestivalDao festivalDao;
     private Query<Festival> festivalQuery;
-    private WhatsNewDao whatsNewDao;
     private SectionedRecyclerViewAdapter sectionAdapter;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
@@ -80,13 +77,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     public static boolean isAppRunning = false;
 
-    //Tour Guide
-    private SharedPreferences sharedPref;
-    private String preferenceUserNeedGuiding;
     //Last Sync
     private String preferenceLastSync;
-    //Whats New
-    private String getPreferenceWhatsNewDone;
 
     public ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
@@ -102,12 +94,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         super.onCreate(savedInstanceState);
         DaoSession daoSession = ((App) this.getApplication()).getDaoSession();
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        //Tour Guide
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         appInfoDao = daoSession.getAppInfoDao();
         appInfo = appInfoDao.queryBuilder().where(AppInfoDao.Properties.Id.eq(1L)).build().unique();
 
-        preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
-        getPreferenceWhatsNewDone = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
+        String preferenceUserNeedGuiding = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "yes");
+        //Whats New
+        String getPreferenceWhatsNewDone = sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_whats_new_done), "no");
         preferenceLastSync = appInfo.getLastSync();//sharedPref.getString(getString(R.string.devnik_trancefestivalticker_preference_last_sync), "Noch nicht gesynct");
         isAppRunning = true;
         /* setup enter and exit animation */
@@ -142,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         MusicGenreDao musicGenreDao = daoSession.getMusicGenreDao();
         List<MusicGenre> musicGenres = musicGenreDao.queryBuilder().build().list();
 
-        whatsNewDao = daoSession.getWhatsNewDao();
+        WhatsNewDao whatsNewDao = daoSession.getWhatsNewDao();
         whatsNews = whatsNewDao.queryBuilder().list();
 
         List<String> genreNames = new ArrayList<>();
@@ -151,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 genreNames.add(item.getName());
             }
 
-            multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.filter_spinner);
+            multiSelectionSpinner = findViewById(R.id.filter_spinner);
             MultiSelectionSpinner.placeholderText = "Filter by Music Genre ...";
             multiSelectionSpinner.setItems(genreNames);
             multiSelectionSpinner.setListener(this);
@@ -270,7 +264,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            toolbar = findViewById(R.id.toolbar);
+        }
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -308,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
     }
     //Options Menu (ActionBar Menu)
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
@@ -331,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         return super.onPrepareOptionsMenu(menu);
     }
     //When Options Menu is selected
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         //Handle menu bar item clicks here
@@ -357,6 +355,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 return super.onOptionsItemSelected(item);
         }
     }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void runOverlay_TourGuide(){
         try {
 
@@ -401,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     .playLater(multiSelectionSpinner);
 
             RecyclerView.ViewHolder firstFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(1);
+            assert firstFestivalViewHolder != null;
             View firstFestivalView = firstFestivalViewHolder.itemView;
 
             ChainTourGuide tourGuide2 = ChainTourGuide.init(this)
@@ -412,8 +412,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     .setOverlay(overlay)
                     .playLater(firstFestivalView);
 
-            Integer secondFestivalPosition = 2;
+            int secondFestivalPosition = 2;
             RecyclerView.ViewHolder secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(secondFestivalPosition);
+            assert secondFestivalViewHolder != null;
             View secondFestivalView = secondFestivalViewHolder.itemView;
 
                 ChainTourGuide tourGuide3 = ChainTourGuide.init(this)

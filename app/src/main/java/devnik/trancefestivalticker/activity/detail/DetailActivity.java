@@ -5,14 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -33,7 +32,7 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
  * Created by nik on 09.03.2018.
  */
 
-public class DetailActivity extends AppCompatActivity{
+public class DetailActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private SharedPreferences sharedPref;
     @Override

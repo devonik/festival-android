@@ -8,14 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v4.provider.DocumentFile;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +15,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
@@ -49,7 +50,7 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 public class TicketFragmentDialog extends DialogFragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,
         TicketGalleryAdapter.ClickListener {
     private View rootView;
-    private  FloatingActionButton fabRemove;
+    private FloatingActionButton fabRemove;
 
     //FloatingActionMenu
     private RapidFloatingActionLayout rfaLayout;
@@ -112,7 +113,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
 
             for(UserTickets ticket : userTickets){
                 //Check file exist
-                DocumentFile file = DocumentFile.fromSingleUri(getContext(),Uri.parse(ticket.getTicketUri()));
+                DocumentFile file = DocumentFile.fromSingleUri(Objects.requireNonNull(getContext()),Uri.parse(ticket.getTicketUri()));
 
                 if(file == null || !file.exists()){
                     userTickets.remove(ticket);

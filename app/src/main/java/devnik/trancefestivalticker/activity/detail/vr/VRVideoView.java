@@ -9,9 +9,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
@@ -147,7 +148,16 @@ private AlertDialog errorLoadingDialog;
             }
         }
         videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
-        statusText = (TextView) view.findViewById(R.id.status_text);
+        String vidAddress = "https://niklas-grieger.de/files/360video/Circus2018_MainFloor_Short.mp4";
+        Uri vidUri = Uri.parse(vidAddress);
+        VrVideoView.Options options = new VrVideoView.Options();
+        options.inputType = VrVideoView.Options.TYPE_MONO;
+                try {
+                    videoWidgetView.loadVideo(vidUri, options);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                statusText = (TextView) view.findViewById(R.id.status_text);
 
         return view;
     }
