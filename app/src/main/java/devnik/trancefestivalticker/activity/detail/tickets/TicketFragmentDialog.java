@@ -63,7 +63,6 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
 
 
     private static final int READ_REQUEST_CODE = 42;
-    private boolean tabIsVisible = false;
     private Festival festival;
     private UserTicketsDao userTicketsDao;
     private List<UserTickets> userTickets;
@@ -79,7 +78,6 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
-        if(tabIsVisible) {
 
 
             assert getArguments() != null;
@@ -120,7 +118,6 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
                     userTicketsDao.delete(ticket);
                 }
             }
-        }
 
         //Setting FloatinActionButton Menu
         rfaLayout = (RapidFloatingActionLayout) rootView.findViewById(R.id.rfad_ticket_options_layout);
@@ -156,11 +153,6 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
                 rfaContent
         ).build();
         return rootView;
-    }
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        tabIsVisible = isVisibleToUser;
     }
     @Override
     public void onRFACItemLabelClick(int position, RFACLabelItem item) {
@@ -404,6 +396,11 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
             userTickets.add(userTicket);
             ticketGalleryAdapter.notifyDataSetChanged();
 
+        }
+        if(requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_CANCELED){
+            //If the Camera canceled delete the temp file
+            //delete on exit method deletes the file or directory defined by the abstract path name when the virtual machine terminates.
+            photoFile.delete();
         }
     }
 

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
@@ -21,8 +22,9 @@ import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.activity.detail.vr.IActivityListeners;
+import devnik.trancefestivalticker.activity.detail.vr.video.VRVideoView;
 import devnik.trancefestivalticker.adapter.detail.PagerAdapter;
+import devnik.trancefestivalticker.helper.IActivityListeners;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
@@ -41,6 +43,8 @@ public class DetailActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private SharedPreferences sharedPref;
     private TabLayout tabLayout;
+    private PagerAdapter pagerAdapter;
+    private AudioManager audioManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         enablePermissions();
@@ -88,11 +92,11 @@ public class DetailActivity extends AppCompatActivity {
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final PagerAdapter adapter = new PagerAdapter
+        pagerAdapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail, photoVrView, videoVrView, actualFestivalTicketPhase);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         // This method ensures that tab selection events update the ViewPager and page changes update the selected tab.
@@ -111,7 +115,7 @@ public class DetailActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
     }
     public void enablePermissions() {
@@ -155,12 +159,9 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         // Avoid accidental volume key presses while the phone is in the VR headset.
-        int currentTab = tabLayout.getSelectedTabPosition();
-        if(Objects.requireNonNull(tabLayout.getTabAt(currentTab)).getText() == "360 Video"){
-            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
-                    || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                return true;
-            }
+        Fragment currentFragment = pagerAdapter.getItem(viewPager.getCurrentItem());
+        if(currentFragment instanceof VRVideoView){
+            ((IActivityListeners) currentFragment).onDispatchKeyEvent(event, audioManager);
         }
         return super.dispatchKeyEvent(event);
     }
@@ -169,13 +170,6 @@ public class DetailActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         int currentTab = tabLayout.getSelectedTabPosition();
-        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + viewPager.getCurrentItem());
-        if(Objects.requireNonNull(tabLayout.getTabAt(currentTab)).getText() == "360 Video"){
-            if(currentFragment instanceof IActivityListeners) {
-                ((IActivityListeners) currentFragment).onWindowFocusChanged(hasFocus);
-                ((IActivityListeners) currentFragment).onBackPressed();
-            }
-        }
     }
 
     @Override

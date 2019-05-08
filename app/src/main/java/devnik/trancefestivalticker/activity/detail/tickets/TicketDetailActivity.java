@@ -1,5 +1,6 @@
 package devnik.trancefestivalticker.activity.detail.tickets;
 
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,7 @@ public class TicketDetailActivity extends AppCompatActivity {
     private PDFView pdfView;
     private String uri;
     private String type;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){

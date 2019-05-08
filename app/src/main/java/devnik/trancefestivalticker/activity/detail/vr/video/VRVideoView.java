@@ -2,8 +2,10 @@ package devnik.trancefestivalticker.activity.detail.vr.video;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -24,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.vr.sdk.widgets.video.VrSimpleExoPlayer;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -35,19 +39,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
 import devnik.trancefestivalticker.R;
+import devnik.trancefestivalticker.helper.IActivityListeners;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.FestivalVrView;
 
+import static android.content.Context.AUDIO_SERVICE;
 
-public class VRVideoView extends Fragment
+
+public class VRVideoView extends Fragment implements IActivityListeners
         //implements GetBitmapFromURLAsync.GetBitmapFromURLCompleted
         {
     private static final String TAG = VRVideoView.class.getSimpleName();
@@ -80,6 +85,7 @@ public class VRVideoView extends Fragment
 
     /** Tracks the file to be loaded across the lifetime of this app. **/
     private Uri videoUri;
+    private float maxVolume = 1.0f;
 
 private AlertDialog errorLoadingDialog;
     //private VideoLoaderTask backgroundVideoLoaderTask;
@@ -94,6 +100,8 @@ private AlertDialog errorLoadingDialog;
      * video.
      */
     private SeekBar seekBar;
+
+
     private TextView statusText;
 
     private ImageButton volumeToggle;
@@ -120,7 +128,8 @@ private AlertDialog errorLoadingDialog;
 
         view = inflater.inflate(R.layout.fragment_vr_video_view, container, false);
                 assert getArguments() != null;
-                vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
+        vrView = (FestivalVrView) getArguments().getSerializable("videoVrView");
+
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
         /*cachePath = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
@@ -223,6 +232,7 @@ private AlertDialog errorLoadingDialog;
             seekBar = (SeekBar) view.findViewById(R.id.seek_bar);
             seekBar.setOnSeekBarChangeListener(new SeekBarListener());
 
+
             // Bind input and output objects for the view.
             videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
             videoWidgetView.setEventListener(new ActivityEventListener());
@@ -305,7 +315,7 @@ private AlertDialog errorLoadingDialog;
     private void setIsMuted(boolean isMuted) {
         this.isMuted = isMuted;
         volumeToggle.setImageResource(isMuted ? R.drawable.volume_off : R.drawable.volume_on);
-        videoWidgetView.setVolume(isMuted ? 0.0f : 1.0f);
+        videoWidgetView.setVolume(isMuted ? 0.0f : maxVolume);
     }
 
     public boolean isMuted() {
@@ -574,4 +584,24 @@ private AlertDialog errorLoadingDialog;
         }
 
     }
+    //Activity Actions
+    public void onDispatchKeyEvent(KeyEvent event, AudioManager audioManager){
+        /*int action = event.getAction();
+        int keyCode = event.getKeyCode();
+        // Get the AudioManager instance
+
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    int current_volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    Log.e("show volume", ""+current_volume);
+                }
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    int current_volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    Log.e("show volume", ""+current_volume);
+                }
+        }*/
+    }
+    public void onBackPressed(){}
 }
