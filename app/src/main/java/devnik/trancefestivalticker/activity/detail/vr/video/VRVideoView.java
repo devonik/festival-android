@@ -26,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.vr.sdk.widgets.video.VrSimpleExoPlayer;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -77,8 +75,6 @@ public class VRVideoView extends Fragment implements IActivityListeners
     private static final int LOAD_VIDEO_STATUS_UNKNOWN = 0;
     private static final int LOAD_VIDEO_STATUS_SUCCESS = 1;
     private static final int LOAD_VIDEO_STATUS_ERROR = 2;
-    private ExoPlayer exoPlayer;
-    private SurfaceView surfaceView;
 
 
     private int loadVideoStatus = LOAD_VIDEO_STATUS_UNKNOWN;

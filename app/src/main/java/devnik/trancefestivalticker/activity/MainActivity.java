@@ -114,10 +114,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         exitAnimation.setDuration(600);
         exitAnimation.setFillAfter(true);
 
-
-
         setContentView(R.layout.activity_main);
-
         setUpView();
 
         festivalDao = daoSession.getFestivalDao();
@@ -131,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //whatsNewDao = daoSession.getWhatsNewDao();
         //whatsNewDao.insert(null);
         // query all festivals, sorted a-z by their text
-
 
         MusicGenreDao musicGenreDao = daoSession.getMusicGenreDao();
         List<MusicGenre> musicGenres = musicGenreDao.queryBuilder().build().list();
