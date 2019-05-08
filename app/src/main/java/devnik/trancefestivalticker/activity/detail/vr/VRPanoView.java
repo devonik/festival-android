@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity.detail;
+package devnik.trancefestivalticker.activity.detail.vr;
 
 import android.Manifest;
 import android.app.ProgressDialog;

@@ -6,10 +6,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import devnik.trancefestivalticker.activity.detail.FestivalDetailFragment;
-import devnik.trancefestivalticker.activity.detail.MapFragmentDialog;
-import devnik.trancefestivalticker.activity.detail.TicketFragmentDialog;
-import devnik.trancefestivalticker.activity.detail.VRPanoView;
-import devnik.trancefestivalticker.activity.detail.VRVideoView;
+import devnik.trancefestivalticker.activity.detail.maps.MapFragmentDialog;
+import devnik.trancefestivalticker.activity.detail.tickets.TicketFragmentDialog;
+import devnik.trancefestivalticker.activity.detail.vr.VRPanoView;
+import devnik.trancefestivalticker.activity.detail.vr.VRVideoView;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
 import devnik.trancefestivalticker.model.FestivalTicketPhase;

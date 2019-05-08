@@ -1,45 +1,28 @@
-package devnik.trancefestivalticker.activity.detail;
+package devnik.trancefestivalticker.activity.detail.tickets;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
@@ -49,28 +32,20 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloating
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.activity.MainActivity;
-import devnik.trancefestivalticker.adapter.detail.TicketGalleryAdapter;
+import devnik.trancefestivalticker.adapter.detail.tickets.TicketGalleryAdapter;
 import devnik.trancefestivalticker.helper.BitmapUtils;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.UserTickets;
 import devnik.trancefestivalticker.model.UserTicketsDao;
 
-import static io.fabric.sdk.android.Fabric.TAG;
-import com.wangjie.rapidfloatingactionbutton.util.RFABShape;
-import com.wangjie.rapidfloatingactionbutton.util.RFABTextUtil;
 public class TicketFragmentDialog extends DialogFragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,
         TicketGalleryAdapter.ClickListener {
     private View rootView;

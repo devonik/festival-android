@@ -83,8 +83,6 @@ public class BitmapUtils {
     public static String saveThumbnail(Bitmap bmp, String fileName, File folder) {
         FileOutputStream out = null;
         try {
-            if(!folder.exists())
-                folder.mkdirs();
             File file = new File(folder, fileName+"-thumb.png");
             if(!file.exists()){
                 //Only if the file does not exist already

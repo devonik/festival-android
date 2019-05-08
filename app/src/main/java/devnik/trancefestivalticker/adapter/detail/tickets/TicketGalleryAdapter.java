@@ -1,28 +1,25 @@
-package devnik.trancefestivalticker.adapter.detail;
+package devnik.trancefestivalticker.adapter.detail.tickets;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.net.URI;
-import java.util.EventListener;
 import java.util.List;
 
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.activity.detail.TicketDetailActivity;
+import devnik.trancefestivalticker.activity.detail.tickets.TicketDetailActivity;
 import devnik.trancefestivalticker.helper.PDFUtils;
 import devnik.trancefestivalticker.model.UserTickets;
 
@@ -83,6 +80,7 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
             }
         }catch(Exception ex){
             Log.e("Loading Ticket:","Can not load ticket. Exception: "+ex.getMessage());
+            Toast.makeText(context, "Could not load ticket", Toast.LENGTH_LONG).show();
         }
 
         //Add Listener to remove ticket

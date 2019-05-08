@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity.detail;
+package devnik.trancefestivalticker.activity.detail.maps;
 
 
 import android.Manifest;

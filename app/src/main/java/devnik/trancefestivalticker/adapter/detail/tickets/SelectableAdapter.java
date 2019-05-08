@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.adapter.detail;
+package devnik.trancefestivalticker.adapter.detail.tickets;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;

@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity.detail;
+package devnik.trancefestivalticker.activity.detail.tickets;
 
 public class TicketRfabEnum {
     public static final int RFAB_PEFORM_SEARCH = 0;

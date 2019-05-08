@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.activity.detail;
+package devnik.trancefestivalticker.activity.detail.tickets;
 
 import android.net.Uri;
 import android.os.Bundle;
