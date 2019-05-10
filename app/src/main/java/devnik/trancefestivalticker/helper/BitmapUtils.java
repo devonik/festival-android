@@ -14,7 +14,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -28,11 +27,8 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Objects;
 
-import devnik.trancefestivalticker.activity.MainActivity;
 import devnik.trancefestivalticker.model.Festival;
 
 import static io.fabric.sdk.android.Fabric.TAG;
@@ -53,12 +49,14 @@ public class BitmapUtils {
             layers[1] = new BitmapDrawable(r, BitmapUtils.decodeSampledBitmapFromResource(r, overlayDrawableResourceId, width, height));
             LayerDrawable layerDrawable = new LayerDrawable(layers);
             bitmap = BitmapUtils.drawableToBitmap(layerDrawable);
-        }catch (Exception ex){}
+        }catch (Exception ex){
+            Log.e("ApplyOverlay", "Error: "+ex.getMessage());
+        }
         return bitmap;
     }
     public static String getMimeType(Uri uri, Context context) {
-        String mimeType = null;
-        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+        String mimeType;
+        if (Objects.equals(uri.getScheme(), ContentResolver.SCHEME_CONTENT)) {
             ContentResolver cr = Objects.requireNonNull(context).getContentResolver();
             mimeType = cr.getType(uri);
         } else {
@@ -138,7 +136,7 @@ public class BitmapUtils {
                 // a rule, check if it's null before assigning to an int.  This will
                 // happen often:  The storage API allows for remote files, whose
                 // size might not be locally known.
-                String size = null;
+                String size;
                 if (!cursor.isNull(sizeIndex)) {
                     // Technically the column stores an int, but cursor.getString()
                     // will do the conversion automatically.
@@ -193,7 +191,7 @@ public class BitmapUtils {
     }
 
     private static Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
 
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
@@ -214,12 +212,12 @@ public class BitmapUtils {
     }
     public static File createTicketImageFile(Context context, Festival festival) throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "ticket_"+festival.getName().toLowerCase();
         String storageString = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/tickets";
         File storageDir = new File(storageString);
-        if(!storageDir.exists())
-            storageDir.mkdirs();
+        if(!storageDir.exists()) {
+            boolean mkdirs = storageDir.mkdirs();
+        }
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */

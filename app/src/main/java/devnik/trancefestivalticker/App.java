@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.multidex.MultiDex;
 
@@ -15,7 +16,8 @@ import org.greenrobot.greendao.database.Database;
 import devnik.trancefestivalticker.model.DaoMaster;
 import devnik.trancefestivalticker.model.DaoMaster.DevOpenHelper;
 import devnik.trancefestivalticker.model.DaoSession;
-import devnik.trancefestivalticker.sync.SyncAdapter;
+import devnik.trancefestivalticker.service.location.CustomLocationService;
+import devnik.trancefestivalticker.service.sync.SyncAdapter;
 
 
 /**
@@ -39,6 +41,9 @@ public class App extends Application{
         super.onCreate();
         FirebaseApp.initializeApp(getApplicationContext());
         SyncAdapter.initializeSyncAdapter(this);
+        //Starting Location Service
+        //Intent i = new Intent(getApplicationContext(), CustomLocationService.class);
+        //getApplicationContext().startService(i);
         FirebaseMessaging.getInstance().subscribeToTopic("news");
         FirebaseMessaging.getInstance().subscribeToTopic("newTicketPhase");
 

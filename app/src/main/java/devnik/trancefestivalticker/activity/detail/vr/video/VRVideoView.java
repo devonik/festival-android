@@ -2,7 +2,6 @@ package devnik.trancefestivalticker.activity.detail.vr.video;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -15,7 +14,6 @@ import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -26,8 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.vr.sdk.widgets.video.VrSimpleExoPlayer;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -48,8 +44,6 @@ import devnik.trancefestivalticker.helper.IActivityListeners;
 import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.UITagHandler;
 import devnik.trancefestivalticker.model.FestivalVrView;
-
-import static android.content.Context.AUDIO_SERVICE;
 
 
 public class VRVideoView extends Fragment implements IActivityListeners
@@ -77,17 +71,12 @@ public class VRVideoView extends Fragment implements IActivityListeners
     private static final int LOAD_VIDEO_STATUS_UNKNOWN = 0;
     private static final int LOAD_VIDEO_STATUS_SUCCESS = 1;
     private static final int LOAD_VIDEO_STATUS_ERROR = 2;
-    private ExoPlayer exoPlayer;
-    private SurfaceView surfaceView;
-
-
     private int loadVideoStatus = LOAD_VIDEO_STATUS_UNKNOWN;
 
     /** Tracks the file to be loaded across the lifetime of this app. **/
     private Uri videoUri;
-    private float maxVolume = 1.0f;
 
-private AlertDialog errorLoadingDialog;
+            private AlertDialog errorLoadingDialog;
     //private VideoLoaderTask backgroundVideoLoaderTask;
 
     /**
@@ -137,8 +126,9 @@ private AlertDialog errorLoadingDialog;
                 Objects.requireNonNull(getActivity()).getCacheDir().getPath();*/
         cachePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/360/videos";
         File folderToSave = new File(cachePath);
-        if(!folderToSave.exists())
-            folderToSave.mkdirs();
+        if(!folderToSave.exists()) {
+            boolean mkdirs = folderToSave.mkdirs();
+        }
 
         enableStoragePermission();
         //Need check, cuz onCreateView is called even if the neigbourgh tab is clicked... cuz pagerview cache it
@@ -159,8 +149,8 @@ private AlertDialog errorLoadingDialog;
                 showDialog();
             }
         }
-        videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
-        statusText = (TextView) view.findViewById(R.id.status_text);
+        videoWidgetView = view.findViewById(R.id.video_view);
+        statusText = view.findViewById(R.id.status_text);
 
         return view;
     }
@@ -229,15 +219,15 @@ private AlertDialog errorLoadingDialog;
     private void loadVRVideo(){
         try {
 
-            seekBar = (SeekBar) view.findViewById(R.id.seek_bar);
+            seekBar = view.findViewById(R.id.seek_bar);
             seekBar.setOnSeekBarChangeListener(new SeekBarListener());
 
 
             // Bind input and output objects for the view.
-            videoWidgetView = (VrVideoView) view.findViewById(R.id.video_view);
+            videoWidgetView = view.findViewById(R.id.video_view);
             videoWidgetView.setEventListener(new ActivityEventListener());
 
-            volumeToggle = (ImageButton) view.findViewById(R.id.volume_toggle);
+            volumeToggle = view.findViewById(R.id.volume_toggle);
             volumeToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -315,6 +305,7 @@ private AlertDialog errorLoadingDialog;
     private void setIsMuted(boolean isMuted) {
         this.isMuted = isMuted;
         volumeToggle.setImageResource(isMuted ? R.drawable.volume_off : R.drawable.volume_on);
+        float maxVolume = 1.0f;
         videoWidgetView.setVolume(isMuted ? 0.0f : maxVolume);
     }
 
@@ -364,7 +355,7 @@ private AlertDialog errorLoadingDialog;
                 " seconds.";
         statusText.setText(status);
     }
-    public void showFileBrokenDialog() {
+    private void showFileBrokenDialog() {
         if (errorLoadingDialog == null) {
             AlertDialog.Builder builderDialogBuilder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
             builderDialogBuilder.setTitle("Video Fehlerhaft. Oops!");
@@ -536,7 +527,7 @@ private AlertDialog errorLoadingDialog;
                 // Output stream
                 OutputStream output = new FileOutputStream(cachePath + "/"+fileName);
 
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
 
                 long total = 0;
 

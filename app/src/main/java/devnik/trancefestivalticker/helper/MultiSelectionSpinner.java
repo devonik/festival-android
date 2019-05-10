@@ -27,25 +27,25 @@ public class MultiSelectionSpinner extends AppCompatSpinner implements
     }
     private OnMultipleItemsSelectedListener listener;
 
-    String[] _items = null;
+    private String[] _items = null;
 
     //The items that are checken in the current dialog
-    boolean[] mSelection = null;
+    private boolean[] mSelection = null;
 
     //All items that are checked since last filter open
-    boolean[] mSelectionAtStart = null;
+    private boolean[] mSelectionAtStart = null;
 
     //All Items unchecked: only need for back to the roots
-    boolean[] mSelectionAtFirstState = null;
+    private boolean[] mSelectionAtFirstState = null;
 
     //Item should be checked at beginning
-    String _itemsAtStart = null;
+    private String _itemsAtStart = null;
 
     //Is Set by the activity
     public static String placeholderText;
 
     //Text is shown on the first view
-    ArrayAdapter<String> simple_adapter;
+    private final ArrayAdapter<String> simple_adapter;
 
     public MultiSelectionSpinner(Context context) {
         super(context);

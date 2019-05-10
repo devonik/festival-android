@@ -1,6 +1,5 @@
 package devnik.trancefestivalticker.activity.detail.tickets;
 
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,12 +20,6 @@ import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.UserTickets;
 
 public class TicketDetailActivity extends AppCompatActivity {
-    private ImageView ticketImage;
-    private PDFView pdfView;
-    private String uri;
-    private String type;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -38,7 +31,7 @@ public class TicketDetailActivity extends AppCompatActivity {
         UserTickets userTicket = new Gson().fromJson(String.valueOf(extras.get("user_ticket")), UserTickets.class);
         if(userTicket != null) {
             if(userTicket.getTicketType().equals("application/pdf")){
-                pdfView = findViewById(R.id.ticket_detail_pdf);
+                PDFView pdfView = findViewById(R.id.ticket_detail_pdf);
                 pdfView.setVisibility(View.VISIBLE);
                 pdfView.fromUri(Uri.parse(userTicket.getTicketUri()))
                 .onError(new OnErrorListener() {
@@ -49,7 +42,7 @@ public class TicketDetailActivity extends AppCompatActivity {
                 })
                 .load();
             }else {
-                ticketImage = findViewById(R.id.ticket_detail_image);
+                ImageView ticketImage = findViewById(R.id.ticket_detail_image);
                 ticketImage.setVisibility(View.VISIBLE);
                 RequestOptions glideOptions = new RequestOptions()
                         .placeholder(R.drawable.progress_animation)

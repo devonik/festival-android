@@ -4,26 +4,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.MainActivity">
     <item
-        android:title="show guide"
+        android:title="@string/show_guide"
         android:id="@+id/action_show_tour_guide"
         android:icon="@drawable/ic_help_outline_white_24dp"
         app:showAsAction="ifRoom"/>
     <group>
         <item
             android:id="@+id/menu_policy"
-            android:title="Impressum"/>
+            android:title="@string/impressum"/>
         <item
             android:id="@+id/menu_credits"
-            android:title="Sonstiges"/>
+            android:title="@string/sonstiges"/>
         <item
             android:id="@+id/menu_organizer"
-            android:title="Sind sie ein Veranstalter?"/>
+            android:title="@string/sind_sie_ein_veranstalter"/>
         <item
             android:id="@+id/menu_faq"
-            android:title="FAQ"/>
+            android:title="@string/faq"/>
         <item
             android:id="@+id/whats_new"
-            android:title="Letzte Änderungen"/>
+            android:title="@string/letzte_nderungen"/>
     </group>
 
 </menu>

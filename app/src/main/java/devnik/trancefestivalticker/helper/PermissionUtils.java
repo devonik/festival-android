@@ -1,10 +1,5 @@
 package devnik.trancefestivalticker.helper;
 
-/**
- * Created by nik on 09.03.2018.
- */
-
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;

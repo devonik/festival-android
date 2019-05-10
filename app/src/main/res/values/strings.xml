@@ -88,10 +88,34 @@
     <string name="rating_button_no">Nein</string>
     <string name="rating_button_cancel">Später</string>
 
+    <string name="last_sync">Letzte Synchronisation: %1$s</string>
+
     <!--VR VIDEO-->
     <string name="enter_vr_label">Enter VR mode</string>
     <string name="exit_vr_label">Exit VR mode</string>
     <string name="pause_label">Pause video</string>
     <string name="permission_warning">This app will not run without permission to read from storage. Click to enable permission.</string>
     <string name="play_label">Play video</string>
+    <string name="loading_video">Loading Video…</string>
+    <string name="vr_video_volume_toggle">VR video volume toggle</string>
+    <string name="waiting">…</string>
+
+    <!--Festival Detail-->
+    <string name="title_not_found">Title not found</string>
+    <string name="datum">Datum</string>
+    <string name="date_not_found">Date not found</string>
+    <string name="homepage_url_not_found">Homepage URL not found</string>
+    <string name="vvk_ausverkauft">VVK Ausverkauft!</string>
+    <string name="evtl_abendkasse">Evtl. Abendkasse</string>
+    <string name="ticket_url_not_found">Ticket URL not found</string>
+    <string name="description_not_found">Description not found</string>
+    <string name="image">Image</string>
+    <string name="show_guide">show guide</string>
+    <string name="impressum">Impressum</string>
+    <string name="sonstiges">Sonstiges</string>
+    <string name="sind_sie_ein_veranstalter">Sind sie ein Veranstalter?</string>
+    <string name="faq">FAQ</string>
+    <string name="letzte_nderungen">Letzte Änderungen</string>
+    <string name="ticket">Ticket</string>
+    <string name="festival_date_placeholder">%1$s - %2$s %3$s</string>
 </resources>

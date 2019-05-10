@@ -7,6 +7,10 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -17,8 +21,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.greendao.query.Query;
-
-import java.util.Objects;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -41,7 +43,6 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 
 public class DetailActivity extends AppCompatActivity {
     private ViewPager viewPager;
-    private SharedPreferences sharedPref;
     private TabLayout tabLayout;
     private PagerAdapter pagerAdapter;
     private AudioManager audioManager;
@@ -49,7 +50,7 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         enablePermissions();
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         DaoSession daoSession = ((App) getApplication()).getDaoSession();
         Bundle extras = getIntent().getExtras();
 
@@ -70,7 +71,7 @@ public class DetailActivity extends AppCompatActivity {
         FestivalVrView photoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
         FestivalVrView videoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
         if(photoVrView != null) {
@@ -82,7 +83,7 @@ public class DetailActivity extends AppCompatActivity {
 
         //Look for existing festival tickets
         UserTicketsDao userTicketsDao = daoSession.getUserTicketsDao();
-        Long ticketCount = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).count();
+        long ticketCount = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).count();
         tabLayout.getSelectedTabPosition();
         if(ticketCount > 0){
             tabLayout.addTab(tabLayout.newTab().setText("Tickets"));
@@ -95,7 +96,7 @@ public class DetailActivity extends AppCompatActivity {
         pagerAdapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount(), festival, festivalDetail, photoVrView, videoVrView, actualFestivalTicketPhase);
 
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
@@ -118,7 +119,7 @@ public class DetailActivity extends AppCompatActivity {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
     }
-    public void enablePermissions() {
+    private void enablePermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -176,4 +177,6 @@ public class DetailActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
+
+
 }

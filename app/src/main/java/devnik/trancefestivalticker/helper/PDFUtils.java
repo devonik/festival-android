@@ -1,6 +1,5 @@
 package devnik.trancefestivalticker.helper;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import com.shockwave.pdfium.PdfiumCore;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.util.Objects;
 
 public class PDFUtils {
     //PdfiumAndroid (https://github.com/barteksc/PdfiumAndroid)
@@ -34,8 +32,9 @@ public class PDFUtils {
             pdfiumCore.closeDocument(pdfDocument); // important!
             String pathToFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/tickets/pdfThumbs";
             File folderToSave = new File(pathToFolder);
-            if(!folderToSave.exists())
-                folderToSave.mkdirs();
+            if(!folderToSave.exists()){
+                boolean mkdirs = folderToSave.mkdirs();
+            }
 
             return BitmapUtils.saveThumbnail(bmp, FilenameUtils.getBaseName(pdfUri.getPath()), folderToSave);
         } catch(Exception e) {

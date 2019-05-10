@@ -14,11 +14,11 @@ import java.net.URL;
  */
 
 public class GetBitmapFromURLAsync extends AsyncTask<Void, Void, Bitmap> {
-    public interface GetBitmapFromURLCompleted {
+    private interface GetBitmapFromURLCompleted {
         void onGetBitmapFromURLCompleted(Bitmap bitmap);
     }
-    private GetBitmapFromURLCompleted onGetBitmapFromURLCompleted;
-    private String source;
+    private final GetBitmapFromURLCompleted onGetBitmapFromURLCompleted;
+    private final String source;
 
     public GetBitmapFromURLAsync(String source, GetBitmapFromURLCompleted onGetBitmapFromURLCompleted){
         this.source = source;

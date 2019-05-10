@@ -23,18 +23,19 @@
             android:id="@+id/volume_toggle"
             android:paddingTop="4dp"
             android:paddingStart="0dp"
+            android:paddingEnd="0dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/volume_on"/>
+            android:src="@drawable/volume_on"
+            android:contentDescription="@string/vr_video_volume_toggle" />
     </LinearLayout>
     <TextView
         android:id="@+id/status_text"
-        android:text="Loading Video..."
-        android:layout_centerInParent="true"
+        android:text="@string/loading_video"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textSize="12dip"
+        android:textSize="12sp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"/>
 </FrameLayout>

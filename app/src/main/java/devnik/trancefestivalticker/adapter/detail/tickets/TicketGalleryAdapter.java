@@ -28,15 +28,15 @@ import devnik.trancefestivalticker.helper.PDFUtils;
 import devnik.trancefestivalticker.model.UserTickets;
 
 public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter.ViewHolder>  {
-    private List<UserTickets> userTickets;
-    private Context context;
+    private final List<UserTickets> userTickets;
+    private final Context context;
 
-    private ClickListener ticketGalleryAdapterListener;
+    private final ClickListener ticketGalleryAdapterListener;
 
     public interface ClickListener {
         void onTicketRemoveByIndex(Integer index);
         void onTicketItemClicked(int position);
-        boolean onTicketItemLongClicked(int position);
+        void onTicketItemLongClicked(int position);
     }
 
     public TicketGalleryAdapter(Context context, List<UserTickets> userTickets, ClickListener ticketGalleryAdapterListener) {
@@ -54,9 +54,6 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
 
     /**
      * gets the image url from adapter and passes to Glide API to load the image
-     *
-     * @param viewHolder
-     * @param i
      */
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
@@ -145,9 +142,9 @@ public class TicketGalleryAdapter extends SelectableAdapter<TicketGalleryAdapter
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView img;
+        final ImageView img;
         //FloatingActionButton btnRemoveTicket;
-        View selectedOverlay;
+        final View selectedOverlay;
 
         ViewHolder(View view) {
             super(view);

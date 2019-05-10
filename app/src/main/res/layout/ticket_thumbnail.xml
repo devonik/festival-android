@@ -2,7 +2,6 @@
 <devnik.trancefestivalticker.helper.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <ImageView
@@ -10,7 +9,7 @@
         android:adjustViewBounds="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="Ticket"
+        android:contentDescription="@string/ticket"
         android:padding="10dp"/>
     <View
         android:id="@+id/selected_overlay"

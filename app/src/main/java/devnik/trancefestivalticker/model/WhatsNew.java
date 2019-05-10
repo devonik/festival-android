@@ -4,8 +4,6 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
-import java.util.Date;
-
 /**
  * Created by nik on 06.03.2018.
  */

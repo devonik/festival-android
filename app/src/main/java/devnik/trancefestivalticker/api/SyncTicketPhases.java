@@ -12,7 +12,7 @@ import devnik.trancefestivalticker.model.FestivalTicketPhaseDao;
 
 public class SyncTicketPhases extends AsyncTask<Void, Void, FestivalTicketPhase[]> {
 
-        private FestivalTicketPhaseDao festivalTicketPhaseDao;
+        private final FestivalTicketPhaseDao festivalTicketPhaseDao;
         public SyncTicketPhases(DaoSession daoSession){
             festivalTicketPhaseDao = daoSession.getFestivalTicketPhaseDao();
         }

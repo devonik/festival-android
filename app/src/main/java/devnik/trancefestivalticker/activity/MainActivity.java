@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private SectionedRecyclerViewAdapter sectionAdapter;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
+    private View showGuideButtonView;
     private MultiSelectionSpinner multiSelectionSpinner;
 
     public static boolean isAppRunning = false;
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //Last Sync
     private String preferenceLastSync;
 
-    public ChainTourGuide mTourGuideHandler;
+    private ChainTourGuide mTourGuideHandler;
     private Animation enterAnimation, exitAnimation;
 
     private AlertDialog.Builder builderDialogBuilder;
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
 
     @Override protected void onDestroy() { super.onDestroy(); isAppRunning = false; }
-    public void updateFestivalThumbnailView(){
+    private void updateFestivalThumbnailView(){
         //whatsNews = whatsNewDao.queryBuilder().build().list();
         festivals = festivalQuery.list();
 
@@ -206,8 +208,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     customDateHeader.add(customDate);
                     //Holet alle Items aus dem aktuellen Monat aus der SQLite Database
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
-                    festivalsInSection = new ArrayList<>();
-                    festivalsInSection.addAll(festivalsByMonth);
+                    festivalsInSection = new ArrayList<>(festivalsByMonth);
                     i = festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection));
                 }
@@ -219,25 +220,24 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     customDateHeader.add(customDate);
 
                     List<Festival> festivalsByMonth = getFestivalsByMonth(festival);
-                    festivalsInSection = new ArrayList<>();
-                    festivalsInSection.addAll(festivalsByMonth);
+                    festivalsInSection = new ArrayList<>(festivalsByMonth);
                     i+=festivalsByMonth.size();
                     sectionAdapter.addSection(new SectionAdapter(getApplicationContext(), customDate,festivalsInSection));
                 }
             }
         }
     }
-    public List getFestivalsByMonth(Festival festival){
+    private List<Festival> getFestivalsByMonth(Festival festival){
         Date lastDayOfMonth = getLastDateOfMonth(festival.getDatum_start());
         Date firstDayOfMonth = getFirstDateOfMonth(festival.getDatum_start());
 
-        Query festivalByMonth = festivalDao.queryBuilder().where(
+        Query<Festival> festivalByMonth = festivalDao.queryBuilder().where(
                 FestivalDao.Properties.Datum_start.between(firstDayOfMonth,lastDayOfMonth)
         ).build();
 
         return festivalByMonth.list();
     }
-    public static Date getLastDateOfMonth(Date date){
+    private static Date getLastDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
-    public static Date getFirstDateOfMonth(Date date){
+    private static Date getFirstDateOfMonth(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -257,12 +257,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         return cal.getTime();
     }
-    protected void setUpView(){
+    private void setUpView(){
         //Set the List Array list in ListView
         // Create an instance of SectionedRecyclerViewAdapter
         sectionAdapter = new SectionedRecyclerViewAdapter();
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             toolbar = findViewById(R.id.toolbar);
@@ -272,12 +272,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                switch (sectionAdapter.getSectionItemViewType(position)){
-                    case SectionedRecyclerViewAdapter.VIEW_TYPE_HEADER:
-                        return 2;
-                    default:
-                        return 1;
+                if (sectionAdapter.getSectionItemViewType(position) == SectionedRecyclerViewAdapter.VIEW_TYPE_HEADER) {
+                    return 2;
                 }
+                return 1;
             }
         });
 
@@ -309,7 +307,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public boolean onCreateOptionsMenu(Menu menu){
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-        MenuItem menuItemShowGuide = menu.findItem(R.id.action_show_tour_guide);
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                showGuideButtonView = findViewById(R.id.action_show_tour_guide);
+            }
+        });
+
         if(appInfo.getFinishedTourGuide().equals("no")) {
             if(festivals.size()>0){
                 runOverlay_TourGuide();
@@ -334,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Handle menu bar item clicks here
         switch (item.getItemId()){
             case R.id.action_show_tour_guide:
+
                 runOverlay_TourGuide();
                 return true;
             case R.id.menu_policy:
@@ -381,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                             // if setOnClickListener is not used, disableClick() will take effect
                             .disableClick(false)
                             .disableClickThroughHole(true)
-                            .setStyle(Overlay.Style.ROUNDED_RECTANGLE))
+                            .setStyle(Overlay.Style.NO_HOLE))
                     .playLater(toolbar);
 
             ChainTourGuide tourGuide1 = ChainTourGuide.init(this)
@@ -428,6 +433,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             // View Type 6 = Header, 2 = Item
             if(secondFestivalViewHolder.getItemViewType() == 6){
                 secondFestivalViewHolder = recyclerView.findViewHolderForAdapterPosition(secondFestivalPosition+1);
+                assert secondFestivalViewHolder != null;
                 secondFestivalView = secondFestivalViewHolder.itemView;
 
                 tourGuide3 = ChainTourGuide.init(this)
@@ -451,23 +457,19 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                             // if setOnClickListener is not used, disableClick() will take effect
                             .disableClick(false)
                             .disableClickThroughHole(true)
-                            .setStyle(Overlay.Style.ROUNDED_RECTANGLE)
+                            .setStyle(Overlay.Style.CIRCLE)
                             .setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     if (appInfo.getFinishedTourGuide().equals("no")) {
                                         //Wenn der User das erste mal das Tutorial "geschafft" hat, wird es nun immer ausgeblendet
-                                        //Shared Preference
-                                        /*SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
-                                        sharedPrefEditor.putString(getString(R.string.devnik_trancefestivalticker_preference_need_tour_guide), "no");
-                                        sharedPrefEditor.apply();*/
                                         appInfo.setFinishedTourGuide("yes");
                                         appInfoDao.update(appInfo);
                                     }
                                     mTourGuideHandler.next();
                                 }
                             }))
-                    .playLater(toolbar);
+                    .playLater(showGuideButtonView);
 
             Sequence sequence = new Sequence.SequenceBuilder()
                     .add(tourGuide0, tourGuide1, tourGuide2, tourGuide3, tourGuide4)
@@ -491,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             Log.e("Fehler im Tourguide:", "Folgender Fehler: "+ex);
         }
     }
-    public void showFAQDialog(){
+    private void showFAQDialog(){
         builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("FAQ - Häufig gestellte Fragen");
         TextView creditTextView = new TextView(this);
@@ -517,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }
-    public void showOrganizerDialog(){
+    private void showOrganizerDialog(){
         builderDialogBuilder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         builderDialogBuilder.setTitle("Ihre Präsenzmöglichkeiten");
         TextView creditTextView = new TextView(this);
@@ -599,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         builderDialogBuilder.create();
         builderDialogBuilder.show();
     }
-    public void initWhatsNewDialog(){
+    private void initWhatsNewDialog(){
         StringBuilder stringBuilder = new StringBuilder();
         if(whatsNews.size() == 0){
             stringBuilder.append("Es sind keine Informationen vorhanden!");
@@ -610,7 +612,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             }
         }
         TextView textView = new TextView(this);
-        textView.setText("Letzte Sync: "+preferenceLastSync);
+        String lastSyncResource = getString(R.string.last_sync, preferenceLastSync);
+        textView.setText(lastSyncResource);
         textView.setTextSize(12);
         textView.setGravity(Gravity.END);
 

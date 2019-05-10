@@ -49,18 +49,9 @@ import devnik.trancefestivalticker.model.UserTicketsDao;
 
 public class TicketFragmentDialog extends DialogFragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,
         TicketGalleryAdapter.ClickListener {
-    private View rootView;
     private FloatingActionButton fabRemove;
 
-    //FloatingActionMenu
-    private RapidFloatingActionLayout rfaLayout;
-    private RapidFloatingActionButton rfaButton;
     private RapidFloatingActionHelper rfabHelper;
-
-    private ImageView ticketImg;
-    private RecyclerView recyclerView;
-    private GridLayoutManager gridLayoutManager;
-
 
     private static final int READ_REQUEST_CODE = 42;
     private Festival festival;
@@ -77,7 +68,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_festival_ticket, container, false);
 
 
             assert getArguments() != null;
@@ -88,9 +79,9 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
             userTicketsDao = daoSession.getUserTicketsDao();
 
             userTickets = userTicketsDao.queryBuilder().where(UserTicketsDao.Properties.FestivalId.eq(festival.getFestival_id())).list();
-            ticketImg = rootView.findViewById(R.id.ticket_thumbnail);
-            recyclerView = (RecyclerView) rootView.findViewById(R.id.ticket_fragment_recycler_view);
-            gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        ImageView ticketImg = rootView.findViewById(R.id.ticket_thumbnail);
+        RecyclerView recyclerView = rootView.findViewById(R.id.ticket_fragment_recycler_view);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
 
             recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -120,8 +111,9 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
             }
 
         //Setting FloatinActionButton Menu
-        rfaLayout = (RapidFloatingActionLayout) rootView.findViewById(R.id.rfad_ticket_options_layout);
-        rfaButton = (RapidFloatingActionButton) rootView.findViewById(R.id.rfaf_add_ticket_options);
+        //FloatingActionMenu
+        RapidFloatingActionLayout rfaLayout = rootView.findViewById(R.id.rfad_ticket_options_layout);
+        RapidFloatingActionButton rfaButton = rootView.findViewById(R.id.rfaf_add_ticket_options);
 
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
@@ -258,9 +250,8 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
         }
 
     }
-    public boolean onTicketItemLongClicked(int position){
+    public void onTicketItemLongClicked(int position){
         toggleSelection(position);
-        return true;
     }
     /**
      * Toggle the selection state of an item.
@@ -283,7 +274,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
-    public void performFileSearch() {
+    private void performFileSearch() {
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
@@ -298,7 +289,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
         // To search for all documents available via installed storage providers,
         // it would be "*/*".
         String[] mimeTypes = {"image/*","application/pdf"};
-        intent.setType(!mimeTypes[0].equals("") ? mimeTypes[0] : "*/*");
+        intent.setType(mimeTypes[0]);
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
         startActivityForResult(intent, READ_REQUEST_CODE);
@@ -308,7 +299,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
      * this remove button is shown when there are selected tickets by long press
      * this function is called when this button is clicked
      */
-    public void removeTickets(){
+    private void removeTickets(){
         List<Integer> selectedIndexes = ticketGalleryAdapter.getSelectedItems();
         //We need a copy here cuz when we remove it by index it will get a new index
         List<UserTickets> selectedUserTickets = new ArrayList<UserTickets>();
@@ -325,7 +316,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
         }
         removeTicketsByList(selectedUserTickets);
     }
-    public void removeTicketsByList(List<UserTickets> userTickets){
+    private void removeTicketsByList(List<UserTickets> userTickets){
         for (UserTickets userTicket : userTickets){
             this.userTickets.remove(userTicket);
             //Persist the remove and remove it from the database
@@ -355,7 +346,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.
             // Pull that URI using resultData.getData().
-            Uri uri = null;
+            Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
                 UserTickets userTicket = new UserTickets();
@@ -400,7 +391,7 @@ public class TicketFragmentDialog extends DialogFragment implements RapidFloatin
         if(requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_CANCELED){
             //If the Camera canceled delete the temp file
             //delete on exit method deletes the file or directory defined by the abstract path name when the virtual machine terminates.
-            photoFile.delete();
+            boolean delete = photoFile.delete();
         }
     }
 

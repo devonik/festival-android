@@ -1,4 +1,4 @@
-package devnik.trancefestivalticker.authentication;
+package devnik.trancefestivalticker.service.authentication;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

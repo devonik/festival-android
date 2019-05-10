@@ -50,13 +50,11 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
      */
     public boolean loadImageSuccessful;
     private View view;
-    boolean _areLecturesLoaded = false;
     // Progress Dialog
     private ProgressDialog pDialog;
     private boolean tabIsVisible = false;
     //Permission
-    private int REQUEST_STORAGE = 2;
-    private boolean mPermissionDenied = false;
+    private final int REQUEST_STORAGE = 2;
 
     private FestivalVrView vrView;
     private String fileName;
@@ -78,8 +76,9 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
                 Objects.requireNonNull(getActivity()).getCacheDir().getPath();*/
         cachePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/tftApp/360/photos";
         File folderToSave = new File(cachePath);
-        if(!folderToSave.exists())
-            folderToSave.mkdirs();
+        if(!folderToSave.exists()) {
+            boolean mkdirs = folderToSave.mkdirs();
+        }
 
         if(tabIsVisible) {
             //Falls die nötige Berechtigung noch nicht vorhanden ist, wird erneut gefragt
@@ -123,7 +122,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
             downloadVRPano();
         } else {
             // Display the missing permission error dialog when the fragments resume.
-            mPermissionDenied = true;
+            boolean mPermissionDenied = true;
         }
     }
     private void enableStoragePermission() {
@@ -171,7 +170,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
             tabIsVisible = false;
         }
     }
-    public void downloadVRPano(){
+    private void downloadVRPano(){
         pDialog = new ProgressDialog(getActivity());
         pDialog.setMessage("Foto wird geladen... Bitte warten");
         pDialog.setIndeterminate(true);
@@ -181,7 +180,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
         pDialog.show();
         new DownloadFileFromURL().execute(vrView.getUrl());
     }
-    public void loadVRPano(String path){
+    private void loadVRPano(String path){
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
@@ -262,7 +261,7 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
                 // Output stream
                 OutputStream output = new FileOutputStream(cachePath + "/"+fileName);
 
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
 
                 long total = 0;
 

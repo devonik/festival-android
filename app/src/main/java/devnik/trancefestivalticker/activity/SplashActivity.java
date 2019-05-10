@@ -28,7 +28,7 @@ import devnik.trancefestivalticker.api.SyncTicketPhases;
 import devnik.trancefestivalticker.model.DaoSession;
 import devnik.trancefestivalticker.model.FestivalDao;
 
-import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
+import static devnik.trancefestivalticker.service.sync.SyncAdapter.getSyncAccount;
 
 
 /**
@@ -38,16 +38,16 @@ import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
 public class SplashActivity extends AppCompatActivity// implements SyncStatusObserver
 {
     // Incoming Intent key for extended data
-    public static final String KEY_SYNC_REQUEST =
+    private static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
     public static final String ACTION_FINISHED_SYNC = "devnik.trancefestivalticker.ACTION_FINISHED_SYNC";
-    private static IntentFilter syncIntentFilter = new IntentFilter(ACTION_FINISHED_SYNC);
+    private static final IntentFilter syncIntentFilter = new IntentFilter(ACTION_FINISHED_SYNC);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress_bar);
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.getIndeterminateDrawable().setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_IN);
 
         DaoSession daoSession1 = ((App) this.getApplication()).getDaoSession();
@@ -63,8 +63,7 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
         Account mAccount = getSyncAccount(this);
 
         DaoSession daoSession = ((App) getApplicationContext()).getDaoSession();
-        Log.e("INTENT",""+getIntent().getExtras());
-        if (preferenceAccountName == "") {
+        if (preferenceAccountName.equals("")) {
             //Account is new
             if (!isDeviceOnline()) {
                 showNoConnectionDialog();
@@ -89,7 +88,7 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
             if (getIntent().getExtras().get(KEY_SYNC_REQUEST) != null) {
 
                 if (Objects.requireNonNull(getIntent().getExtras().get(KEY_SYNC_REQUEST)).equals("sync")) {
-                    //The App is called by firebase message while app was in background
+
                     //if (isDeviceOnline()) {
                         //Synce die Daten, falls der User netz hat
 
@@ -109,6 +108,7 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
                         finish();*/
 
                 } else if (Objects.requireNonNull(getIntent().getExtras().get(KEY_SYNC_REQUEST)).equals("newTicketPhase")) {
+                    //The App is called by firebase message while app was in background
                     new SyncTicketPhases(daoSession).execute();
 
                     Intent intent = new Intent(this, MainActivity.class);
@@ -151,7 +151,7 @@ public class SplashActivity extends AppCompatActivity// implements SyncStatusObs
         }
 
     }
-    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {

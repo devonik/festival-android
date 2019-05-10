@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by niklas on 22.03.18.
  */
@@ -25,7 +27,7 @@ public class StubProvider extends ContentProvider {
      * Return no type for MIME type
      */
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
     /*
@@ -34,7 +36,7 @@ public class StubProvider extends ContentProvider {
      */
     @Override
     public Cursor query(
-            Uri uri,
+            @NonNull Uri uri,
             String[] projection,
             String selection,
             String[] selectionArgs,
@@ -45,21 +47,21 @@ public class StubProvider extends ContentProvider {
      * insert() always returns null (no URI)
      */
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         return null;
     }
     /*
      * delete() always returns "no rows affected" (0)
      */
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
     /*
      * update() always returns "no rows affected" (0)
      */
     public int update(
-            Uri uri,
+            @NonNull Uri uri,
             ContentValues values,
             String selection,
             String[] selectionArgs) {

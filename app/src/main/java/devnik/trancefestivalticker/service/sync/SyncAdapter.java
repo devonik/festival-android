@@ -1,31 +1,21 @@
-package devnik.trancefestivalticker.sync;
+package devnik.trancefestivalticker.service.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SyncRequest;
 import android.content.SyncResult;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.security.ProviderInstaller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import devnik.trancefestivalticker.App;
@@ -36,8 +26,8 @@ import devnik.trancefestivalticker.model.AppInfo;
 import devnik.trancefestivalticker.model.AppInfoDao;
 import devnik.trancefestivalticker.model.DaoSession;
 
-/**
- * Created by niklas on 22.03.18.
+/*
+  Created by niklas on 22.03.18.
  */
 /**
  * Handle the transfer of data between a server and an
@@ -46,7 +36,7 @@ import devnik.trancefestivalticker.model.DaoSession;
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Global variables
     // Define a variable to contain a content resolver instance
-    private ContentResolver mContentResolver;
+    private final ContentResolver mContentResolver;
     // (60 seconds * 24 Hours) = 1440 seconds * 60 = 86400 seconds (24 hours)
     // (60 seconds (1 minute) * 60) / 60 / 60 = 1 hours
     // (60 seconds (1 minute) * 10) / 60 = 10 min
@@ -91,21 +81,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
-        /**
-         * https://developer.android.com/training/articles/security-gms-provider.html
-         *
+        /*
+          If the device's Provider is successfully updated (or is already up-to-date), the method returns normally.
+
+          If the device's Google Play services library is out of date, the method throws GooglePlayServicesRepairableException.
+          The app can then catch this exception and show the user an appropriate dialog box to update Google Play services.
+
+          If a non-recoverable error occurs, the method throws GooglePlayServicesNotAvailableException to indicate that it is unable to update the Provider.
+          The app can then catch the exception and choose an appropriate course of action, such as displaying the standard fix-it flow diagram.
+
          */
-        //try {
-            /**
-             * If the device's Provider is successfully updated (or is already up-to-date), the method returns normally.
-             *
-             * If the device's Google Play services library is out of date, the method throws GooglePlayServicesRepairableException.
-             * The app can then catch this exception and show the user an appropriate dialog box to update Google Play services.
-             *
-             * If a non-recoverable error occurs, the method throws GooglePlayServicesNotAvailableException to indicate that it is unable to update the Provider.
-             * The app can then catch the exception and choose an appropriate course of action, such as displaying the standard fix-it flow diagram.
-             *
-             */
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(getContext());
         googleApiAvailability.showErrorNotification(getContext(),status);
@@ -123,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 appInfo = new AppInfo();
                 appInfo.setId(1L);
             }
-            SimpleDateFormat readDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            SimpleDateFormat readDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMAN);
             readDate.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
             appInfo.setLastSync(readDate.format(new Date()));
             Log.e("App is getting sync",readDate.format(new Date()));
@@ -143,7 +128,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      * Helper method to have the sync adapter sync immediately
      * @param context The context used to access the account service
      */
-    public static void syncImmediately(Context context) {
+    private static void syncImmediately(Context context) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -169,6 +154,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
         // If the password doesn't exist, the account doesn't exist
+        assert accountManager != null;
         if ( null == accountManager.getPassword(newAccount) ) {
 
         /*

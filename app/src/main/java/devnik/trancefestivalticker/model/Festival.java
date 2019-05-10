@@ -1,8 +1,6 @@
 package devnik.trancefestivalticker.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -16,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Transient;
 
 /**
  * Created by nik on 02.03.2018.
@@ -26,20 +23,20 @@ import org.greenrobot.greendao.annotation.Transient;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Festival implements Serializable {
     @Id
-    Long festival_id;
-    Long festival_detail_id;
-    String name;
-    String thumbnail_image_url;
-    Date datum_start;
-    Date datum_end;
-    String syncStatus;
+    private Long festival_id;
+    private Long festival_detail_id;
+    private String name;
+    private String thumbnail_image_url;
+    private Date datum_start;
+    private Date datum_end;
+    private String syncStatus;
     @ToMany
     @JoinEntity(
             entity = MusicGenreFestivals.class,
             sourceProperty = "festival_id",
             targetProperty = "music_genre_id"
     )
-    List<MusicGenre> musicGenres;
+    private List<MusicGenre> musicGenres;
 
     @ToMany(referencedJoinProperty = "festival_id")
     private List<FestivalTicketPhase> ticketPhases;

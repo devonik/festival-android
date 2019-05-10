@@ -5,15 +5,9 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -59,26 +53,24 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
     private List<FestivalDetailImages> festivalDetailImages;
 
     private TextView homepage_url, ticket_url, lblTitle, lblDate, description, price, ticketPhaseTitle;
-    private ScrollView scrollView;
     private SliderLayout imageSlider;
-    private LinearLayout linearLayoutSlider;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_festival_detail, container, false);
-        lblTitle = (TextView) view.findViewById(R.id.title);
-        lblDate = (TextView) view.findViewById(R.id.dateString);
-        homepage_url = (TextView) view.findViewById(R.id.homepage_url);
-        ticket_url = (TextView) view.findViewById(R.id.ticket_url);
-        ticketPhaseTitle = (TextView) view.findViewById(R.id.ticketPhaseTitle);
-        price = (TextView) view.findViewById(R.id.price);
-        description = (TextView) view.findViewById(R.id.description);
+        lblTitle = view.findViewById(R.id.title);
+        lblDate = view.findViewById(R.id.dateString);
+        homepage_url = view.findViewById(R.id.homepage_url);
+        ticket_url = view.findViewById(R.id.ticket_url);
+        ticketPhaseTitle = view.findViewById(R.id.ticketPhaseTitle);
+        price = view.findViewById(R.id.price);
+        description = view.findViewById(R.id.description);
 
-        imageSlider = (SliderLayout) view.findViewById(R.id.slider);
-        scrollView = (ScrollView) view.findViewById(R.id.scrollView);
-        linearLayoutSlider = (LinearLayout) view.findViewById(R.id.linear_layout_slider);
+        imageSlider = view.findViewById(R.id.slider);
+        ScrollView scrollView = view.findViewById(R.id.scrollView);
+        LinearLayout linearLayoutSlider = view.findViewById(R.id.linear_layout_slider);
 
         assert getArguments() != null;
         festival = (Festival) getArguments().getSerializable("festival");
@@ -120,7 +112,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         });*/
         return view;
     }
-    public String festivalStatus(){
+    private String festivalStatus(){
         Date start = festival.getDatum_start();
         Date end = festival.getDatum_end();
         Date today = new Date();
@@ -130,7 +122,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             return "( Läuft gerade! )";
         }
         else if(today.before(start)){
-            Integer daysTillStart = calcDaysTillStart(start);
+            int daysTillStart = calcDaysTillStart(start);
             //Festival start is comming
             if(daysTillStart > 1){
                 return "( Noch "+calcDaysTillStart(start)+" Tage )";
@@ -145,15 +137,18 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         }
         return "";
     }
-    public int calcDaysTillStart(Date startDate){
+    private int calcDaysTillStart(Date startDate){
         Date today = new Date();
         return Days.daysBetween(new LocalDate(today.getTime()), new LocalDate(startDate.getTime())).getDays();
     }
-    public void loadData(){
+    private void loadData(){
         lblTitle.setText(festival.getName());
 
-        //TODO aulagern in string resource für translation
-        lblDate.setText(DateFormat.format("dd.MM.yyyy", festival.getDatum_start())+ " - " + DateFormat.format("dd.MM.yyyy", festival.getDatum_end()) + " "+festivalStatus());
+        String dateStart = (String) DateFormat.format("dd.MM.yyyy", festival.getDatum_start());
+        String dateEnd = (String) DateFormat.format("dd.MM.yyyy", festival.getDatum_end());
+        
+        String festivalDateResource = Objects.requireNonNull(getContext()).getString(R.string.festival_date_placeholder, dateStart, dateEnd, festivalStatus());
+        lblDate.setText(festivalDateResource);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
@@ -175,7 +170,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             price.setText(String.valueOf(actualFestivalTicketPhase.getPrice()));
         }
     }
-    public void initImageSlider(){
+    private void initImageSlider(){
         for(FestivalDetailImages image : festivalDetailImages){
             TextSliderView textSliderView = new TextSliderView(getActivity());
             // initialize a SliderLayout

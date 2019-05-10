@@ -7,5 +7,5 @@ import java.util.List;
  */
 
 public interface IFilterableSection {
-   public void filter(List<String> musicGenres);
+   void filter(List<String> musicGenres);
 }

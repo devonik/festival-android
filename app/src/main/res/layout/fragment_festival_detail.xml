@@ -2,7 +2,6 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
-    xmlns:layout_weight="http://schemas.android.com/tools"
     android:id="@+id/test"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -69,7 +68,7 @@
                     android:layout_marginTop="15dp"
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_stat_notify_msg"
-                    android:text="Title not found"
+                    android:text="@string/title_not_found"
                     android:textAlignment="center"
                     android:textColor="@android:color/background_light"
                     android:textStyle="bold" />
@@ -83,9 +82,9 @@
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_today_white_24dp"
                     android:gravity="center"
-                    android:hint="Datum"
+                    android:hint="@string/datum"
                     android:padding="5dp"
-                    android:text="Date not found"
+                    android:text="@string/date_not_found"
                     android:textColor="@android:color/background_light"
                     android:textStyle="bold" />
 
@@ -97,7 +96,7 @@
                     android:layout_marginTop="5dp"
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_pageview_white_24dp"
-                    android:text="homepage_url not found"
+                    android:text="@string/homepage_url_not_found"
                     android:textColor="@android:color/background_light" />
 
                 <TextView
@@ -106,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_marginEnd="10dp"
-                    android:text="VVK Ausverkauft!"
+                    android:text="@string/vvk_ausverkauft"
                     android:textColor="@android:color/background_light"
                     android:textStyle="bold|italic" />
 
@@ -118,7 +117,7 @@
                     android:layout_marginEnd="10dp"
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_euro_symbol_white_24dp"
-                    android:text="Evtl. Abendkasse"
+                    android:text="@string/evtl_abendkasse"
                     android:textColor="@android:color/background_light" />
 
                 <TextView
@@ -129,7 +128,7 @@
                     android:layout_marginStart="5dp"
                     android:drawablePadding="2dp"
                     android:drawableStart="@drawable/ic_confirmation_number_white_24dp"
-                    android:text="ticket_url not found"
+                    android:text="@string/ticket_url_not_found"
                     android:textColor="@android:color/background_light" />
 
                 <TextView
@@ -140,7 +139,7 @@
                     android:layout_marginStart="5sp"
                     android:drawablePadding="2dp"
                     android:drawableTop="@drawable/ic_description_white_24dp"
-                    android:text="Description not found"
+                    android:text="@string/description_not_found"
                     android:textAllCaps="false"
                     android:textColor="@android:color/background_light" />
 

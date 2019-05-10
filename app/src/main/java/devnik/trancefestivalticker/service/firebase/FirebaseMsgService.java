@@ -1,20 +1,17 @@
-package devnik.trancefestivalticker.firebase;
+package devnik.trancefestivalticker.service.firebase;
 
 import android.content.ContentResolver;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
-import devnik.trancefestivalticker.api.SyncTicketPhases;
 import devnik.trancefestivalticker.model.DaoSession;
 
-import static devnik.trancefestivalticker.sync.SyncAdapter.getSyncAccount;
+import static devnik.trancefestivalticker.service.sync.SyncAdapter.getSyncAccount;
 
 
 /**
@@ -25,7 +22,7 @@ public class FirebaseMsgService extends FirebaseMessagingService {
     private final String TAG = "FirebaseMsgService";
     // Constants
     // Incoming Intent key for extended data
-    public static final String KEY_SYNC_REQUEST =
+    private static final String KEY_SYNC_REQUEST =
             "devnik.trancefestivalticker.KEY_SYNC_REQUEST";
     @Override
     public void onNewToken(String s) {

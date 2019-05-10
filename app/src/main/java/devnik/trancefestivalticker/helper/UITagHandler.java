@@ -33,9 +33,6 @@ public class UITagHandler implements Html.TagHandler {
      */
     private final Stack<ListTag> lists = new Stack<ListTag>();
 
-    /**
-     * @see android.text.Html.TagHandler#handleTag(boolean, String, Editable, XMLReader)
-     */
     @Override
     public void handleTag(final boolean opening, final String tag, final Editable output, final XMLReader xmlReader)
     {
@@ -85,8 +82,6 @@ public class UITagHandler implements Html.TagHandler {
     {
         /**
          * Opens a new list item.
-         *
-         * @param text
          */
         public void openItem(final Editable text)
         {
@@ -100,9 +95,6 @@ public class UITagHandler implements Html.TagHandler {
 
         /**
          * Closes a list item.
-         *
-         * @param text
-         * @param indentation
          */
         final void closeItem(final Editable text, final int indentation)
         {
@@ -187,8 +179,6 @@ public class UITagHandler implements Html.TagHandler {
 
         /**
          * Creates a new {@code <ul>} with given start index.
-         *
-         * @param startIdx
          */
         Ol(final int startIdx)
         {

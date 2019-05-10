@@ -1,9 +1,6 @@
 package devnik.trancefestivalticker.api;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -11,9 +8,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
-import devnik.trancefestivalticker.R;
 import devnik.trancefestivalticker.model.AppInfo;
 import devnik.trancefestivalticker.model.AppInfoDao;
 import devnik.trancefestivalticker.model.DaoSession;
@@ -40,22 +37,20 @@ import devnik.trancefestivalticker.model.WhatsNewDao;
 
 public class SyncAllData {
 
-    private Context context;
-    private FestivalDao festivalDao;
+    private final FestivalDao festivalDao;
 
-    private FestivalDetailDao festivalDetailDao;
+    private final FestivalDetailDao festivalDetailDao;
 
-    private FestivalDetailImagesDao festivalDetailImagesDao;
+    private final FestivalDetailImagesDao festivalDetailImagesDao;
 
-    private MusicGenreDao musicGenreDao;
-    private MusicGenreFestivalsDao musicGenreFestivalsDao;
-    private FestivalTicketPhaseDao festivalTicketPhaseDao;
-    private WhatsNewDao whatsNewDao;
-    private FestivalVrViewDao festivalVrViewDao;
-    private AppInfoDao appInfoDao;
+    private final MusicGenreDao musicGenreDao;
+    private final MusicGenreFestivalsDao musicGenreFestivalsDao;
+    private final FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private final WhatsNewDao whatsNewDao;
+    private final FestivalVrViewDao festivalVrViewDao;
+    private final AppInfoDao appInfoDao;
 
     public SyncAllData(DaoSession daoSession, Context context){
-        this.context = context;
         festivalDao = daoSession.getFestivalDao();
 
         festivalDetailDao = daoSession.getFestivalDetailDao();
@@ -289,7 +284,7 @@ public class SyncAllData {
             }
 
             String preferenceLastOnline = appInfo.getLastSync();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMAN);
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
             String url = "https://festivalticker.herokuapp.com/api/v1/whatsNewBetweenDates?start="+
                     preferenceLastOnline+

@@ -41,16 +41,17 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
  */
 
 public class SectionAdapter extends StatelessSection implements View.OnLongClickListener, IFilterableSection {
-    private Context mContext;
-    private ArrayList<Festival> festivals;
+    private final Context mContext;
+    private final ArrayList<Festival> festivals;
     private ArrayList<Festival> filteredFestivalList;
-    private FestivalTicketPhaseDao festivalTicketPhaseDao;
-    private CustomDate customDate;
+    private final FestivalTicketPhaseDao festivalTicketPhaseDao;
+    private final CustomDate customDate;
 
     public SectionAdapter(Context context, CustomDate customDate, ArrayList<Festival> festivals) {
 
         // call constructor with layout resources for this Section header and items
-        super(new SectionParameters.Builder(R.layout.gallery_thumbnail)
+        super(SectionParameters.builder()
+                .itemResourceId(R.layout.gallery_thumbnail)
                 .headerResourceId(R.layout.gallery_section)
                 .build());
         mContext = context;
@@ -210,14 +211,14 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
     }
 
     class MyItemViewHolder extends RecyclerView.ViewHolder{
-        public ImageView thumbnail;
+        public final ImageView thumbnail;
         public TextView title, subtitle;
         public Festival festival;
-        FloatingActionButton festivalOverBadgeIcon;
+        final FloatingActionButton festivalOverBadgeIcon;
 
         MyItemViewHolder(View itemView) {
             super(itemView);
-            thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            thumbnail = itemView.findViewById(R.id.thumbnail);
             festivalOverBadgeIcon = itemView.findViewById(R.id.festival_done);
 
         }
@@ -231,8 +232,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
 
         HeaderViewHolder(View view) {
             super(view);
-            yearHeader = (TextView) view.findViewById(R.id.yearHeader);
-            monthHeader = (TextView) view.findViewById(R.id.monthHeader);
+            yearHeader = view.findViewById(R.id.yearHeader);
+            monthHeader = view.findViewById(R.id.monthHeader);
         }
     }
 
