@@ -71,6 +71,7 @@ import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.animation.CustomBounceInterpolator;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
+import io.fabric.sdk.android.Logger;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -207,13 +208,30 @@ public class MapFragmentDialog extends DialogFragment implements
         updateValuesFromBundle(savedInstanceState);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        Log.e("MAP CURRENT LOCATION", "location: "+location);
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            mLastKnownLocation = location;
+                            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                        }
+                    }
+                });
+
+
         mSettingsClient = LocationServices.getSettingsClient(getActivity());
 
         // Kick off the process of building the LocationCallback, LocationRequest, and
         // LocationSettingsRequest objects.
-        createLocationCallback();
-        createLocationRequest();
+        //createLocationCallback();
+        //createLocationRequest();
         buildLocationSettingsRequest();
+
+
 
         return rootView;
     }
@@ -514,7 +532,7 @@ public class MapFragmentDialog extends DialogFragment implements
                 moveCameraToCurrentLocation();
                 startButtonBounceAnimation(myLocationButton);
         }else{
-            Toast.makeText(getActivity(),"Die aktuelle Position kann nicht berechnet werden. GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(),"Die aktuelle Position kann nicht berechnet werden. GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
 
         }
         // Return false so that we don't consume the event and the default behavior still occurs
@@ -591,6 +609,7 @@ public class MapFragmentDialog extends DialogFragment implements
                 sharedPrefEditor.apply();
             } catch (Exception e) {
                 // Handle error
+                Log.e("Festival Route", "Could not calc festival route: "+e);
             }
         }
 
