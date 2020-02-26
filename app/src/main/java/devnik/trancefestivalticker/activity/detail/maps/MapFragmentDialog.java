@@ -208,19 +208,7 @@ public class MapFragmentDialog extends DialogFragment implements
         updateValuesFromBundle(savedInstanceState);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        Log.e("MAP CURRENT LOCATION", "location: "+location);
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-
-                            mLastKnownLocation = location;
-                            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                        }
-                    }
-                });
+        getLastLocation();
 
 
         mSettingsClient = LocationServices.getSettingsClient(getActivity());
@@ -235,7 +223,24 @@ public class MapFragmentDialog extends DialogFragment implements
 
         return rootView;
     }
+    private Location getLastLocation(){
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        Log.e("MAP CURRENT LOCATION", "location: "+location);
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
 
+                            mLastKnownLocation = location;
+                            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                        }else if(mLastKnownLocation == null){
+                            Toast.makeText(getActivity(),"GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        return mLastKnownLocation;
+    }
     /**
      * Sets up the location request. Android has two location request settings:
      * {@code ACCESS_COARSE_LOCATION} and {@code ACCESS_FINE_LOCATION}. These settings control
@@ -531,9 +536,6 @@ public class MapFragmentDialog extends DialogFragment implements
                 }
                 moveCameraToCurrentLocation();
                 startButtonBounceAnimation(myLocationButton);
-        }else{
-            //Toast.makeText(getActivity(),"Die aktuelle Position kann nicht berechnet werden. GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
-
         }
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
@@ -569,11 +571,11 @@ public class MapFragmentDialog extends DialogFragment implements
     }
 
     private void getRouteToFestival(){
-        if(mLastKnownLocation == null){
+        if(getLastLocation() == null){
             Toast.makeText(getActivity(),"Die Route kann nicht berechnet werden. GPS Signal nicht verfügbar", Toast.LENGTH_SHORT).show();
         }else {
             GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey(getString(R.string.google_maps_key))
+                    .apiKey(getString(R.string.google_direction_api))
                     .build();
             com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
             com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(festivalDetail.getGeoLatitude(), festivalDetail.getGeoLongitude());
