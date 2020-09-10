@@ -16,10 +16,12 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -120,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         setUpView();
 
         festivalDao = daoSession.getFestivalDao();
+
+        //Sort festivals by datum start
         festivalQuery = festivalDao.queryBuilder().orderAsc(FestivalDao.Properties.Datum_start).build();
 
         FestivalDetailDao festivalDetailDao = daoSession.getFestivalDetailDao();
@@ -334,7 +338,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //Handle menu bar item clicks here
         switch (item.getItemId()){
             case R.id.action_show_tour_guide:
-
                 runOverlay_TourGuide();
                 return true;
             case R.id.menu_policy:

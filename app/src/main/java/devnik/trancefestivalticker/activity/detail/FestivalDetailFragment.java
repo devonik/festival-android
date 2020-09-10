@@ -150,14 +150,33 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         String festivalDateResource = Objects.requireNonNull(getContext()).getString(R.string.festival_date_placeholder, dateStart, dateEnd, festivalStatus());
         lblDate.setText(festivalDateResource);
 
+        String homepageUrl = festivalDetail.getHomepage_url() != null ? festivalDetail.getHomepage_url() : "Unbekannt";
+        String ticketUrl = festivalDetail.getTicket_url() != null ? festivalDetail.getTicket_url() : "Unbekannt";
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
-            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
-            description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+
+            if(festivalDetail.getHomepage_url() != null)
+                homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+
+            if(festivalDetail.getTicket_url() != null)
+                ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+
+            if(festivalDetail.getDescription() != null)
+                description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            else description.setText(Html.fromHtml(getString(R.string.description_not_found), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+
         }else{
-            homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(),null, new UITagHandler()));
-            ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(),null, new UITagHandler()));
-            description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+
+            if(festivalDetail.getHomepage_url() != null)
+                homepage_url.setText(Html.fromHtml(festivalDetail.getHomepage_url(), null, new UITagHandler()));
+
+            if(festivalDetail.getTicket_url() != null)
+                ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), null, new UITagHandler()));
+
+            if(festivalDetail.getDescription() != null)
+                description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+            else description.setText(Html.fromHtml(getString(R.string.description_not_found), null, new UITagHandler()));
+
         }
         //Important to make the hrefs clickable
         description.setMovementMethod(LinkMovementMethod.getInstance());

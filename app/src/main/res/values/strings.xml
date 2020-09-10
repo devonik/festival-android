@@ -104,11 +104,18 @@
     <string name="title_not_found">Title not found</string>
     <string name="datum">Datum</string>
     <string name="date_not_found">Date not found</string>
-    <string name="homepage_url_not_found">Homepage URL not found</string>
-    <string name="vvk_ausverkauft">VVK Ausverkauft!</string>
+    <string name="homepage_url_not_found">Homepage not found</string>
+    <string name="ticket_price_unknown">Price not found</string>
     <string name="evtl_abendkasse">Evtl. Abendkasse</string>
-    <string name="ticket_url_not_found">Ticket URL not found</string>
-    <string name="description_not_found">Description not found</string>
+    <string name="ticket_url_not_found">Ticket page not found</string>
+    <string name="description_not_found">
+        <![CDATA[
+            <p>Noch kein Text vorhanden</p>
+            <br>
+            <br>
+            <p>Falls du bei der Indian warst und einen Erfahrungsbericht schreiben möchtest und dich hier verewigen möchtest, kannst du dies gerne tun und mir eine Mail zukommen lassen unter trancefestivalticker@gmail.com. Ich würde mich freuen :)</p>
+        ]]>
+    </string>
     <string name="image">Image</string>
     <string name="show_guide">show guide</string>
     <string name="impressum">Impressum</string>

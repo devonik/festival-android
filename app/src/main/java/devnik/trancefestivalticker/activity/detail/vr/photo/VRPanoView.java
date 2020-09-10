@@ -133,6 +133,12 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
             PermissionUtils.requestPermission(getActivity(), REQUEST_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE, true);
 
+        }if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the write external storage is missing.
+            PermissionUtils.requestPermission(getActivity(), REQUEST_STORAGE,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE, true);
+
         } else{
             // Access to the external storage has been granted to the app.
             try {
@@ -183,13 +189,18 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
     private void loadVRPano(String path){
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+        try{
+            Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 
-        panoWidgetView = view.findViewById(R.id.pano_view);
-        panoWidgetView.setEventListener(new ActivityEventListener());
-        Options panoOptions = new Options();
-        panoOptions.inputType = Options.TYPE_MONO;
-        panoWidgetView.loadImageFromBitmap(bitmap, panoOptions);
+            panoWidgetView = view.findViewById(R.id.pano_view);
+            panoWidgetView.setEventListener(new ActivityEventListener());
+            Options panoOptions = new Options();
+            panoOptions.inputType = Options.TYPE_MONO;
+            panoWidgetView.loadImageFromBitmap(bitmap, panoOptions);
+
+        }catch (Exception ex){
+            enableStoragePermission();
+        }
     }
     /*@Override
     public void onGetBitmapFromURLCompleted(Bitmap bitmap){
@@ -219,7 +230,8 @@ public class VRPanoView extends DialogFragment implements ActivityCompat.OnReque
             Toast.makeText(
                     VRPanoView.this.getActivity(), "Error loading pano: " + errorMessage, Toast.LENGTH_LONG)
                     .show();
-            Log.e(TAG, "Error loading pano: " + errorMessage);
+            Log.e(TAG, "Error loading pano " + errorMessage);
+
         }
     }
 

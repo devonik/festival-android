@@ -68,17 +68,19 @@ public class DetailActivity extends AppCompatActivity {
         FestivalDetail festivalDetail = festivalDetailQuery.unique();
 
         FestivalVrViewDao festivalVrViewDao = daoSession.getFestivalVrViewDao();
-        FestivalVrView photoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
-        FestivalVrView videoVrView = festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
+        FestivalVrView photoVrView = null;//festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
+        FestivalVrView videoVrView = null;//festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
 
         tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
         if(photoVrView != null) {
-            tabLayout.addTab(tabLayout.newTab().setText("360 Foto"));
+            //TODO let it - its just to broken ...
+            //tabLayout.addTab(tabLayout.newTab().setText("360 Foto"));
         }
         if(videoVrView != null) {
-            tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
+            //TODO let it - its just to broken ...
+            //tabLayout.addTab(tabLayout.newTab().setText("360 Video"));
         }
 
         //Look for existing festival tickets

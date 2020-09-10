@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.common.api.ApiException;
@@ -71,7 +73,6 @@ import devnik.trancefestivalticker.helper.PermissionUtils;
 import devnik.trancefestivalticker.helper.animation.CustomBounceInterpolator;
 import devnik.trancefestivalticker.model.Festival;
 import devnik.trancefestivalticker.model.FestivalDetail;
-import io.fabric.sdk.android.Logger;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -223,12 +224,46 @@ public class MapFragmentDialog extends DialogFragment implements
 
         return rootView;
     }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        FragmentManager fm = getFragmentManager();
+
+        assert fm != null;
+        Fragment xmlFragment = fm.findFragmentById(R.id.fragment_view_map);
+        if (xmlFragment != null) {
+            fm.beginTransaction().remove(xmlFragment).commit();
+        }
+
+        /*MapFragment f = (MapFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.fragment_view_map);
+        if (f != null)
+            getActivity().getFragmentManager().beginTransaction().remove(f).commit();*/
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Within {@code onPause()}, we remove location updates. Here, we resume receiving
+        // location updates if the user has requested them.
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Remove location updates to save battery.
+        stopLocationUpdates();
+    }
     private Location getLastLocation(){
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        Log.e("MAP CURRENT LOCATION", "location: "+location);
+                        Log.i("MAP CURRENT LOCATION", "location: "+location);
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
 
@@ -324,31 +359,6 @@ public class MapFragmentDialog extends DialogFragment implements
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        MapFragment f = (MapFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.fragment_view_map);
-        if (f != null)
-            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Within {@code onPause()}, we remove location updates. Here, we resume receiving
-        // location updates if the user has requested them.
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Remove location updates to save battery.
-        stopLocationUpdates();
     }
 
     /**

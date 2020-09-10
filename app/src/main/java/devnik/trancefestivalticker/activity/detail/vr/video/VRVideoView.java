@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.crashlytics.internal.model.CrashlyticsReport;
 import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 
@@ -35,6 +36,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
@@ -400,17 +403,22 @@ public class VRVideoView extends Fragment implements IActivityListeners
         }
     }
     private void startStreaming(){
+
+        if(!checkURLisReachable(videoServerUri.toString())) return;
+
         VrVideoView.Options options = new VrVideoView.Options();
         options.inputType = VrVideoView.Options.TYPE_MONO;
 
 
         try {
-            videoWidgetView.loadVideo(videoServerUri, options);
+                videoWidgetView.loadVideo(videoServerUri, options);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     private void startDownload(){
+        if(!checkURLisReachable(vrView.getUrl())) return;
+
         pDialog = new ProgressDialog(getActivity());
         pDialog.setMessage("Video wird geladen... Bitte warten");
         pDialog.setIndeterminate(false);
@@ -419,6 +427,20 @@ public class VRVideoView extends Fragment implements IActivityListeners
         pDialog.setCancelable(false);
         pDialog.show();
         new DownloadFileFromURL().execute(vrView.getUrl());
+    }
+    private boolean checkURLisReachable(String fileUrl) {
+        URL url = null;
+        try {
+            url = new URL(fileUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        int code = connection.getResponseCode();
+
+        return code == 200;
+    }
+         catch (Exception e) {
+             Log.e("Check url exists", "Could not load file by url. Error: "+e);
+             return false;
+        }
     }
     /**
      * When the user manipulates the seek bar, update the video position.
@@ -549,7 +571,7 @@ public class VRVideoView extends Fragment implements IActivityListeners
                 input.close();
 
             } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
+                Log.e("VR video Download", "Could not download vr video. error: "+e);
             }
 
             return null;

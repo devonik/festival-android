@@ -31,8 +31,6 @@ import java.util.Objects;
 
 import devnik.trancefestivalticker.model.Festival;
 
-import static io.fabric.sdk.android.Fabric.TAG;
-
 public class BitmapUtils {
 
     public static Bitmap applyOverlay(Context context, Bitmap sourceImage, int overlayDrawableResourceId){
@@ -127,7 +125,6 @@ public class BitmapUtils {
                 // provider-specific, and might not necessarily be the file name.
                 String displayName = cursor.getString(
                         cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                Log.i(TAG, "Display Name: " + displayName);
 
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
                 // If the size is unknown, the value stored is null.  But since an
@@ -144,7 +141,6 @@ public class BitmapUtils {
                 } else {
                     size = "Unknown";
                 }
-                Log.i(TAG, "Size: " + size);
             }
         } finally {
             assert cursor != null;
