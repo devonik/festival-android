@@ -29,8 +29,8 @@ android {
         applicationId "devnik.trancefestivalticker"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 26
-        versionName "2.3 Refactoring and remove 360 Photo and video functions"
+        versionCode 27
+        versionName "2.3 bug fix"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }
