@@ -163,7 +163,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             if(festivalDetail.getDescription() != null)
                 description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
-            else description.setText(Html.fromHtml(getString(R.string.description_not_found), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+            else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
 
         }else{
 
@@ -175,7 +175,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
 
             if(festivalDetail.getDescription() != null)
                 description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
-            else description.setText(Html.fromHtml(getString(R.string.description_not_found), null, new UITagHandler()));
+            else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), null, new UITagHandler()));
 
         }
         //Important to make the hrefs clickable

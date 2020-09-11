@@ -53,10 +53,12 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 tab1.setArguments(festivalBundle);
                 return tab1;
             case 1:
-                MapFragmentDialog tab2 = new MapFragmentDialog();
+                if(festivalDetail != null){
+                    MapFragmentDialog tab2 = new MapFragmentDialog();
 
-                tab2.setArguments(festivalBundle);
-                return tab2;
+                    tab2.setArguments(festivalBundle);
+                    return tab2;
+                }
             case 2:
                 if(photoVrView != null) {
                     VRPanoView tab3 = new VRPanoView();

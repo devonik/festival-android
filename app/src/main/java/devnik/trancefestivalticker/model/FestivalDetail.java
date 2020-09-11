@@ -3,6 +3,7 @@ package devnik.trancefestivalticker.model;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Property;
 
 import java.io.Serializable;
 
@@ -14,7 +15,8 @@ public class FestivalDetail implements Serializable {
     @Id
     private Long festival_detail_id;
     private Long festival_detail_images_id;
-    private Long festival_id;
+    //@Property(nameInDb = "festival_id")
+    private Long festivalId;
     private String description;
     private String homepage_url;
     private String ticket_url;
@@ -24,14 +26,14 @@ public class FestivalDetail implements Serializable {
 
     static final long serialVersionUID = 43L;
 
-    @Generated(hash = 193462068)
+    @Generated(hash = 57074278)
     public FestivalDetail(Long festival_detail_id, Long festival_detail_images_id,
-            Long festival_id, String description, String homepage_url,
+            Long festivalId, String description, String homepage_url,
             String ticket_url, Double geoLatitude, Double geoLongitude,
             String syncStatus) {
         this.festival_detail_id = festival_detail_id;
         this.festival_detail_images_id = festival_detail_images_id;
-        this.festival_id = festival_id;
+        this.festivalId = festivalId;
         this.description = description;
         this.homepage_url = homepage_url;
         this.ticket_url = ticket_url;
@@ -60,12 +62,12 @@ public class FestivalDetail implements Serializable {
         this.festival_detail_images_id = festival_detail_images_id;
     }
 
-    public Long getFestival_id() {
-        return this.festival_id;
+    public Long getFestivalId() {
+        return this.festivalId;
     }
 
-    public void setFestival_id(Long festival_id) {
-        this.festival_id = festival_id;
+    public void setFestivalId(Long festivalId) {
+        this.festivalId = festivalId;
     }
 
     public String getDescription() {
@@ -115,5 +117,6 @@ public class FestivalDetail implements Serializable {
     public void setSyncStatus(String syncStatus) {
         this.syncStatus = syncStatus;
     }
+
 
 }

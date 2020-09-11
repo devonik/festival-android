@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -21,6 +22,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.greendao.query.Query;
+import org.springframework.http.converter.ObjectToStringHttpMessageConverter;
 
 import devnik.trancefestivalticker.App;
 import devnik.trancefestivalticker.R;
@@ -64,16 +66,16 @@ public class DetailActivity extends AppCompatActivity {
 
         FestivalDetailDao festivalDetailDao = daoSession.getFestivalDetailDao();
         assert festival != null;
-        Query<FestivalDetail> festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.Festival_id.eq(festival.getFestival_id())).build();
+        Query<FestivalDetail> festivalDetailQuery = festivalDetailDao.queryBuilder().where(FestivalDetailDao.Properties.FestivalId.eq(festival.getFestival_id())).build();
         FestivalDetail festivalDetail = festivalDetailQuery.unique();
-
+        Log.e("festival id", "try to find details by id ["+festival.getFestival_id()+"]");
         FestivalVrViewDao festivalVrViewDao = daoSession.getFestivalVrViewDao();
         FestivalVrView photoVrView = null;//festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("photo")).unique();
         FestivalVrView videoVrView = null;//festivalVrViewDao.queryBuilder().where(FestivalVrViewDao.Properties.FestivalDetailId.eq(festivalDetail.getFestival_detail_id()),FestivalVrViewDao.Properties.Type.eq("video")).unique();
 
         tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Info"));
-        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        if(festivalDetail != null) tabLayout.addTab(tabLayout.newTab().setText("Map"));
         if(photoVrView != null) {
             //TODO let it - its just to broken ...
             //tabLayout.addTab(tabLayout.newTab().setText("360 Foto"));

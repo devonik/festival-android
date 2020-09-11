@@ -108,12 +108,13 @@
     <string name="ticket_price_unknown">Price not found</string>
     <string name="evtl_abendkasse">Evtl. Abendkasse</string>
     <string name="ticket_url_not_found">Ticket page not found</string>
-    <string name="description_not_found">
+    <string name="description_not_found">Ticket page not found</string>
+    <string name="description_placeholder_text">
         <![CDATA[
             <p>Noch kein Text vorhanden</p>
             <br>
             <br>
-            <p>Falls du bei der Indian warst und einen Erfahrungsbericht schreiben möchtest und dich hier verewigen möchtest, kannst du dies gerne tun und mir eine Mail zukommen lassen unter trancefestivalticker@gmail.com. Ich würde mich freuen :)</p>
+            <p>Falls du bei dem Festival warst und einen Erfahrungsbericht schreiben möchtest und dich hier verewigen möchtest, kannst du dies gerne tun und mir eine Mail zukommen lassen unter trancefestivalticker@gmail.com. Ich würde mich freuen :)</p>
         ]]>
     </string>
     <string name="image">Image</string>
