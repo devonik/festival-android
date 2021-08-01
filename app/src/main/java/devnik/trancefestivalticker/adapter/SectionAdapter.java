@@ -73,6 +73,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         // return a custom instance of ViewHolder for the items of this section
         return new MyItemViewHolder(view);
     }
+
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
 
@@ -90,23 +91,22 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 .error(R.drawable.no_internet)
                 .priority(Priority.HIGH)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                ;
-                Glide.with(mContext)
-                        .load(festival.getThumbnail_image_url())
-                        .apply(glideOptions)
-                        .into(itemHolder.thumbnail);
+                .fitCenter();
+        Glide.with(mContext)
+                .load(festival.getThumbnail_image_url())
+                .apply(glideOptions)
+                .into(itemHolder.thumbnail);
 
-            itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DetailActivity.class);
-                    intent.putExtra("festival", festival);
-                    intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(intent);
-                }
-            });
+        itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                intent.putExtra("festival", festival);
+                intent.putExtra("actualFestivalTicketPhase", actualFestivalTicketPhase);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            }
+        });
 
         itemHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -116,7 +116,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                         .append(": ")
                         .append(DateFormat.format("dd.MM", festival.getDatum_start()));
 
-                if(actualFestivalTicketPhase != null){
+                if (actualFestivalTicketPhase != null) {
                     output.append(", ")
                             .append(actualFestivalTicketPhase.getPrice())
                             .append(" €");
@@ -131,52 +131,55 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         //Check Festival is over
         Date end = festival.getDatum_end();
         Date today = new Date();
-        if(today.after(end)){
+        if (today.after(end)) {
             //Festival is expired
             itemHolder.festivalOverBadgeIcon.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             itemHolder.festivalOverBadgeIcon.setVisibility(View.GONE);
         }
 
     }
-    private String festivalStatus(Festival festival){
+
+    private String festivalStatus(Festival festival) {
         Date start = festival.getDatum_start();
         Date end = festival.getDatum_end();
         Date today = new Date();
 
-        if(today.after(start) && today.before(end)){
+        if (today.after(start) && today.before(end)) {
             //Festival is now!
             return "( Läuft gerade! )";
-        }
-        else if(today.before(start)){
+        } else if (today.before(start)) {
             int daysTillStart = calcDaysTillStart(start);
             //Festival start is comming
-            if(daysTillStart > 1){
-                return "( Noch "+calcDaysTillStart(start)+" Tage )";
-            }
-            else if(daysTillStart == 1){
+            if (daysTillStart > 1) {
+                return "( Noch " + calcDaysTillStart(start) + " Tage )";
+            } else if (daysTillStart == 1) {
                 return "( Morgen ist es soweit !! )";
             }
 
-        }else if(today.after(end)){
+        } else if (today.after(end)) {
             //Festival is expired
             return "( Abgelaufen! )";
         }
         return "";
     }
-    private int calcDaysTillStart(Date startDate){
+
+    private int calcDaysTillStart(Date startDate) {
         Date today = new Date();
         return Days.daysBetween(new LocalDate(today.getTime()), new LocalDate(startDate.getTime())).getDays();
     }
+
     @Override
     public boolean onLongClick(View view) {
 
         return true;
     }
+
     @Override
     public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
         return new HeaderViewHolder(view);
     }
+
     @Override
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
         HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
@@ -185,18 +188,19 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         headerHolder.monthHeader.setText(customDate.getMonth());
 
     }
+
     @Override
     public void filter(List<String> musicGenres) {
 
-        if (musicGenres.size()==0) {
+        if (musicGenres.size() == 0) {
             //Reset Filter
             filteredFestivalList = new ArrayList<>(festivals);
             this.setVisible(true);
         } else {
             filteredFestivalList.clear();
-            for(String filterGenre:musicGenres){
+            for (String filterGenre : musicGenres) {
                 for (Festival festival : festivals) {
-                    if(!filteredFestivalList.contains(festival)) {
+                    if (!filteredFestivalList.contains(festival)) {
                         for (MusicGenre musicGenre : festival.getMusicGenres()) {
 
                             if (musicGenre.getName().equals(filterGenre)) {
@@ -210,7 +214,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         }
     }
 
-    class MyItemViewHolder extends RecyclerView.ViewHolder{
+    class MyItemViewHolder extends RecyclerView.ViewHolder {
         public final ImageView thumbnail;
         public TextView title, subtitle;
         public Festival festival;
@@ -224,6 +228,7 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
         }
 
     }
+
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView yearHeader;
