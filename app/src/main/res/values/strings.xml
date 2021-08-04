@@ -108,7 +108,7 @@
     <string name="ticket_price_unknown">Price not found</string>
     <string name="evtl_abendkasse">Evtl. Abendkasse</string>
     <string name="ticket_url_not_found">Ticket page not found</string>
-    <string name="description_not_found">Ticket page not found</string>
+    <string name="description_not_found">Description not found</string>
     <string name="description_placeholder_text">
         <![CDATA[
             <p>Noch kein Text vorhanden</p>

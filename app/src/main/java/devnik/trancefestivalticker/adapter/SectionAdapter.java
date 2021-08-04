@@ -90,8 +90,8 @@ public class SectionAdapter extends StatelessSection implements View.OnLongClick
                 .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.no_internet)
                 .priority(Priority.HIGH)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .fitCenter();
+                .diskCacheStrategy(DiskCacheStrategy.ALL);
+
         Glide.with(mContext)
                 .load(festival.getThumbnail_image_url())
                 .apply(glideOptions)

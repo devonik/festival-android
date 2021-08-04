@@ -22,6 +22,7 @@ import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.greenrobot.greendao.query.Query;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -162,7 +163,9 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
                 ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
 
             if(festivalDetail.getDescription() != null)
-                description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
+                if(description.getText().toString().startsWith("<p>")) description.setText(Html.fromHtml(festivalDetail.getDescription(),Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
+                else description.setText(StringEscapeUtils.unescapeJava(festivalDetail.getDescription()));
+
             else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
 
         }else{
@@ -174,7 +177,9 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
                 ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), null, new UITagHandler()));
 
             if(festivalDetail.getDescription() != null)
-                description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+                if(description.getText().toString().startsWith("<p>")) description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+                else description.setText(StringEscapeUtils.unescapeJava(festivalDetail.getDescription()));
+
             else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), null, new UITagHandler()));
 
         }
