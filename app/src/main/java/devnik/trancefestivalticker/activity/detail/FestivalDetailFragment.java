@@ -78,7 +78,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         festivalDetail = (FestivalDetail) getArguments().getSerializable("festivalDetail");
         actualFestivalTicketPhase = (FestivalTicketPhase) getArguments().getSerializable("actualFestivalTicketPhase");
 
-        DaoSession daoSession = ((App) Objects.requireNonNull(getActivity()).getApplication()).getDaoSession();
+        DaoSession daoSession = ((App) requireActivity().getApplication()).getDaoSession();
         //Nur wenn das Festival eingetragende Details hat
         if(festivalDetail!=null) {
             FestivalDetailImagesDao festivalDetailImagesDao = daoSession.getFestivalDetailImagesDao();
@@ -148,7 +148,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
         String dateStart = (String) DateFormat.format("dd.MM.yyyy", festival.getDatum_start());
         String dateEnd = (String) DateFormat.format("dd.MM.yyyy", festival.getDatum_end());
         
-        String festivalDateResource = Objects.requireNonNull(getContext()).getString(R.string.festival_date_placeholder, dateStart, dateEnd, festivalStatus());
+        String festivalDateResource = requireContext().getString(R.string.festival_date_placeholder, dateStart, dateEnd, festivalStatus());
         lblDate.setText(festivalDateResource);
 
         String homepageUrl = festivalDetail.getHomepage_url() != null ? festivalDetail.getHomepage_url() : "Unbekannt";
@@ -162,10 +162,13 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
             if(festivalDetail.getTicket_url() != null)
                 ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
 
-            if(festivalDetail.getDescription() != null)
-                if(description.getText().toString().startsWith("<p>")) description.setText(Html.fromHtml(festivalDetail.getDescription(),Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
-                else description.setText(StringEscapeUtils.unescapeJava(festivalDetail.getDescription()));
+            if(festivalDetail.getDescription() != null) {
 
+                if (festivalDetail.getDescription().startsWith("<p>"))
+                    description.setText(Html.fromHtml(festivalDetail.getDescription(), Html.FROM_HTML_MODE_COMPACT, null, new UITagHandler()));
+                else
+                    description.setText(StringEscapeUtils.unescapeJava(festivalDetail.getDescription()));
+            }
             else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), Html.FROM_HTML_MODE_COMPACT,null, new UITagHandler()));
 
         }else{
@@ -177,7 +180,7 @@ public class FestivalDetailFragment extends DialogFragment implements BaseSlider
                 ticket_url.setText(Html.fromHtml(festivalDetail.getTicket_url(), null, new UITagHandler()));
 
             if(festivalDetail.getDescription() != null)
-                if(description.getText().toString().startsWith("<p>")) description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
+                if(festivalDetail.getDescription().startsWith("<p>")) description.setText(Html.fromHtml(festivalDetail.getDescription(), null, new UITagHandler()));
                 else description.setText(StringEscapeUtils.unescapeJava(festivalDetail.getDescription()));
 
             else description.setText(Html.fromHtml(getString(R.string.description_placeholder_text), null, new UITagHandler()));

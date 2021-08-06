@@ -9,6 +9,7 @@ import android.content.Intent;
 import androidx.multidex.MultiDex;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.greendao.database.Database;
@@ -39,6 +40,7 @@ public class App extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseCrashlytics.getInstance().log("test");
         FirebaseApp.initializeApp(getApplicationContext());
         SyncAdapter.initializeSyncAdapter(this);
         //Starting Location Service
