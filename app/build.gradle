@@ -29,8 +29,8 @@ android {
         applicationId "devnik.trancefestivalticker"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 29
-        versionName "2.5.0 Description render unicode"
+        versionCode 30
+        versionName "2.5.1 Description render html"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
     }
@@ -65,7 +65,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.3.0')
     // Declare the dependencies for the Crashlytics and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-crashlytics-ndk'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
 
     //Google Services
